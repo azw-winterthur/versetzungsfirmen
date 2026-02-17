@@ -172,11 +172,10 @@ const DEFAULT_COMPANIES = [
 const DEFAULT_SETUP = {
   companies: DEFAULT_COMPANIES,
   students: [],
-  // Besuche
-  besDeadline: '',
-  // Versetzung
-  verFreischalt: '',   // ab wann sichtbar
-  verDeadline: '',     // späteste Eingabe
+  besVon: '',      // Besuche sichtbar ab
+  besBis: '',      // Besuche sichtbar bis
+  verVon: '',      // Versetzung sichtbar ab
+  verBis: '',      // Versetzung sichtbar bis
 };
 
 let state = {
@@ -213,18 +212,26 @@ const linkSvg=(s=10)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill=
 const dlSvg=(s=16)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-function verIsVisible() {
-  const fs = state.setup.verFreischalt;
-  if (!fs) return true; // kein Datum gesetzt = immer sichtbar
-  return new Date() >= new Date(fs);
+const now = () => new Date();
+function besIsVisible() {
+  const s=state.setup;
+  if(!s.besVon && !s.besBis) return true;
+  const after  = !s.besVon || now() >= new Date(s.besVon);
+  const before = !s.besBis || now() <= new Date(s.besBis);
+  return after && before;
 }
 function besDeadlinePassed() {
-  const d = state.setup.besDeadline;
-  return d && new Date() > new Date(d);
+  return state.setup.besBis && now() > new Date(state.setup.besBis);
+}
+function verIsVisible() {
+  const s=state.setup;
+  if(!s.verVon && !s.verBis) return true;
+  const after  = !s.verVon || now() >= new Date(s.verVon);
+  const before = !s.verBis || now() <= new Date(s.verBis);
+  return after && before;
 }
 function verDeadlinePassed() {
-  const d = state.setup.verDeadline;
-  return d && new Date() > new Date(d);
+  return state.setup.verBis && now() > new Date(state.setup.verBis);
 }
 
 // ── Computed Versetzung ───────────────────────────────────────────────────────
@@ -326,24 +333,24 @@ function buildPersonalHtml(p){
     <p class="section-title">Persönliche Angaben</p>
     <div style="margin-bottom:10px"><label class="lbl">Name *</label>${nameField}</div>
     <div class="grid2">
-      <div><label class="lbl">PLZ *</label><input type="text" value="${p.plz}" placeholder="8400" oninput="livePersonal('plz',this.value)" onblur="commitPersonal()" inputmode="numeric"/></div>
-      <div><label class="lbl">Ort *</label><input type="text" value="${p.ort}" placeholder="Winterthur" oninput="livePersonal('ort',this.value)" onblur="commitPersonal()"/></div>
-      <div class="col2"><label class="lbl">E-Mail *</label><input type="email" value="${p.email}" placeholder="max@mail.ch" oninput="livePersonal('email',this.value)" onblur="commitPersonal()" autocomplete="email"/></div>
+      <div><label class="lbl">PLZ *</label><input tabindex="1" type="text" value="${p.plz}" placeholder="8400" oninput="livePersonal('plz',this.value)" onblur="commitPersonal()" inputmode="numeric"/></div>
+      <div><label class="lbl">Ort *</label><input tabindex="2" type="text" value="${p.ort}" placeholder="Winterthur" oninput="livePersonal('ort',this.value)" onblur="commitPersonal()"/></div>
+      <div class="col2"><label class="lbl">E-Mail *</label><input tabindex="3" type="email" value="${p.email}" placeholder="max@mail.ch" oninput="livePersonal('email',this.value)" onblur="commitPersonal()" autocomplete="email"/></div>
     </div>
     <div style="margin-top:12px;display:flex;flex-direction:column;gap:12px">
       <div><p class="lbl">BMS *</p><div class="radio-group">
-        <label><input type="radio" name="bms" ${p.bms==='Ja'?'checked':''} onchange="setPersonal('bms','Ja')"/> Ja</label>
-        <label><input type="radio" name="bms" ${p.bms==='Nein'?'checked':''} onchange="setPersonal('bms','Nein')"/> Nein</label>
+        <label><input tabindex="4" type="radio" name="bms" ${p.bms==='Ja'?'checked':''} onchange="setPersonal('bms','Ja')"/> Ja</label>
+        <label><input tabindex="5" type="radio" name="bms" ${p.bms==='Nein'?'checked':''} onchange="setPersonal('bms','Nein')"/> Nein</label>
       </div></div>
       <div><p class="lbl">Schultage *</p><div class="radio-group">
-        <label><input type="radio" name="schultage" ${p.schultage==='Mo/Di'?'checked':''} onchange="setPersonal('schultage','Mo/Di')"/> Montag / Dienstag</label>
-        <label><input type="radio" name="schultage" ${p.schultage==='Do/Fr'?'checked':''} onchange="setPersonal('schultage','Do/Fr')"/> Donnerstag / Freitag</label>
+        <label><input tabindex="6" type="radio" name="schultage" ${p.schultage==='Mo/Di'?'checked':''} onchange="setPersonal('schultage','Mo/Di')"/> Montag / Dienstag</label>
+        <label><input tabindex="7" type="radio" name="schultage" ${p.schultage==='Do/Fr'?'checked':''} onchange="setPersonal('schultage','Do/Fr')"/> Donnerstag / Freitag</label>
       </div></div>
       <div><p class="lbl">Frühlingsferien *</p><div class="radio-group">
-        <label><input type="radio" name="ferien" ${p.ferien==='Ja'?'checked':''} onchange="setPersonal('ferien','Ja')"/> Ja</label>
-        <label><input type="radio" name="ferien" ${p.ferien==='Nein'?'checked':''} onchange="setPersonal('ferien','Nein')"/> Nein</label>
+        <label><input tabindex="8" type="radio" name="ferien" ${p.ferien==='Ja'?'checked':''} onchange="setPersonal('ferien','Ja')"/> Ja</label>
+        <label><input tabindex="9" type="radio" name="ferien" ${p.ferien==='Nein'?'checked':''} onchange="setPersonal('ferien','Nein')"/> Nein</label>
       </div></div>
-      ${p.ferien==='Ja'?`<div><label class="lbl">Zeitraum Frühlingsferien *</label><input type="text" value="${p.ferienText}" placeholder="z.B. 14.04.–25.04.2025" oninput="livePersonal('ferienText',this.value)" onblur="commitPersonal()"/></div>`:''}
+      ${p.ferien==='Ja'?`<div><label class="lbl">Zeitraum Frühlingsferien *</label><input tabindex="10" type="text" value="${p.ferienText}" placeholder="z.B. 14.04.–25.04.2025" oninput="livePersonal('ferienText',this.value)" onblur="commitPersonal()"/></div>`:''}
     </div>
     <div style="margin-top:14px"><p class="lbl">Verifizierungsfoto (Frontkamera) *</p>${buildSelfieHtml(p)}</div>
   </div></div>`;
@@ -354,11 +361,13 @@ function renderForm(){
   const appEl=document.getElementById('app');
   const p=state.personal;
   const cvB=computedBes();
+  const besVisible=besIsVisible();
   const verVisible=verIsVisible();
 
-  // Tab-Leiste
   const tabsHtml=`<div class="form-tabs">
-    <button class="form-tab ${state.formTab==='besuche'?'active':''}" onclick="setFormTab('besuche')">🏭 Wünsche Besuche</button>
+    <button class="form-tab ${state.formTab==='besuche'?'active':''}${!besVisible?' locked':''}" onclick="${besVisible?"setFormTab('besuche')":'showBesLocked()'}" ${!besVisible?'title="Noch nicht freigeschaltet"':''}>
+      🏭 Wünsche Besuche${!besVisible?' 🔒':''}
+    </button>
     <button class="form-tab ${state.formTab==='versetzung'?'active':''}${!verVisible?' locked':''}" onclick="${verVisible?"setFormTab('versetzung')":'showVerLocked()'}" ${!verVisible?'title="Noch nicht freigeschaltet"':''}>
       📊 Wünsche Versetzung${!verVisible?' 🔒':''}
     </button>
@@ -376,7 +385,13 @@ function renderForm(){
 function renderFormBesuche(appEl, p, cv, tabsHtml){
   const cos=state.setup.companies;
   const sel=state.besuche.selected;
-  const {besDeadline}=state.setup;
+  const s=state.setup;
+
+  // Abgelaufen?
+  if(besDeadlinePassed()){
+    appEl.innerHTML=`${tabsHtml}<div class="main-wrap"><div style="padding:40px 0;text-align:center"><div class="success-card" style="margin:0 auto"><div style="font-size:3rem;margin-bottom:12px">🔒</div><h2 style="font-size:18px;font-weight:700;color:#1f2937;margin-bottom:8px">Eingabefrist abgelaufen</h2><p style="color:#6b7280;font-size:13px">Die Besuchswünsche konnten bis ${new Date(s.besBis).toLocaleDateString('de-DE')} eingereicht werden.</p></div></div></div>`;
+    return;
+  }
 
   const cosHtml=cos.map(co=>{
     const checked=sel.includes(co.id);
@@ -384,7 +399,7 @@ function renderFormBesuche(appEl, p, cv, tabsHtml){
     return`<div class="visit-row">
       <input type="checkbox" class="visit-cb" ${checked?'checked':''} ${disabled?'disabled':''} onchange="toggleBesuche(${co.id},this.checked)" style="${disabled?'opacity:.35;cursor:not-allowed':''}"/>
       <a href="${co.url}" target="_blank" class="visit-name ${checked?'checked':''}" style="${disabled?'color:#9ca3af':''}">${co.name}</a>
-      ${checked?`<span class="link-ico">${linkSvg(9)}</span>`:`<span class="link-ico">${linkSvg(9)}</span>`}
+      <span class="link-ico">${linkSvg(9)}</span>
     </div>`;
   }).join('');
 
@@ -405,7 +420,8 @@ function renderFormBesuche(appEl, p, cv, tabsHtml){
       <h1 style="font-size:17px;font-weight:800;color:#1f2937;margin-bottom:4px">Wünsche Firmenbesuche</h1>
       <p style="font-size:13px;color:#6b7280;margin-bottom:10px">Wähle genau 8 Firmen aus, die du besuchen möchtest.</p>
       <div class="info-box"><div>• Genau 8 Firmen müssen ausgewählt werden</div></div>
-      ${besDeadline?`<p style="font-size:12px;color:#ea580c;font-weight:600;margin-top:8px">📅 Eingabe möglich bis: ${new Date(besDeadline).toLocaleString('de-DE')}</p>`:''}
+      ${s.besVon?`<p style="font-size:12px;color:#6b7280;font-weight:600;margin-top:6px">📅 Sichtbar ab: ${new Date(s.besVon).toLocaleString('de-DE')}</p>`:''}
+      ${s.besBis?`<p style="font-size:12px;color:#ea580c;font-weight:600;margin-top:4px">⏰ Eingabe möglich bis: ${new Date(s.besBis).toLocaleString('de-DE')}</p>`:''}
     </div></div>
 
     ${buildPersonalHtml(p)}
@@ -441,11 +457,11 @@ function renderFormBesuche(appEl, p, cv, tabsHtml){
 function renderFormVersetzung(appEl, p, tabsHtml){
   const cv=computedVer();
   const v=state.versetzung;
-  const {verDeadline}=state.setup;
+  const s=state.setup;
   const cos=state.setup.companies;
 
   if(verDeadlinePassed()){
-    appEl.innerHTML=`${tabsHtml}<div class="main-wrap"><div class="deadlined" style="min-height:unset;padding:40px 0"><div class="success-card"><div style="font-size:3rem;margin-bottom:12px">🔒</div><h2 style="font-size:18px;font-weight:700;color:#1f2937;margin-bottom:8px">Eingabefrist abgelaufen</h2><p style="color:#6b7280;font-size:13px">Die Wunschliste Versetzung konnte bis ${new Date(verDeadline).toLocaleDateString('de-DE')} eingereicht werden.</p></div></div></div>`;
+    appEl.innerHTML=`${tabsHtml}<div class="main-wrap"><div style="padding:40px 0;text-align:center"><div class="success-card" style="margin:0 auto"><div style="font-size:3rem;margin-bottom:12px">🔒</div><h2 style="font-size:18px;font-weight:700;color:#1f2937;margin-bottom:8px">Eingabefrist abgelaufen</h2><p style="color:#6b7280;font-size:13px">Die Wunschliste Versetzung konnte bis ${new Date(state.setup.verBis).toLocaleDateString('de-DE')} eingereicht werden.</p></div></div></div>`;
     return;
   }
 
@@ -498,7 +514,8 @@ function renderFormVersetzung(appEl, p, tabsHtml){
       <h1 style="font-size:17px;font-weight:800;color:#1f2937;margin-bottom:4px">Wünsche Versetzungsfirmen</h1>
       <p style="font-size:13px;color:#6b7280;margin-bottom:10px">Verteile 100 Punkte auf genau 8 Firmen.</p>
       <div class="info-box"><div>• Genau 8 Firmen müssen mindestens 1 Punkt erhalten</div><div>• Keine zwei Firmen dürfen gleich viele Punkte erhalten</div></div>
-      ${verDeadline?`<p style="font-size:12px;color:#ea580c;font-weight:600;margin-top:8px">📅 Eingabe möglich bis: ${new Date(verDeadline).toLocaleString('de-DE')}</p>`:''}
+      ${state.setup.verVon?`<p style="font-size:12px;color:#6b7280;font-weight:600;margin-top:6px">📅 Sichtbar ab: ${new Date(state.setup.verVon).toLocaleString('de-DE')}</p>`:''}
+      ${state.setup.verBis?`<p style="font-size:12px;color:#ea580c;font-weight:600;margin-top:4px">⏰ Eingabe möglich bis: ${new Date(state.setup.verBis).toLocaleString('de-DE')}</p>`:''}
     </div></div>
 
     ${buildPersonalHtml(p)}
@@ -589,6 +606,23 @@ function renderLoginModal(){
   return`<div onclick="closeLogin(event)" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px"><div onclick="event.stopPropagation()" style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:300px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h3 style="font-weight:700;font-size:16px">Admin-Login</h3><button onclick="closeLoginModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#9ca3af">✕</button></div><input type="password" id="login-pw" placeholder="Passwort" oninput="setLoginPw(this.value)" onkeydown="if(event.key==='Enter')doLogin()" style="width:100%;padding:8px 12px;border:2px solid ${state.loginErr?'#ef4444':'#e5e7eb'};border-radius:8px;font-size:16px;outline:none;margin-bottom:${state.loginErr?'4px':'12px'}"/>${state.loginErr?'<p style="color:#ef4444;font-size:12px;margin-bottom:8px">Falsches Passwort</p>':''}<button onclick="doLogin()" class="btn btn-primary" style="font-size:14px;padding:10px">Anmelden</button></div></div>`;
 }
 
+// ── Lightbox ──────────────────────────────────────────────────────────────────
+function renderLightbox(src,name){
+  return`<div onclick="closeLightbox()" style="position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;cursor:pointer">
+    <div onclick="event.stopPropagation()" style="max-width:400px;width:100%;background:#fff;border-radius:16px;overflow:hidden">
+      <img src="${src}" style="width:100%;display:block"/>
+      <div style="padding:10px 16px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;font-weight:600;color:#374151">${name}</span>
+        <button onclick="closeLightbox()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#9ca3af">✕</button>
+      </div>
+    </div>
+  </div>`;
+}
+window.openLightbox=(src,name)=>{
+  const lb=document.createElement('div');lb.id='lightbox';lb.innerHTML=renderLightbox(src,name);document.body.appendChild(lb);
+};
+window.closeLightbox=()=>{const lb=document.getElementById('lightbox');if(lb)lb.remove();};
+
 // ── Admin ─────────────────────────────────────────────────────────────────────
 function renderAdmin(){
   const subs_b=state.subsBes, subs_v=state.subsVer, cos=state.setup.companies, stus=state.setup.students||[];
@@ -598,35 +632,52 @@ function renderAdmin(){
   if(state.adminTab==='besuche'){
     const total=stus.length>0?stus.length:40;
     const pct=Math.min(100,Math.round(subs_b.length/total*100));
-    const rows=subs_b.map((sub,i)=>`<tr><td>${i+1}</td><td style="font-weight:600;white-space:nowrap">${sub.name||''}</td><td style="color:#9ca3af;font-size:11px;white-space:nowrap">${sub.timestamp||''}</td>${cos.map(c=>`<td style="text-align:center">${(sub.selected||[]).includes(c.id)?'✓':''}</td>`).join('')}<td><button onclick="delSubBes('${sub._id}')" style="background:none;border:none;cursor:pointer;color:#d1d5db;padding:4px">${trashSvg(14)}</button></td></tr>`).join('');
+    // Summe pro Firma
+    const firmaSums=cos.map(c=>subs_b.reduce((a,sub)=>a+((sub.selected||[]).includes(c.id)?1:0),0));
+    const rows=subs_b.map((sub,i)=>{
+      const fotoBtn=sub.selfie?`<img src="${sub.selfie}" onclick="openLightbox('${sub.selfie}','${(sub.name||'').replace(/'/g,"\\'")}\')" style="width:32px;height:32px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid #e5e7eb" title="Foto anzeigen"/>`:'-';
+      return`<tr><td>${i+1}</td><td style="font-weight:600;white-space:nowrap">${sub.name||''}</td><td style="color:#9ca3af;font-size:11px;white-space:nowrap">${sub.timestamp||''}</td><td>${fotoBtn}</td>${cos.map(c=>`<td style="text-align:center">${(sub.selected||[]).includes(c.id)?'✓':''}</td>`).join('')}<td><button onclick="delSubBes('${sub._id}')" style="background:none;border:none;cursor:pointer;color:#d1d5db;padding:4px">${trashSvg(14)}</button></td></tr>`;
+    }).join('');
+    const sumRow=`<tr style="background:#f0fdf4;font-weight:700"><td colspan="4" style="font-weight:700;padding:7px 6px;color:#16a34a">Σ Anzahl Stimmen</td>${firmaSums.map(s=>`<td style="text-align:center;color:#16a34a;font-weight:800">${s||''}</td>`).join('')}<td></td></tr>`;
     content=`<div class="card"><div class="card-body"><p class="section-title">Fortschritt Besuche</p><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:14px;font-weight:700">Einreichungen</span><span style="font-size:14px;font-weight:700;color:#0d9488">${subs_b.length} / ${total} (${pct}%)</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%;background:#0d9488"></div></div></div></div>
     <div class="card"><div class="card-body" style="padding:12px"><div style="display:flex;gap:8px;flex-wrap:wrap"><button onclick="exportCSVBes()" ${subs_b.length?'':'disabled'} class="btn btn-green btn-sm" style="${subs_b.length?'':'opacity:.5;cursor:not-allowed'}">${dlSvg()} CSV exportieren</button><button onclick="clearAllBes()" ${subs_b.length?'':'disabled'} class="btn btn-red btn-sm" style="${subs_b.length?'':'opacity:.5;cursor:not-allowed'}">Alle löschen</button></div></div></div>
-    ${subs_b.length>0?`<div class="card"><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Name</th><th>Zeit</th>${cos.map(c=>`<th title="${c.name}" style="text-align:center">${c.id}</th>`).join('')}<th></th></tr></thead><tbody>${rows}</tbody></table></div><div style="padding:12px 16px;background:#f8fafc;border-top:1px solid #e5e7eb"><p style="font-size:11px;font-weight:700;color:#6b7280;margin-bottom:6px">Firmen-Legende</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px">${cos.map(c=>`<p style="font-size:11px;color:#6b7280"><span style="font-weight:700;color:#0d9488">${c.id}.</span> ${c.name}</p>`).join('')}</div></div></div>`:`<div class="card"><div class="card-body" style="text-align:center;color:#9ca3af;padding:40px">Noch keine Einreichungen.</div></div>`}`;
+    ${subs_b.length>0?`<div class="card"><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Name</th><th>Zeit</th><th>Foto</th>${cos.map(c=>`<th title="${c.name}" style="text-align:center">${c.id}</th>`).join('')}<th></th></tr></thead><tbody>${rows}</tbody><tfoot>${sumRow}</tfoot></table></div><div style="padding:12px 16px;background:#f8fafc;border-top:1px solid #e5e7eb"><p style="font-size:11px;font-weight:700;color:#6b7280;margin-bottom:6px">Firmen-Legende</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px">${cos.map(c=>`<p style="font-size:11px;color:#6b7280"><span style="font-weight:700;color:#0d9488">${c.id}.</span> ${c.name}</p>`).join('')}</div></div></div>`:`<div class="card"><div class="card-body" style="text-align:center;color:#9ca3af;padding:40px">Noch keine Einreichungen.</div></div>`}`;
 
   } else if(state.adminTab==='versetzung'){
     const total=stus.length>0?stus.length:40;
     const pct=Math.min(100,Math.round(subs_v.length/total*100));
-    const rows=subs_v.map((sub,i)=>{const sm=Object.values(sub.points||{}).reduce((a,b)=>a+b,0);return`<tr><td>${i+1}</td><td style="font-weight:600;white-space:nowrap">${sub.name||''}</td><td style="color:#9ca3af;font-size:11px;white-space:nowrap">${sub.timestamp||''}</td>${cos.map(c=>`<td style="text-align:center;font-weight:600;color:${(sub.points&&sub.points[c.id])>0?'#6366f1':'#d1d5db'}">${(sub.points&&sub.points[c.id])||'–'}</td>`).join('')}<td style="text-align:center;font-weight:700;color:#6366f1">${sm}</td><td><button onclick="delSubVer('${sub._id}')" style="background:none;border:none;cursor:pointer;color:#d1d5db;padding:4px">${trashSvg(14)}</button></td></tr>`;}).join('');
+    const rows=subs_v.map((sub,i)=>{
+      const sm=Object.values(sub.points||{}).reduce((a,b)=>a+b,0);
+      const fotoBtn=sub.selfie?`<img src="${sub.selfie}" onclick="openLightbox('${sub.selfie}','${(sub.name||'').replace(/'/g,"\\'")}\')" style="width:32px;height:32px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid #e5e7eb" title="Foto anzeigen"/>`:'-';
+      return`<tr><td>${i+1}</td><td style="font-weight:600;white-space:nowrap">${sub.name||''}</td><td style="color:#9ca3af;font-size:11px;white-space:nowrap">${sub.timestamp||''}</td><td>${fotoBtn}</td>${cos.map(c=>`<td style="text-align:center;font-weight:600;color:${(sub.points&&sub.points[c.id])>0?'#6366f1':'#d1d5db'}">${(sub.points&&sub.points[c.id])||'–'}</td>`).join('')}<td style="text-align:center;font-weight:700;color:#6366f1">${sm}</td><td><button onclick="delSubVer('${sub._id}')" style="background:none;border:none;cursor:pointer;color:#d1d5db;padding:4px">${trashSvg(14)}</button></td></tr>`;
+    }).join('');
     const avgRow=cos.map(c=>{const avg=subs_v.length?subs_v.reduce((a,sub)=>a+(sub.points&&sub.points[c.id]||0),0)/subs_v.length:0;return`<td style="text-align:center;font-weight:600;color:#6366f1">${avg.toFixed(1)}</td>`;}).join('');
     content=`<div class="card"><div class="card-body"><p class="section-title">Fortschritt Versetzung</p><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:14px;font-weight:700">Einreichungen</span><span style="font-size:14px;font-weight:700;color:#6366f1">${subs_v.length} / ${total} (${pct}%)</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div></div></div>
     <div class="card"><div class="card-body" style="padding:12px"><div style="display:flex;gap:8px;flex-wrap:wrap"><button onclick="exportCSVVer()" ${subs_v.length?'':'disabled'} class="btn btn-green btn-sm" style="${subs_v.length?'':'opacity:.5;cursor:not-allowed'}">${dlSvg()} CSV exportieren</button><button onclick="clearAllVer()" ${subs_v.length?'':'disabled'} class="btn btn-red btn-sm" style="${subs_v.length?'':'opacity:.5;cursor:not-allowed'}">Alle löschen</button></div></div></div>
-    ${subs_v.length>0?`<div class="card"><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Name</th><th>Zeit</th>${cos.map(c=>`<th title="${c.name}" style="text-align:center">${c.id}</th>`).join('')}<th style="text-align:center">Σ</th><th></th></tr></thead><tbody>${rows}</tbody><tfoot style="background:#eff6ff"><tr><td colspan="3" style="font-weight:700;padding:7px 6px">⌀ Durchschnitt</td>${avgRow}<td></td><td></td></tr></tfoot></table></div><div style="padding:12px 16px;background:#f8fafc;border-top:1px solid #e5e7eb"><p style="font-size:11px;font-weight:700;color:#6b7280;margin-bottom:6px">Firmen-Legende</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px">${cos.map(c=>`<p style="font-size:11px;color:#6b7280"><span style="font-weight:700;color:#6366f1">${c.id}.</span> ${c.name}</p>`).join('')}</div></div></div>`:`<div class="card"><div class="card-body" style="text-align:center;color:#9ca3af;padding:40px">Noch keine Einreichungen.</div></div>`}`;
+    ${subs_v.length>0?`<div class="card"><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Name</th><th>Zeit</th><th>Foto</th>${cos.map(c=>`<th title="${c.name}" style="text-align:center">${c.id}</th>`).join('')}<th style="text-align:center">Σ</th><th></th></tr></thead><tbody>${rows}</tbody><tfoot style="background:#eff6ff"><tr><td colspan="4" style="font-weight:700;padding:7px 6px">⌀ Durchschnitt</td>${avgRow}<td></td><td></td></tr></tfoot></table></div><div style="padding:12px 16px;background:#f8fafc;border-top:1px solid #e5e7eb"><p style="font-size:11px;font-weight:700;color:#6b7280;margin-bottom:6px">Firmen-Legende</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px">${cos.map(c=>`<p style="font-size:11px;color:#6b7280"><span style="font-weight:700;color:#6366f1">${c.id}.</span> ${c.name}</p>`).join('')}</div></div></div>`:`<div class="card"><div class="card-body" style="text-align:center;color:#9ca3af;padding:40px">Noch keine Einreichungen.</div></div>`}`;
 
   } else { // setup
+    // Lokale Kopie für Einstellungen – wird erst beim Speichern übernommen
     content=`
     <div class="card"><div class="card-body">
-      <p class="section-title">Fristen & Freischaltung</p>
-      <div style="display:flex;flex-direction:column;gap:12px">
-        <div><label class="lbl">Besuche – Eingabe möglich bis</label><input type="datetime-local" value="${s.besDeadline||''}" onchange="state.setup.besDeadline=this.value"/></div>
-        <div><label class="lbl">Versetzung – Sichtbar ab (Freischaltdatum)</label><input type="datetime-local" value="${s.verFreischalt||''}" onchange="state.setup.verFreischalt=this.value"/></div>
-        <div><label class="lbl">Versetzung – Eingabe möglich bis</label><input type="datetime-local" value="${s.verDeadline||''}" onchange="state.setup.verDeadline=this.value"/></div>
+      <p class="section-title">Wünsche Besuche – Sichtbarkeit</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><label class="lbl">Sichtbar ab</label><input type="datetime-local" id="cfg-besVon" value="${s.besVon||''}"/></div>
+        <div><label class="lbl">Sichtbar bis</label><input type="datetime-local" id="cfg-besBis" value="${s.besBis||''}"/></div>
+      </div>
+    </div></div>
+    <div class="card"><div class="card-body">
+      <p class="section-title">Wünsche Versetzung – Sichtbarkeit</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><label class="lbl">Sichtbar ab</label><input type="datetime-local" id="cfg-verVon" value="${s.verVon||''}"/></div>
+        <div><label class="lbl">Sichtbar bis</label><input type="datetime-local" id="cfg-verBis" value="${s.verBis||''}"/></div>
       </div>
     </div></div>
     <div class="card"><div class="card-body">
       <p class="section-title">Lernende (${stus.length})</p>
       <p class="import-hint">Liste aus Excel – ein Name pro Zeile:</p>
       <textarea id="stu-paste" class="mono" rows="5" placeholder="Max Muster&#10;Anna Mueller" style="margin-bottom:8px"></textarea>
-      <button onclick="importStudents()" class="btn btn-primary" style="font-size:13px;padding:8px;margin-bottom:12px">Liste importieren</button>
+      <button onclick="importStudents()" class="btn btn-primary" style="font-size:13px;padding:8px;margin-bottom:12px">Liste importieren & sofort speichern</button>
       <div id="stu-msg" style="color:#16a34a;font-size:12px;font-weight:600;margin-bottom:4px;min-height:16px"></div>
       <div style="max-height:160px;overflow-y:auto;border:1px solid #f3f4f6;border-radius:8px;padding:4px">${stus.length?stus.map((n,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px"><span style="font-size:13px;color:#374151">${i+1}. ${n}</span><button onclick="removeStudent('${n.replace(/'/g,"\\'")}') " style="background:none;border:none;cursor:pointer;color:#d1d5db;padding:2px">${trashSvg(12)}</button></div>`).join(''):'<p style="font-size:12px;color:#9ca3af;font-style:italic;padding:8px">Noch keine Lernenden.</p>'}</div>
     </div></div>
@@ -634,11 +685,11 @@ function renderAdmin(){
       <p class="section-title">Firmen (${cos.length})</p>
       <p class="import-hint">Zwei Spalten aus Excel (Name TAB URL):</p>
       <textarea id="co-paste" class="mono" rows="5" placeholder="ANDRITZ Soutec AG&#9;https://www.andritz.com" style="margin-bottom:8px"></textarea>
-      <button onclick="importCompanies()" class="btn btn-primary" style="font-size:13px;padding:8px;margin-bottom:12px">Firmen importieren</button>
+      <button onclick="importCompanies()" class="btn btn-primary" style="font-size:13px;padding:8px;margin-bottom:12px">Firmen importieren & sofort speichern</button>
       <div id="co-msg" style="color:#16a34a;font-size:12px;font-weight:600;margin-bottom:6px;min-height:16px"></div>
       <div style="max-height:280px;overflow-y:auto;border:1px solid #f3f4f6;border-radius:8px;padding:4px">${cos.map((co,i)=>`<div style="display:flex;gap:6px;align-items:center;padding:3px 4px"><span style="font-size:11px;color:#9ca3af;width:20px;text-align:right;flex-shrink:0">${i+1}.</span><input value="${co.name}" onchange="updateCompany(${i},'name',this.value)" style="flex:1;padding:4px 8px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;outline:none"/><input value="${co.url}" onchange="updateCompany(${i},'url',this.value)" style="flex:1;padding:4px 8px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;outline:none"/></div>`).join('')}</div>
     </div></div>
-    <button onclick="saveSetup()" id="save-btn" class="btn btn-primary" style="font-size:14px;margin-bottom:16px">Einstellungen speichern</button>`;
+    <button onclick="saveSetup()" id="save-btn" class="btn btn-primary" style="font-size:14px;margin-bottom:16px">💾 Einstellungen speichern</button>`;
   }
 
   document.getElementById('app').innerHTML=`<div style="min-height:100vh;background:linear-gradient(135deg,#f5f3ff,#eff6ff);padding:16px"><div style="max-width:900px;margin:0 auto">
@@ -653,10 +704,18 @@ function renderAdmin(){
 }
 
 // ── Actions ───────────────────────────────────────────────────────────────────
-window.setFormTab = (t) => { state.formTab=t; render(); };
+window.setFormTab = (t) => { state.formTab=t; window.scrollTo(0,0); render(); };
+window.showBesLocked = () => {
+  const s=state.setup;
+  const von=s.besVon?new Date(s.besVon).toLocaleString('de-DE'):'';
+  const bis=s.besBis?new Date(s.besBis).toLocaleString('de-DE'):'';
+  alert(von?`Wünsche Besuche sind ab ${von}${bis?' bis '+bis:''} zugänglich.`:'Dieser Bereich ist noch nicht freigeschaltet.');
+};
 window.showVerLocked = () => {
-  const fs=state.setup.verFreischalt;
-  alert(fs?`Die Wunschliste Versetzung wird ab ${new Date(fs).toLocaleString('de-DE')} freigeschaltet.`:'Der Bereich Versetzung ist noch nicht freigeschaltet.');
+  const s=state.setup;
+  const von=s.verVon?new Date(s.verVon).toLocaleString('de-DE'):'';
+  const bis=s.verBis?new Date(s.verBis).toLocaleString('de-DE'):'';
+  alert(von?`Wünsche Versetzung sind ab ${von}${bis?' bis '+bis:''} zugänglich.`:'Dieser Bereich ist noch nicht freigeschaltet.');
 };
 
 // Persönliche Angaben
@@ -796,29 +855,63 @@ window.exportCSVVer=()=>{
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}));a.download=`versetzung_${new Date().toISOString().split('T')[0]}.csv`;a.click();
 };
 
-window.importStudents=()=>{const ta=document.getElementById('stu-paste');if(!ta)return;const lines=ta.value.split(/\n/).map(l=>l.trim()).filter(Boolean);state.setup.students=[...new Set(lines)].sort();ta.value='';const msg=document.getElementById('stu-msg');if(msg){msg.textContent=`✓ ${state.setup.students.length} Lernende importiert`;setTimeout(()=>{if(msg)msg.textContent='';},3000);}render();};
-window.removeStudent=(n)=>{state.setup.students=state.setup.students.filter(x=>x!==n);render();};
-window.importCompanies=()=>{const ta=document.getElementById('co-paste');if(!ta)return;const lines=ta.value.split(/\n/).map(l=>l.trim()).filter(Boolean);state.setup.companies=lines.map((line,i)=>{const p=line.split(/\t/);return{id:i+1,name:p[0]||'',url:p[1]||''};});ta.value='';const msg=document.getElementById('co-msg');if(msg){msg.textContent=`✓ ${state.setup.companies.length} Firmen importiert`;setTimeout(()=>{if(msg)msg.textContent='';},3000);}render();};
-window.updateCompany=(i,field,val)=>{state.setup.companies[i][field]=val;};
+window.importStudents=async()=>{
+  const ta=document.getElementById('stu-paste');if(!ta)return;
+  const lines=ta.value.split(/\n/).map(l=>l.trim()).filter(Boolean);
+  state.setup.students=[...new Set(lines)].sort();ta.value='';
+  await FB.saveSetup(state.setup); // Sofort speichern
+  const msg=document.getElementById('stu-msg');
+  if(msg){msg.textContent=`✓ ${state.setup.students.length} Lernende gespeichert`;setTimeout(()=>{if(msg)msg.textContent='';},3000);}
+  render();
+};
+window.removeStudent=async(n)=>{
+  state.setup.students=state.setup.students.filter(x=>x!==n);
+  await FB.saveSetup(state.setup); // Sofort speichern
+  render();
+};
+window.importCompanies=async()=>{
+  const ta=document.getElementById('co-paste');if(!ta)return;
+  const lines=ta.value.split(/\n/).map(l=>l.trim()).filter(Boolean);
+  state.setup.companies=lines.map((line,i)=>{const p=line.split(/\t/);return{id:i+1,name:p[0]||'',url:p[1]||''};});
+  ta.value='';
+  await FB.saveSetup(state.setup); // Sofort speichern
+  const msg=document.getElementById('co-msg');
+  if(msg){msg.textContent=`✓ ${state.setup.companies.length} Firmen gespeichert`;setTimeout(()=>{if(msg)msg.textContent='';},3000);}
+  render();
+};
+window.updateCompany=(i,field,val)=>{state.setup.companies[i][field]=val;}; // Kein sofort-save (wird beim Speichern-Button übernommen)
 window.saveSetup=async()=>{
+  // Datum-Felder aus DOM lesen (onchange würde bei render() verloren gehen)
+  const rd=(id)=>{const el=document.getElementById(id);return el?el.value:'';};
+  state.setup.besVon=rd('cfg-besVon');
+  state.setup.besBis=rd('cfg-besBis');
+  state.setup.verVon=rd('cfg-verVon');
+  state.setup.verBis=rd('cfg-verBis');
   const btn=document.getElementById('save-btn');if(btn){btn.textContent='Speichern…';btn.disabled=true;}
   await FB.saveSetup(state.setup);
-  if(btn){btn.textContent='✓ Gespeichert!';btn.style.background='#16a34a';setTimeout(()=>{if(btn){btn.textContent='Einstellungen speichern';btn.style.background='';btn.disabled=false;}},2000);}
+  if(btn){btn.textContent='✓ Gespeichert!';btn.style.background='#16a34a';setTimeout(()=>{if(btn){btn.textContent='💾 Einstellungen speichern';btn.style.background='';btn.disabled=false;}},2000);}
 };
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 async function init(){
   const cfg=await FB.loadSetup();
   if(cfg){
-    state.setup={...DEFAULT_SETUP,...cfg};
+    // Neue Feldnamen, aber auch alte (Migration)
+    const migrated={...DEFAULT_SETUP,...cfg};
+    if(cfg.besDeadline&&!cfg.besBis) migrated.besBis=cfg.besDeadline;
+    if(cfg.verFreischalt&&!cfg.verVon) migrated.verVon=cfg.verFreischalt;
+    if(cfg.verDeadline&&!cfg.verBis) migrated.verBis=cfg.verDeadline;
+    state.setup=migrated;
     state.versetzung.points=emptyPoints(cfg.companies||DEFAULT_COMPANIES);
     state.versetzung.orderedIds=(cfg.companies||DEFAULT_COMPANIES).map(c=>c.id);
   } else {
     state.versetzung.points=emptyPoints(DEFAULT_COMPANIES);
   }
-  // Beide Collections parallel abhören
-  FB.subscribeBes(subs=>{state.subsBes=subs;state.loading=false;render();});
-  FB.subscribeVer(subs=>{state.subsVer=subs;state.loading=false;render();});
+  // Submissions hören – überschreibt NICHT state.setup
+  FB.subscribeBes(subs=>{state.subsBes=subs;if(state.loading){state.loading=false;}render();});
+  FB.subscribeVer(subs=>{state.subsVer=subs;if(state.loading){state.loading=false;}render();});
+  // Fallback falls keine Collection vorhanden
+  setTimeout(()=>{if(state.loading){state.loading=false;render();}},3000);
 }
 init();
 </script>
