@@ -4,1064 +4,781 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wunschliste Versetzungsfirmen</title>
-<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
 <style>
-  .slider::-webkit-slider-thumb{appearance:none;width:16px;height:16px;background:#4f46e5;cursor:pointer;border-radius:50%}
-  .slider::-moz-range-thumb{width:16px;height:16px;background:#4f46e5;cursor:pointer;border-radius:50%;border:none}
-  .slider{height:4px}
-  .selfie-preview{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f3f4f6;min-height:100vh}
+.sticky-bar{position:sticky;top:0;z-index:50;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.2);transition:background .3s}
+.sticky-bar.ok{background:#16a34a}
+.sticky-bar.over{background:#dc2626}
+.sticky-bar.pending{background:#1e293b}
+.sticky-top{display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 16px}
+.sticky-top .lbl{font-size:11px;font-weight:600;opacity:.75;text-transform:uppercase;letter-spacing:.05em}
+.sticky-top .big{font-size:2.5rem;font-weight:900;line-height:1}
+.pills{display:flex;gap:6px;padding:0 12px 8px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.pill{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:#22c55e;color:#fff}
+.pill.ng{background:#f97316;color:#fff}
+.card{background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:12px}
+.card-body{padding:16px}
+.section-title{font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+label.lbl{font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:4px}
+input[type=text],input[type=email],input[type=datetime-local],select,textarea{width:100%;padding:8px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;font-family:inherit;background:#fff}
+input:focus,select:focus,textarea:focus{border-color:#6366f1}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.col2{grid-column:span 2}
+.radio-group{display:flex;gap:16px;flex-wrap:wrap}
+.radio-group label{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:500;color:#374151;cursor:pointer}
+input[type=radio],input[type=checkbox]{accent-color:#6366f1;width:16px;height:16px}
+.company-row{padding:8px 12px;border-bottom:1px solid #f3f4f6}
+.company-row:last-child{border-bottom:none}
+.company-top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.rank-badge{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0}
+.rank-badge.active{background:#6366f1;color:#fff}
+.rank-badge.empty{background:#f3f4f6;color:#9ca3af}
+.company-name{font-size:13px;font-weight:600;color:#1f2937;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none}
+.company-name:hover{color:#6366f1}
+.link-ico{opacity:.3;flex-shrink:0}
+.num-input{width:52px;padding:4px 2px;text-align:center;font-size:14px;font-weight:700;border:2px solid #e5e7eb;border-radius:8px;outline:none}
+.num-input:focus{border-color:#6366f1}
+.num-input.dup{border-color:#ef4444;background:#fef2f2}
+.dup-label{font-size:11px;font-weight:700;color:#ef4444}
+.eye-btn{background:none;border:none;cursor:pointer;color:#d1d5db;padding:2px;flex-shrink:0}
+.eye-btn:hover{color:#ef4444}
+.slider{width:100%;height:4px;-webkit-appearance:none;appearance:none;background:#e5e7eb;border-radius:4px;cursor:pointer;margin-left:30px;width:calc(100% - 30px)}
+.slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:#6366f1;border-radius:50%;cursor:pointer}
+.slider::-moz-range-thumb{width:16px;height:16px;background:#6366f1;border-radius:50%;border:none;cursor:pointer}
+.btn{width:100%;padding:12px;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-primary{background:#6366f1;color:#fff}
+.btn-primary:hover{background:#4f46e5}
+.btn-primary:disabled{background:#e5e7eb;color:#9ca3af;cursor:not-allowed}
+.btn-blue{background:#3b82f6;color:#fff}
+.btn-blue:hover{background:#2563eb}
+.btn-gray{background:#6b7280;color:#fff}
+.btn-gray:hover{background:#4b5563}
+.btn-green{background:#16a34a;color:#fff}
+.btn-green:hover{background:#15803d}
+.btn-red{background:#ef4444;color:#fff}
+.btn-red:hover{background:#dc2626}
+.btn-sm{padding:7px 14px;font-size:13px;border-radius:8px;width:auto}
+.btn-outline{background:#fff;border:2px solid #e5e7eb;color:#6b7280}
+.btn-outline:hover{background:#f9fafb}
+.validation-row{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:2px 0}
+.validation-row.ok{color:#16a34a}
+.validation-row.ng{color:#ef4444}
+.hidden-drawer{overflow:hidden}
+.drawer-toggle{width:100%;background:none;border:none;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;cursor:pointer}
+.drawer-toggle:hover{background:#f9fafb}
+.drawer-content{border-top:1px solid #f3f4f6}
+.drawer-item{padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f3f4f6}
+.drawer-item:last-child{border-bottom:none}
+.selfie-wrap{border:2px dashed #a5b4fc;border-radius:12px;padding:24px;text-align:center;cursor:pointer;background:#f5f3ff;transition:background .2s}
+.selfie-wrap:hover{background:#ede9fe}
+.selfie-preview{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:12px}
+video#selfie-video{width:100%;border-radius:12px;background:#000;max-height:220px;object-fit:cover}
+.spinner{width:40px;height:40px;border:3px solid #e5e7eb;border-top-color:#6366f1;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.progress-bar-bg{background:#e5e7eb;border-radius:999px;height:16px;overflow:hidden;margin:8px 0}
+.progress-bar-fill{height:100%;background:#6366f1;border-radius:999px;transition:width .5s}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center;margin-top:12px}
+.stat-num{font-size:1.8rem;font-weight:900}
+.stat-lbl{font-size:11px;color:#9ca3af;margin-top:2px}
+.admin-tabs{display:flex;gap:8px;margin-bottom:12px}
+.tab-btn{padding:8px 16px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
+.tab-btn.active{background:#6366f1;color:#fff}
+.tab-btn.inactive{background:#fff;color:#6b7280;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{padding:8px 6px;background:#f9fafb;border-bottom:2px solid #e5e7eb;text-align:left;font-weight:700;color:#374151;white-space:nowrap}
+td{padding:7px 6px;border-bottom:1px solid #f3f4f6;color:#374151}
+tr:hover td{background:#f9fafb}
+.tbl-wrap{overflow-x:auto}
+.info-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;font-size:12px;color:#1d4ed8;line-height:1.6}
+.success-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+.success-card{background:#fff;border-radius:20px;padding:32px;max-width:360px;width:100%;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.1)}
+.check-circle{width:64px;height:64px;background:#dcfce7;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.main-wrap{max-width:600px;margin:0 auto;padding:12px}
+.company-header{padding:10px 16px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between}
+.deadlined{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+.import-hint{font-size:11px;color:#9ca3af;margin-bottom:6px;line-height:1.5}
+textarea.mono{font-family:monospace;font-size:12px}
 </style>
 </head>
-<body class="bg-gray-100">
-<div id="root"></div>
-<script type="text/babel">
-const { useState, useEffect, useRef } = React;
-
-const ADMIN_PASSWORD = 'Azw123*';
-const STORAGE_KEY    = 'wunschliste_v4';
-const SETUP_KEY      = 'wunschliste_setup_v4';
-
-const DEFAULT_COMPANIES = [
-  { id:1,  name:'ANDRITZ Soutec AG',               url:'https://www.andritz.com' },
-  { id:2,  name:'Burckhardt Compression AG',        url:'https://www.burckhardtcompression.com' },
-  { id:3,  name:'Corvaglia Mould AG',               url:'https://www.corvaglia.ch' },
-  { id:4,  name:'Elektrizitätswerk der Stadt ZH',   url:'https://www.ewz.ch' },
-  { id:5,  name:'Fehr Lagerlogistik',               url:'https://www.fehr.net' },
-  { id:6,  name:'Heim AG Heizsysteme',              url:'https://www.heim-ag.ch' },
-  { id:7,  name:'HFS Aqua AG',                      url:'https://www.hfs-aqua.ch' },
-  { id:8,  name:'Hug Engineering AG',               url:'https://www.hug-engineering.com' },
-  { id:9,  name:'Kanadevia Inova AG',               url:'https://www.kanadevia-inova.com' },
-  { id:10, name:'KELLER Pressure AG',               url:'https://www.keller-pressure.com' },
-  { id:11, name:'Linde Kryotechnik AG',             url:'https://www.linde-kryotechnik.ch' },
-  { id:12, name:'Nobel Biocare Services AG',        url:'https://www.nobelbiocare.com' },
-  { id:13, name:'Stadler Winterthur AG',            url:'https://www.stadlerrail.com' },
-  { id:14, name:'Sulzer Chemtech AG',               url:'https://www.sulzer.com' },
-  { id:15, name:'Sulzer Management AG',             url:'https://www.sulzer.com' },
-  { id:16, name:'TEDAG Dichtungstechnik AG',        url:'https://www.tedag.ch' },
-  { id:17, name:'WinGD Ltd.',                       url:'https://www.wingd.com' },
-  { id:18, name:'ZHAW School of Engineering',       url:'https://www.zhaw.ch' },
-  { id:19, name:'Zimmer Biomet GmbH',               url:'https://www.zimmerbiomet.ch' },
-];
-
-const DEFAULT_SETUP = {
-  companies: DEFAULT_COMPANIES,
-  students: [],
-  deadline: '',
-};
-
-const emptyPoints = (companies) => companies.reduce((a,c)=>({...a,[c.id]:0}),{});
-
-// ── Icons ──────────────────────────────────────────────────────────────────────
-const Ico = ({path,size=16,cls=""}) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={cls}>
-    <path d={path}/>
-  </svg>
-);
-const CheckCircle = ({s=14}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>;
-const WarnCircle  = ({s=14}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>;
-const EyeOff = ({s=14}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>;
-const EyeOn  = ({s=14}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
-const LockIco= ({s=18}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>;
-const DlIco  = ({s=16}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
-const LinkIco= ({s=10}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>;
-const SortIco= ({s=15}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/></svg>;
-const ChevD  = ({s=15}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>;
-const ChevU  = ({s=15}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>;
-const CamIco = ({s=20}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>;
-const TrashIco=({s=14}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>;
-const PlusIco= ({s=14}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
-
-// ── Radio / Checkbox helper ────────────────────────────────────────────────────
-const YesNo = ({label, value, onChange}) => (
-  <div>
-    <p className="text-xs font-semibold text-gray-500 mb-1">{label}</p>
-    <div className="flex gap-4">
-      {['Ja','Nein'].map(opt => (
-        <label key={opt} className="flex items-center gap-1.5 cursor-pointer text-sm font-medium text-gray-700">
-          <input type="radio" name={label} checked={value===opt} onChange={()=>onChange(opt)}
-            className="accent-indigo-600 w-4 h-4"/>
-          {opt}
-        </label>
-      ))}
+<body>
+<div id="app">
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center">
+    <div style="text-align:center">
+      <div class="spinner" style="margin-bottom:12px"></div>
+      <p style="color:#6b7280;font-size:14px">Verbindung wird hergestellt…</p>
     </div>
   </div>
-);
-
-const MultiCheck = ({label, options, value, onChange}) => (
-  <div>
-    <p className="text-xs font-semibold text-gray-500 mb-1">{label}</p>
-    <div className="flex flex-wrap gap-4">
-      {options.map(opt => (
-        <label key={opt} className="flex items-center gap-1.5 cursor-pointer text-sm font-medium text-gray-700">
-          <input type="checkbox" checked={value===opt} onChange={()=>onChange(opt)}
-            className="accent-indigo-600 w-4 h-4"/>
-          {opt}
-        </label>
-      ))}
-    </div>
-  </div>
-);
-
-// ── Selfie Capture ─────────────────────────────────────────────────────────────
-function SelfieCapture({ selfie, onCapture }) {
-  const videoRef    = useRef(null);
-  const streamRef   = useRef(null);
-  const [streaming, setStreaming] = useState(false);
-  const [ready,     setReady]     = useState(false); // true once video has real pixels
-  const [facingMode,setFacingMode]= useState('user');
-  const [error,     setError]     = useState('');
-
-  const startCamera = async (mode) => {
-    setError(''); setReady(false);
-    // Stop any existing stream first
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(t => t.stop());
-      streamRef.current = null;
-    }
-    try {
-      const constraints = {
-        video: { facingMode: mode || facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
-        audio: false
-      };
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      streamRef.current = stream;
-      const vid = videoRef.current;
-      vid.srcObject = stream;
-      vid.muted     = true;   // required by Safari to autoplay
-      vid.setAttribute('playsinline', '');
-      vid.setAttribute('autoplay', '');
-      // Wait until actual video frames are coming through
-      vid.onloadedmetadata = () => {
-        vid.play().then(() => {
-          setStreaming(true);
-          // Poll until we have real pixel data (not black)
-          const check = setInterval(() => {
-            if (vid.readyState >= 2 && vid.videoWidth > 0) {
-              setReady(true);
-              clearInterval(check);
-            }
-          }, 200);
-        }).catch(() => setError('Video konnte nicht gestartet werden.'));
-      };
-    } catch(e) {
-      if (e.name === 'NotAllowedError') setError('Kamerazugriff verweigert – bitte in den Browser-Einstellungen erlauben.');
-      else if (e.name === 'NotFoundError') setError('Keine Kamera gefunden.');
-      else setError('Kamera konnte nicht geöffnet werden: ' + e.message);
-    }
-  };
-
-  const stopCamera = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(t => t.stop());
-      streamRef.current = null;
-    }
-    if (videoRef.current) videoRef.current.srcObject = null;
-    setStreaming(false); setReady(false);
-  };
-
-  const switchCamera = () => {
-    const next = facingMode === 'user' ? 'environment' : 'user';
-    setFacingMode(next);
-    startCamera(next);
-  };
-
-  const capture = () => {
-    const vid = videoRef.current;
-    const canvas = document.createElement('canvas');
-    canvas.width  = vid.videoWidth  || 640;
-    canvas.height = vid.videoHeight || 480;
-    canvas.getContext('2d').drawImage(vid, 0, 0, canvas.width, canvas.height);
-    const data = canvas.toDataURL('image/jpeg', 0.8);
-    onCapture(data);
-    stopCamera();
-  };
-
-  // Clean up on unmount
-  useEffect(() => () => { if(streamRef.current) streamRef.current.getTracks().forEach(t=>t.stop()); }, []);
-
-  return (
-    <div>
-      <p className="text-xs font-semibold text-gray-500 mb-2">Selfie (Pflicht – direkt mit Kamera aufnehmen) *</p>
-      {selfie ? (
-        <div>
-          <img src={selfie} alt="Selfie" className="selfie-preview mb-2"/>
-          <button onClick={()=>{ onCapture(''); startCamera(); }}
-            className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold flex items-center gap-1">
-            <CamIco s={13}/> Neues Selfie aufnehmen
-          </button>
-        </div>
-      ) : (
-        <div>
-          {/* Video element always in DOM so ref is stable */}
-          <video ref={videoRef} muted playsInline
-            className={`w-full rounded-xl mb-2 max-h-56 object-cover bg-black ${streaming ? '' : 'hidden'}`}/>
-
-          {streaming ? (
-            <div>
-              {!ready && (
-                <div className="flex items-center justify-center gap-2 py-2 text-xs text-gray-500 mb-2">
-                  <svg className="animate-spin w-4 h-4 text-indigo-500" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity=".25"/>
-                    <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-                  </svg>
-                  Kamera wird gestartet…
-                </div>
-              )}
-              <div className="flex gap-2">
-                <button onClick={capture} disabled={!ready}
-                  className={`flex-1 py-2 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors ${ready?'bg-indigo-600 hover:bg-indigo-700 text-white':'bg-gray-300 text-gray-400 cursor-not-allowed'}`}>
-                  <CamIco s={16}/> {ready ? 'Aufnehmen' : 'Warte…'}
-                </button>
-                <button onClick={switchCamera} title="Kamera wechseln"
-                  className="px-3 py-2 rounded-xl text-sm font-semibold border-2 border-gray-200 text-gray-500 hover:bg-gray-50">
-                  🔄
-                </button>
-                <button onClick={stopCamera}
-                  className="px-3 py-2 rounded-xl text-sm font-semibold border-2 border-gray-200 text-gray-500 hover:bg-gray-50">
-                  ✕
-                </button>
-              </div>
-            </div>
-          ) : (
-            <button onClick={()=>startCamera()}
-              className="w-full border-2 border-dashed border-indigo-300 rounded-xl py-6 flex flex-col items-center gap-2 text-indigo-500 hover:bg-indigo-50 transition-colors">
-              <CamIco s={28}/>
-              <span className="text-sm font-semibold">Kamera öffnen & Selfie aufnehmen</span>
-            </button>
-          )}
-          {error && <p className="text-red-500 text-xs mt-2 bg-red-50 p-2 rounded-lg">{error}</p>}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Student Form ───────────────────────────────────────────────────────────────
-function StudentForm({ submissions, onSubmit, setup }) {
-  const { companies, students, deadline } = setup;
-  const [name,       setName]       = useState('');
-  const [plz,        setPlz]        = useState('');
-  const [ort,        setOrt]        = useState('');
-  const [bms,        setBms]        = useState('');
-  const [schultage,  setSchultage]  = useState('');
-  const [ferien,     setFerien]     = useState('');
-  const [ferienText, setFerienText] = useState('');
-  const [email,      setEmail]      = useState('');
-  const [selfie,     setSelfie]     = useState('');
-  const [points,     setPoints]     = useState(emptyPoints(companies));
-  const [hidden,     setHidden]     = useState([]);
-  const [showHidden, setShowHidden] = useState(false);
-  const [orderedIds, setOrderedIds] = useState(companies.map(c=>c.id));
-  const [sortApplied,setSortApplied]= useState(false);
-  const [submitted,  setSubmitted]  = useState(false);
-
-  const total      = Object.values(points).reduce((a,b)=>a+b,0);
-  const remaining  = 100 - total;
-  const withPoints = Object.values(points).filter(v=>v>0).length;
-  const visibleIds = orderedIds.filter(id=>!hidden.includes(id));
-  const hiddenCos  = companies.filter(c=>hidden.includes(c.id));
-
-  // Rank map: id → rank (1-8) for companies with points, sorted descending
-  const rankMap = (() => {
-    const ranked = Object.entries(points)
-      .filter(([,v])=>v>0)
-      .sort((a,b)=>b[1]-a[1])
-      .slice(0,8);
-    const m = {};
-    ranked.forEach(([id],i) => { m[Number(id)] = i+1; });
-    return m;
-  })();
-
-  const nonZeroDup = () => {
-    const vals = Object.entries(points).filter(([id,v])=>v>0&&!hidden.includes(Number(id))).map(([,v])=>v);
-    return vals.length !== new Set(vals).size;
-  };
-
-  const deadlinePassed = deadline && new Date() > new Date(deadline);
-
-  const isValid = () =>
-    !deadlinePassed &&
-    total===100 && !nonZeroDup() && withPoints===8 &&
-    name.trim() && plz.trim() && ort.trim() && email.trim() &&
-    bms && schultage && ferien &&
-    (ferien==='Nein' || (ferien==='Ja' && ferienText.trim())) &&
-    selfie;
-
-  const handleChange = (id, raw) => {
-    const n = Math.max(0, Math.min(50, parseInt(raw)||0));
-    setPoints(prev=>({...prev,[id]:n}));
-  };
-
-  const hideCompany = (id) => {
-    setPoints(prev=>({...prev,[id]:0}));
-    setHidden(prev=>[...prev,id]);
-    setOrderedIds(prev=>prev.filter(x=>x!==id));
-  };
-
-  const showCompany = (id) => {
-    setHidden(prev=>prev.filter(x=>x!==id));
-    setOrderedIds(prev=>[...prev,id]);
-  };
-
-  const doSort = () => {
-    const sorted = [...orderedIds].sort((a,b)=>{
-      const pa=points[a], pb=points[b];
-      if(pa===0&&pb===0) return a-b;
-      if(pa===0) return 1; if(pb===0) return -1;
-      return pb-pa;
-    });
-    setOrderedIds(sorted); setSortApplied(true);
-  };
-
-  const handleSubmit = () => {
-    if (!isValid()) return;
-    const existing = submissions.find(s=>s.name===name.trim());
-    const sub = {
-      name: name.trim(), plz: plz.trim(), ort: ort.trim(),
-      bms, schultage, ferien, ferienText: ferien==='Ja'?ferienText.trim():'',
-      email: email.trim(), selfie,
-      timestamp: new Date().toLocaleString('de-DE'),
-      points: {...points}
-    };
-    onSubmit(sub, existing);
-
-    // Confirmation mail
-    const ranked = [...companies].filter(c=>points[c.id]>0).sort((a,b)=>points[b.id]-points[a.id]);
-    let body = `Hallo ${name.trim()},\n\nhier ist deine eingereichte Wunschliste:\n\n`;
-    ranked.forEach((c,i)=>{ body+=`${i+1}. ${c.name}: ${points[c.id]} Punkte\n`; });
-    body+=`\nTotal: ${total} Punkte\n\nDies ist eine automatische Bestätigung.`;
-    window.location.href=`mailto:${email.trim()}?subject=${encodeURIComponent('Wunschliste Versetzungsfirmen – Bestätigung')}&body=${encodeURIComponent(body)}`;
-
-    if (existing) {
-      setTimeout(()=>{
-        let cb=`${name.trim()} hat seine Wunschliste aktualisiert.\n\nÄNDERUNGEN:\n`;
-        companies.forEach(c=>{
-          const o=existing.points[c.id]||0, n=points[c.id]||0;
-          if(o!==n) cb+=`>>> ${c.name}: ${o} → ${n} Punkte\n`;
-        });
-        cb+=`\nNEUER STAND:\n`;
-        [...companies].filter(c=>points[c.id]>0).sort((a,b)=>points[b.id]-points[a.id])
-          .forEach((c,i)=>{ cb+=`${i+1}. ${c.name}: ${points[c.id]} Punkte\n`; });
-        cb+=`\nALTER STAND:\n`;
-        [...companies].filter(c=>existing.points[c.id]>0).sort((a,b)=>existing.points[b.id]-existing.points[a.id])
-          .forEach((c,i)=>{ cb+=`${i+1}. ${c.name}: ${existing.points[c.id]} Punkte\n`; });
-        window.open(`mailto:?subject=${encodeURIComponent('Aktualisierung: '+name.trim())}&body=${encodeURIComponent(cb)}`);
-      }, 600);
-    }
-    setSubmitted(true);
-  };
-
-  const reset = () => {
-    setName(''); setPlz(''); setOrt(''); setBms(''); setSchultage('');
-    setFerien(''); setFerienText(''); setEmail(''); setSelfie('');
-    setPoints(emptyPoints(companies));
-    setHidden([]); setOrderedIds(companies.map(c=>c.id));
-    setSortApplied(false); setSubmitted(false);
-  };
-
-  // Criteria for header
-  const criteria = [
-    { ok: total===100,    label:`${total}/100 Pts` },
-    { ok: withPoints===8, label:`${withPoints}/8 Firmen` },
-    { ok: !nonZeroDup(),  label:`Keine Duplikate` },
-    { ok: !!(vorname&&nachname&&plz&&ort&&email), label:`Angaben` },
-    { ok: !!(bms&&schultage&&ferien), label:`Optionen` },
-    { ok: !!selfie, label:`Selfie` },
-  ];
-
-  const bannerBg = remaining===0?'bg-gray-800':remaining<0?'bg-red-600':'bg-gray-800';
-
-  if (deadlinePassed) return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full text-center">
-        <div className="text-5xl mb-4">🔒</div>
-        <h2 className="text-xl font-bold text-gray-800 mb-2">Umfrage geschlossen</h2>
-        <p className="text-gray-500 text-sm">Die Eingabefrist ist abgelaufen ({new Date(deadline).toLocaleDateString('de-DE')}).</p>
-      </div>
-    </div>
-  );
-
-  if (submitted) return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full text-center">
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <CheckCircle s={36}/>
-        </div>
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Erfolgreich eingereicht!</h2>
-        <p className="text-gray-500 text-sm mb-6">Du erhältst eine Bestätigung an <strong>{email}</strong>.</p>
-        <button onClick={()=>setSubmitted(false)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm">
-          ← Zurück zur Wunschliste
-        </button>
-      </div>
-    </div>
-  );
-
-  return (
-    <div className="min-h-screen bg-gray-100 pb-10">
-      {/* Sticky Header */}
-      <div className={`${bannerBg} text-white sticky top-0 z-40 shadow-md transition-colors duration-300`}>
-        <div className="flex items-center justify-center px-4 py-2 gap-3">
-          <span className="text-xs font-semibold opacity-70 uppercase tracking-wide">Punkte übrig</span>
-          <span className="text-4xl font-black leading-none">{remaining}</span>
-        </div>
-        {/* Criteria pills */}
-        <div className="flex gap-1.5 px-3 pb-2 overflow-x-auto">
-          {criteria.map((cr,i)=>(
-            <div key={i} className={`flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full whitespace-nowrap ${cr.ok?'bg-green-500 text-white':'bg-orange-400 text-white'}`}>
-              {cr.ok ? <CheckCircle s={10}/> : <WarnCircle s={10}/>} {cr.label}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="max-w-xl mx-auto pt-3 px-3 space-y-3">
-        {/* Header */}
-        <div className="bg-white rounded-xl shadow-sm p-4">
-          <h1 className="text-lg font-bold text-gray-800 mb-1">Wunschliste Versetzungsfirmen</h1>
-          <p className="text-gray-500 text-sm mb-3">Erstelle deine persönliche Wunschliste indem du 100 Punkte auf 8 Firmen verteilst.</p>
-          <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 space-y-1">
-            <p className="text-xs text-blue-700 font-medium">• Genau 8 Firmen müssen mindestens 1 Punkt erhalten</p>
-            <p className="text-xs text-blue-700 font-medium">• Keine Firmen dürfen gleich viele Punkte erhalten</p>
-          </div>
-          {deadline && (
-            <p className="text-xs text-orange-600 font-semibold mt-2">
-              📅 Eingabe möglich bis: {new Date(deadline).toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}
-            </p>
-          )}
-        </div>
-
-        {/* Personal Info */}
-        <div className="bg-white rounded-xl shadow-sm p-4">
-          <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Persönliche Angaben</h2>
-          <div className="space-y-3">
-            {/* Name Dropdown */}
-            <div>
-              <label className="text-xs font-semibold text-gray-500 mb-1 block">Name *</label>
-              {students.length > 0 ? (
-                <select value={name} onChange={e=>setName(e.target.value)}
-                  className="w-full px-3 py-1.5 border-2 border-gray-200 rounded-lg text-sm focus:border-indigo-400 focus:outline-none bg-white">
-                  <option value="">-- Name auswählen --</option>
-                  {students.map((s,i)=><option key={i} value={s}>{s}</option>)}
-                </select>
-              ) : (
-                <input type="text" value={name} onChange={e=>setName(e.target.value)} placeholder="Vorname Nachname"
-                  className="w-full px-3 py-1.5 border-2 border-gray-200 rounded-lg text-sm focus:border-indigo-400 focus:outline-none"/>
-              )}
-            </div>
-            <div className="grid grid-cols-2 gap-2.5">
-              <div>
-                <label className="text-xs font-semibold text-gray-500 mb-1 block">PLZ *</label>
-                <input type="text" value={plz} onChange={e=>setPlz(e.target.value)} placeholder="8400"
-                  className="w-full px-3 py-1.5 border-2 border-gray-200 rounded-lg text-sm focus:border-indigo-400 focus:outline-none"/>
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-gray-500 mb-1 block">Ort *</label>
-                <input type="text" value={ort} onChange={e=>setOrt(e.target.value)} placeholder="Winterthur"
-                  className="w-full px-3 py-1.5 border-2 border-gray-200 rounded-lg text-sm focus:border-indigo-400 focus:outline-none"/>
-              </div>
-              <div className="col-span-2">
-                <label className="text-xs font-semibold text-gray-500 mb-1 block">E-Mail *</label>
-                <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="max@mail.ch"
-                  className="w-full px-3 py-1.5 border-2 border-gray-200 rounded-lg text-sm focus:border-indigo-400 focus:outline-none"/>
-              </div>
-            </div>
-
-            {/* BMS */}
-            <YesNo label="BMS *" value={bms} onChange={setBms}/>
-
-            {/* Schultage */}
-            <div>
-              <p className="text-xs font-semibold text-gray-500 mb-1">Schultage *</p>
-              <div className="flex flex-wrap gap-4">
-                {['Montag / Dienstag','Donnerstag / Freitag'].map(opt=>(
-                  <label key={opt} className="flex items-center gap-1.5 cursor-pointer text-sm font-medium text-gray-700">
-                    <input type="radio" name="schultage" checked={schultage===opt} onChange={()=>setSchultage(opt)}
-                      className="accent-indigo-600 w-4 h-4"/>
-                    {opt}
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Frühlingsferien */}
-            <YesNo label="Frühlingsferien *" value={ferien} onChange={setFerien}/>
-            {ferien==='Ja' && (
-              <div>
-                <label className="text-xs font-semibold text-gray-500 mb-1 block">Zeitraum Frühlingsferien (von – bis) *</label>
-                <input type="text" value={ferienText} onChange={e=>setFerienText(e.target.value)}
-                  placeholder="z.B. 14.04.2025 – 25.04.2025"
-                  className="w-full px-3 py-1.5 border-2 border-gray-200 rounded-lg text-sm focus:border-indigo-400 focus:outline-none"/>
-              </div>
-            )}
-
-            {/* Selfie */}
-            <SelfieCapture selfie={selfie} onCapture={setSelfie}/>
-          </div>
-        </div>
-
-        {/* Company List */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-          <div className="px-4 py-2.5 border-b border-gray-100 flex items-center justify-between">
-            <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Firmen bewerten</h2>
-            <span className="text-xs text-gray-400 font-medium">{withPoints}/8 bewertet</span>
-          </div>
-          <div className="divide-y divide-gray-100">
-            {visibleIds.map(id => {
-              const co   = companies.find(c=>c.id===id);
-              const val  = points[id];
-              const rank = rankMap[id];
-              const isDup= val>0 && Object.entries(points).some(([oid,ov])=>Number(oid)!==id&&ov===val);
-              if (!co) return null;
-              return (
-                <div key={id} className={`px-3 py-2 ${isDup?'bg-red-50':''}`}>
-                  <div className="flex items-center gap-2 mb-1">
-                    {/* Rank badge */}
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black shrink-0 ${rank?'bg-indigo-600 text-white':'bg-gray-100 text-gray-400'}`}>
-                      {rank||''}
-                    </div>
-                    <a href={co.url} target="_blank" rel="noopener noreferrer"
-                      className="text-sm font-semibold text-gray-800 hover:text-indigo-600 truncate flex items-center gap-1 min-w-0 flex-1">
-                      <span className="truncate">{co.name}</span>
-                      <LinkIco s={10} className="shrink-0 text-gray-300"/>
-                    </a>
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      {isDup && <span className="text-xs font-bold text-red-500">Duplikat!</span>}
-                      <input type="number" min="0" max="50" value={val}
-                        onChange={e=>handleChange(id,e.target.value)}
-                        className={`w-14 px-1 py-1 text-center text-sm font-bold border-2 rounded-lg focus:outline-none ${isDup?'border-red-400':'border-gray-200 focus:border-indigo-400'}`}/>
-                      <button onClick={()=>hideCompany(id)} title="Ausblenden"
-                        className="text-gray-300 hover:text-red-400 p-0.5 transition-colors">
-                        <EyeOff s={14}/>
-                      </button>
-                    </div>
-                  </div>
-                  <input type="range" min="0" max="50" value={val}
-                    onChange={e=>handleChange(id,e.target.value)}
-                    className="w-full slider bg-gray-200 rounded-full appearance-none cursor-pointer ml-8" style={{width:'calc(100% - 2rem)'}}/>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Hidden Companies */}
-        {hiddenCos.length > 0 && (
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            <button onClick={()=>setShowHidden(!showHidden)}
-              className="w-full px-4 py-3 flex items-center justify-between text-xs font-bold text-gray-500 uppercase tracking-wider hover:bg-gray-50 transition-colors">
-              <span>Ausgeblendete Firmen ({hiddenCos.length})</span>
-              {showHidden?<ChevU/>:<ChevD/>}
-            </button>
-            {showHidden && (
-              <div className="border-t border-gray-100 divide-y divide-gray-100">
-                {hiddenCos.map(co=>(
-                  <div key={co.id} className="px-4 py-2.5 flex items-center justify-between">
-                    <a href={co.url} target="_blank" rel="noopener noreferrer"
-                      className="text-sm text-gray-400 line-through flex items-center gap-1 hover:text-gray-600 truncate">
-                      {co.name}<LinkIco s={9}/>
-                    </a>
-                    <button onClick={()=>showCompany(co.id)}
-                      className="flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-800 ml-2 shrink-0 px-2 py-1 rounded hover:bg-indigo-50">
-                      <EyeOn s={13}/> Einblenden
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Sort + Submit */}
-        <button onClick={()=>{
-            const unratedIds = orderedIds.filter(id=>points[id]===0);
-            unratedIds.forEach(id=>{
-              setHidden(prev=>[...prev,id]);
-            });
-            setOrderedIds(prev=>prev.filter(id=>points[id]>0));
-          }}
-          className="w-full py-2.5 rounded-xl font-semibold text-sm bg-gray-500 hover:bg-gray-600 text-white flex items-center justify-center gap-2 transition-colors">
-          <EyeOff s={15}/> Nicht bewertete Firmen ausblenden
-        </button>
-        <button onClick={doSort}
-          className="w-full py-2.5 rounded-xl font-semibold text-sm bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center gap-2 transition-colors">
-          <SortIco/> {sortApplied?'✓ Nach Bewertung sortiert':'Nach Bewertung sortieren'}
-        </button>
-        <button onClick={handleSubmit} disabled={!isValid()}
-          className={`w-full py-3.5 rounded-xl font-bold text-base transition-all ${isValid()?'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg':'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
-          {isValid()?'Wunschliste einreichen ✓':'Bitte alle Anforderungen erfüllen'}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ── Admin: Setup Tab ───────────────────────────────────────────────────────────
-function SetupTab({ setup, onSave }) {
-  const [companies,     setCompanies]     = useState(setup.companies.map(c=>({...c})));
-  const [students,      setStudents]      = useState([...setup.students]);
-  const [deadline,      setDeadline]      = useState(setup.deadline||'');
-  const [saved,         setSaved]         = useState(false);
-  const [studentsPaste, setStudentsPaste] = useState('');
-  const [companiesPaste,setCompaniesPaste]= useState('');
-  const [stuMsg,        setStuMsg]        = useState('');
-  const [coMsg,         setCoMsg]         = useState('');
-
-  const removeStudent = (s) => setStudents(prev=>prev.filter(x=>x!==s));
-
-  // Parse pasted student list (one name per line)
-  const importStudents = () => {
-    const lines = studentsPaste.split(/
-/).map(l=>l.trim()).filter(Boolean);
-    const unique = [...new Set(lines)].sort();
-    setStudents(unique);
-    setStudentsPaste('');
-    setStuMsg(`${unique.length} Lernende importiert`);
-    setTimeout(()=>setStuMsg(''),3000);
-  };
-
-  // Parse pasted company list (tab-separated: name [tab] url)
-  const importCompanies = () => {
-    const lines = companiesPaste.split(/
-/).map(l=>l.trim()).filter(Boolean);
-    const parsed = lines.map((line,i)=>{
-      const parts = line.split(/	/);
-      return { id: i+1, name: parts[0]||'', url: parts[1]||'' };
-    });
-    setCompanies(parsed);
-    setCompaniesPaste('');
-    setCoMsg(`${parsed.length} Firmen importiert`);
-    setTimeout(()=>setCoMsg(''),3000);
-  };
-
-  const save = () => {
-    onSave({ companies, students, deadline });
-    setSaved(true); setTimeout(()=>setSaved(false),2000);
-  };
-
-  return (
-    <div className="space-y-4">
-      {/* Deadline */}
-      <div className="bg-white rounded-xl shadow-sm p-4">
-        <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Eingabefrist</h3>
-        <label className="text-xs font-semibold text-gray-500 mb-1 block">Umfrage offen bis (Datum & Uhrzeit)</label>
-        <input type="datetime-local" value={deadline} onChange={e=>setDeadline(e.target.value)}
-          className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg text-sm focus:border-indigo-400 focus:outline-none"/>
-        {deadline && <p className="text-xs text-orange-600 mt-1">Umfrage schliesst: {new Date(deadline).toLocaleString('de-DE')}</p>}
-      </div>
-
-      {/* Students */}
-      <div className="bg-white rounded-xl shadow-sm p-4">
-        <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Lernende ({students.length})</h3>
-        <p className="text-xs text-gray-400 mb-2">Liste aus Excel kopieren – ein Name pro Zeile (Vorname Nachname):</p>
-        <textarea value={studentsPaste} onChange={e=>setStudentsPaste(e.target.value)}
-          rows="5" placeholder={"Max Muster
-Anna Mueller
-Peter Schmid"}
-          className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg text-sm focus:border-indigo-400 focus:outline-none font-mono mb-2"/>
-        <button onClick={importStudents} disabled={!studentsPaste.trim()}
-          className={`w-full py-2 rounded-lg text-sm font-bold mb-3 ${studentsPaste.trim()?'bg-indigo-600 hover:bg-indigo-700 text-white':'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
-          Liste importieren
-        </button>
-        {stuMsg && <p className="text-green-600 text-xs font-semibold mb-2">✓ {stuMsg}</p>}
-        <div className="max-h-40 overflow-y-auto space-y-1 border border-gray-100 rounded-lg p-2">
-          {students.map((s,i)=>(
-            <div key={i} className="flex items-center justify-between py-0.5 px-1 rounded hover:bg-gray-50">
-              <span className="text-xs text-gray-700">{i+1}. {s}</span>
-              <button onClick={()=>removeStudent(s)} className="text-gray-300 hover:text-red-400">
-                <TrashIco s={12}/>
-              </button>
-            </div>
-          ))}
-          {students.length===0 && <p className="text-xs text-gray-400 italic p-1">Noch keine Lernenden. Namen werden als Freitext angezeigt.</p>}
-        </div>
-      </div>
-
-      {/* Companies */}
-      <div className="bg-white rounded-xl shadow-sm p-4">
-        <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Firmen ({companies.length})</h3>
-        <p className="text-xs text-gray-400 mb-2">Zwei Spalten aus Excel kopieren (Spalte A = Name, Spalte B = URL):</p>
-        <textarea value={companiesPaste} onChange={e=>setCompaniesPaste(e.target.value)}
-          rows="5" placeholder={"ANDRITZ Soutec AG	https://www.andritz.com
-Burckhardt AG	https://www.burckhardtcompression.com"}
-          className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg text-sm focus:border-indigo-400 focus:outline-none font-mono mb-2"/>
-        <button onClick={importCompanies} disabled={!companiesPaste.trim()}
-          className={`w-full py-2 rounded-lg text-sm font-bold mb-3 ${companiesPaste.trim()?'bg-indigo-600 hover:bg-indigo-700 text-white':'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
-          Firmen importieren
-        </button>
-        {coMsg && <p className="text-green-600 text-xs font-semibold mb-2">✓ {coMsg}</p>}
-        <div className="space-y-1.5 max-h-64 overflow-y-auto border border-gray-100 rounded-lg p-2">
-          {companies.map((co,i)=>(
-            <div key={co.id} className="flex items-center gap-1.5">
-              <span className="text-xs text-gray-400 w-5 text-right shrink-0">{i+1}.</span>
-              <input value={co.name} onChange={e=>setCompanies(prev=>prev.map((c,j)=>j===i?{...c,name:e.target.value}:c))}
-                className="flex-1 px-2 py-1 border border-gray-200 rounded text-xs focus:border-indigo-400 focus:outline-none"/>
-              <input value={co.url} onChange={e=>setCompanies(prev=>prev.map((c,j)=>j===i?{...c,url:e.target.value}:c))}
-                className="flex-1 px-2 py-1 border border-gray-200 rounded text-xs focus:border-indigo-400 focus:outline-none"/>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <button onClick={save}
-        className={`w-full py-3 rounded-xl font-bold text-sm transition-all ${saved?'bg-green-600 text-white':'bg-indigo-600 hover:bg-indigo-700 text-white'}`}>
-        {saved?'✓ Gespeichert!':'Einstellungen speichern'}
-      </button>
-    </div>
-  );
-}
-
-// ── Admin: Data Tab ────────────────────────────────────────────────────────────
-function DataTab({ submissions, setup, onDelete, onClear }) {
-  const { companies, students } = setup;
-  const total = students.length > 0 ? students.length : 40;
-  const pct   = total>0 ? Math.round(submissions.length/total*100) : 0;
-
-  const exportCSV = () => {
-    if (!submissions.length) return;
-    const hdrs = ['Name','PLZ','Ort','BMS','Schultage','Frühlingsferien','Ferienzeit','E-Mail','Zeitstempel',...companies.map(c=>c.name),'Summe'];
-    const rows = submissions.map(s=>[
-      s.name,s.plz,s.ort,s.bms,s.schultage,s.ferien,s.ferienText,s.email,s.timestamp,
-      ...companies.map(c=>s.points[c.id]||0),
-      Object.values(s.points).reduce((a,b)=>a+b,0)
-    ]);
-    const csv=[hdrs.join(';'),...rows.map(r=>r.join(';'))].join('\n');
-    const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download=`wunschliste_${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-  };
-
-  return (
-    <div className="space-y-4">
-      {/* Stats */}
-      <div className="bg-white rounded-xl shadow-sm p-4">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-bold text-gray-700">Fortschritt</span>
-          <span className="text-sm font-bold text-indigo-600">{submissions.length} / {total} ({pct}%)</span>
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-4 mb-3 overflow-hidden">
-          <div className="bg-indigo-600 h-4 rounded-full transition-all duration-500"
-            style={{width: `${Math.min(pct,100)}%`}}/>
-        </div>
-        <div className="grid grid-cols-3 gap-3 text-center">
-          <div>
-            <div className="text-2xl font-black text-indigo-600">{submissions.length}</div>
-            <div className="text-xs text-gray-400">Eingereicht</div>
-          </div>
-          <div>
-            <div className="text-2xl font-black text-orange-500">{Math.max(0,total-submissions.length)}</div>
-            <div className="text-xs text-gray-400">Ausstehend</div>
-          </div>
-          <div>
-            <div className="text-2xl font-black text-green-600">{pct}%</div>
-            <div className="text-xs text-gray-400">Quote</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Actions */}
-      <div className="bg-white rounded-xl shadow-sm p-3 flex gap-2 flex-wrap">
-        <button onClick={exportCSV} disabled={!submissions.length}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold ${submissions.length?'bg-green-600 hover:bg-green-700 text-white':'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
-          <DlIco/> CSV exportieren
-        </button>
-        <button onClick={onClear} disabled={!submissions.length}
-          className={`px-4 py-2 rounded-lg text-sm font-semibold ${submissions.length?'bg-red-500 hover:bg-red-600 text-white':'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
-          Alle löschen
-        </button>
-      </div>
-
-      {/* Table */}
-      {submissions.length>0 ? (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs">
-              <thead className="bg-gray-50 border-b-2 border-gray-200">
-                <tr>
-                  <th className="px-2 py-2 text-left">#</th>
-                  <th className="px-2 py-2 text-left">Name</th>
-                  <th className="px-2 py-2 text-center">BMS</th>
-                  <th className="px-2 py-2 text-center">Schultage</th>
-                  <th className="px-2 py-2 text-center">Ferien</th>
-                  <th className="px-2 py-2 text-left">Zeit</th>
-                  <th className="px-2 py-2 text-center">📷</th>
-                  {companies.map(c=>(
-                    <th key={c.id} title={c.name} className="px-1 py-2 text-center font-semibold">
-                      {c.id}
-                    </th>
-                  ))}
-                  <th className="px-2 py-2 text-center font-bold">Σ</th>
-                  <th className="px-2 py-2"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {submissions.map((s,i)=>(
-                  <tr key={i} className="hover:bg-gray-50">
-                    <td className="px-2 py-2 text-gray-400">{i+1}</td>
-                    <td className="px-2 py-2 font-semibold whitespace-nowrap">{s.name}</td>
-                    <td className="px-2 py-2 text-center">{s.bms}</td>
-                    <td className="px-2 py-2 text-center whitespace-nowrap text-gray-600">{s.schultage}</td>
-                    <td className="px-2 py-2 text-center">{s.ferien}{s.ferien==='Ja'&&s.ferienText?` (${s.ferienText})`:''}</td>
-                    <td className="px-2 py-2 text-gray-400 whitespace-nowrap">{s.timestamp}</td>
-                    <td className="px-2 py-2 text-center">
-                      {s.selfie && (
-                        <a href={s.selfie} target="_blank" rel="noopener noreferrer">
-                          <img src={s.selfie} alt="selfie" className="w-8 h-8 rounded-full object-cover mx-auto"/>
-                        </a>
-                      )}
-                    </td>
-                    {companies.map(c=>(
-                      <td key={c.id} className={`px-1 py-2 text-center font-semibold ${s.points[c.id]>0?'text-indigo-700':'text-gray-300'}`}>
-                        {s.points[c.id]>0?s.points[c.id]:'–'}
-                      </td>
-                    ))}
-                    <td className="px-2 py-2 text-center font-bold text-indigo-600">
-                      {Object.values(s.points).reduce((a,b)=>a+b,0)}
-                    </td>
-                    <td className="px-2 py-2">
-                      <button onClick={()=>onDelete(i)}
-                        className="text-gray-300 hover:text-red-500 transition-colors p-1">
-                        <TrashIco s={14}/>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Company legend */}
-          <div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
-            <p className="text-xs font-bold text-gray-500 mb-2">Firmen-Legende (Spalten-Nr.)</p>
-            <div className="grid grid-cols-2 gap-1">
-              {companies.map(c=>(
-                <div key={c.id} className="text-xs text-gray-500">
-                  <span className="font-bold text-indigo-600">{c.id}.</span> {c.name}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Averages */}
-          <div className="p-4 bg-indigo-50 border-t border-indigo-100">
-            <h3 className="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">⌀ Durchschnitt</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {companies.map(c=>{
-                const avg=submissions.reduce((a,s)=>a+(s.points[c.id]||0),0)/submissions.length;
-                return (
-                  <div key={c.id} className="bg-white rounded-lg p-2 flex justify-between items-center">
-                    <span className="text-xs text-gray-500 truncate mr-2">{c.name}</span>
-                    <span className="text-sm font-bold text-indigo-600 shrink-0">{avg.toFixed(1)}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="bg-white rounded-xl shadow-sm p-10 text-center text-gray-400 text-sm">
-          Noch keine Einreichungen vorhanden.
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Admin View ─────────────────────────────────────────────────────────────────
-function AdminView({ submissions, setup, onLogout, onDelete, onClear, onSaveSetup }) {
-  const [tab, setTab] = useState('data');
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-50 p-4">
-      <div className="max-w-7xl mx-auto space-y-4">
-        <div className="bg-white rounded-xl shadow p-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-gray-800">Admin-Bereich</h1>
-            <p className="text-gray-400 text-xs">Wunschliste Versetzungsfirmen</p>
-          </div>
-          <button onClick={onLogout} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold">
-            Abmelden
-          </button>
-        </div>
-
-        {/* Tabs */}
-        <div className="flex gap-2">
-          {[['data','📊 Daten'],['setup','⚙️ Einstellungen']].map(([id,label])=>(
-            <button key={id} onClick={()=>setTab(id)}
-              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${tab===id?'bg-indigo-600 text-white shadow':'bg-white text-gray-600 hover:bg-gray-50 shadow-sm'}`}>
-              {label}
-            </button>
-          ))}
-        </div>
-
-        {tab==='data'
-          ? <DataTab submissions={submissions} setup={setup} onDelete={onDelete} onClear={onClear}/>
-          : <SetupTab setup={setup} onSave={onSaveSetup}/>
-        }
-      </div>
-    </div>
-  );
-}
-
-// ── Login Modal ────────────────────────────────────────────────────────────────
-function LoginModal({ onLogin, onClose }) {
-  const [pw,setPw]=useState(''); const [show,setShow]=useState(false); const [err,setErr]=useState(false);
-  const attempt = () => { if(pw===ADMIN_PASSWORD){onLogin();}else{setErr(true);setTimeout(()=>setErr(false),2000);} };
-  return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-xs">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="font-bold text-gray-800">Admin-Login</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
-        </div>
-        <div className="relative mb-2">
-          <input type={show?'text':'password'} value={pw} onChange={e=>setPw(e.target.value)}
-            onKeyDown={e=>e.key==='Enter'&&attempt()} placeholder="Passwort"
-            className={`w-full px-3 py-2 border-2 rounded-lg text-sm focus:outline-none pr-10 ${err?'border-red-400':'border-gray-200 focus:border-indigo-400'}`}/>
-          <button onClick={()=>setShow(!show)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
-            {show?<EyeOff s={15}/>:<EyeOn s={15}/>}
-          </button>
-        </div>
-        {err&&<p className="text-red-500 text-xs mb-2">Falsches Passwort</p>}
-        <button onClick={attempt} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-sm font-semibold">
-          Anmelden
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ── App Root ───────────────────────────────────────────────────────────────────
-function App() {
-  const [submissions, setSubmissions] = useState([]);
-  const [setup,       setSetup]       = useState(DEFAULT_SETUP);
-  const [isAdmin,     setIsAdmin]     = useState(false);
-  const [showLogin,   setShowLogin]   = useState(false);
-  const [fbReady,     setFbReady]     = useState(!!window._fbReady);
-  const [loading,     setLoading]     = useState(true);
-
-  useEffect(() => {
-    if (window._fbReady) { setFbReady(true); }
-    else {
-      const handler = () => setFbReady(true);
-      window.addEventListener('firebase-ready', handler);
-      return () => window.removeEventListener('firebase-ready', handler);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!fbReady) return;
-    const fb = window._fb;
-    fb.loadSetup().then(cfg => { if (cfg) setSetup(cfg); });
-    const unsub = fb.subscribeSubmissions(data => {
-      setSubmissions(data);
-      setLoading(false);
-    });
-    return () => unsub();
-  }, [fbReady]);
-
-  const handleSubmit = async (sub, existing) => {
-    await window._fb.saveSubmission(sub);
-  };
-
-  const handleDelete = async (idx) => {
-    const sub = submissions[idx];
-    if (window.confirm('Diesen Eintrag loeschen?')) {
-      await window._fb.deleteSubmission(sub._id);
-    }
-  };
-
-  const handleClear = async () => {
-    if (window.confirm('Wirklich alle Daten loeschen?')) {
-      await window._fb.deleteAllSubmissions();
-    }
-  };
-
-  const saveSetup = async (cfg) => {
-    await window._fb.saveSetup(cfg);
-    setSetup(cfg);
-  };
-
-  if (!fbReady || loading) return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="text-center">
-        <svg className="animate-spin w-10 h-10 text-indigo-500 mx-auto mb-3" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity=".2"/>
-          <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-        </svg>
-        <p className="text-gray-500 text-sm font-medium">Verbindung wird hergestellt...</p>
-      </div>
-    </div>
-  );
-
-  if (isAdmin) return (
-    <AdminView submissions={submissions} setup={setup}
-      onLogout={()=>setIsAdmin(false)}
-      onDelete={handleDelete}
-      onClear={handleClear}
-      onSaveSetup={saveSetup}/>
-  );
-
-  return (
-    <>
-      <StudentForm submissions={submissions} onSubmit={handleSubmit} setup={setup}/>
-      <button onClick={()=>setShowLogin(true)}
-        className="fixed bottom-5 right-5 z-40 bg-white shadow-xl rounded-full p-3 text-gray-400 hover:text-indigo-600 border border-gray-200 transition-colors">
-        <LockIco s={18}/>
-      </button>
-      {showLogin&&<LoginModal onLogin={()=>{setIsAdmin(true);setShowLogin(false);}} onClose={()=>setShowLogin(false)}/>}
-    </>
-  );
-}
-
-ReactDOM.render(<App/>, document.getElementById('root'));
-</script>
+</div>
 
 <script type="module">
-  import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, doc, getDocs, setDoc, deleteDoc, onSnapshot, getDoc }
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, doc, getDocs, setDoc, deleteDoc, onSnapshot, getDoc }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  const app = initializeApp({
-    apiKey:            "AIzaSyDfW6L8LP1UW-opMlX1DoqM_Y58qQUOYpQ",
-    authDomain:        "wunschliste-versetzungsfirmen.firebaseapp.com",
-    projectId:         "wunschliste-versetzungsfirmen",
-    storageBucket:     "wunschliste-versetzungsfirmen.firebasestorage.app",
-    messagingSenderId: "511185053099",
-    appId:             "1:511185053099:web:11561dfcafce8ab8021eee"
-  });
-  const db = getFirestore(app);
+// ── Firebase ──────────────────────────────────────────────────────────────────
+const app = initializeApp({
+  apiKey:"AIzaSyDfW6L8LP1UW-opMlX1DoqM_Y58qQUOYpQ",
+  authDomain:"wunschliste-versetzungsfirmen.firebaseapp.com",
+  projectId:"wunschliste-versetzungsfirmen",
+  storageBucket:"wunschliste-versetzungsfirmen.firebasestorage.app",
+  messagingSenderId:"511185053099",
+  appId:"1:511185053099:web:11561dfcafce8ab8021eee"
+});
+const db = getFirestore(app);
 
-  window._fb = {
-    subscribeSubmissions: (cb) =>
-      onSnapshot(collection(db, "submissions"), snap =>
-        cb(snap.docs.map(d => ({ _id: d.id, ...d.data() })))),
+const FB = {
+  subscribe: (cb) => onSnapshot(collection(db,'submissions'), snap =>
+    cb(snap.docs.map(d=>({_id:d.id,...d.data()})))),
+  save: (sub) => {
+    const id = sub.name.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'').toLowerCase()||'entry_'+Date.now();
+    return setDoc(doc(db,'submissions',id), sub);
+  },
+  del:    (id)  => deleteDoc(doc(db,'submissions',id)),
+  delAll: async () => { const s=await getDocs(collection(db,'submissions')); return Promise.all(s.docs.map(d=>deleteDoc(d.ref))); },
+  loadSetup: async () => { const d=await getDoc(doc(db,'config','setup')); return d.exists()?d.data():null; },
+  saveSetup: (cfg) => setDoc(doc(db,'config','setup'), cfg),
+};
 
-    saveSubmission: (sub) => {
-      const id = sub.name.replace(/\s+/g,"_").replace(/[^a-zA-Z0-9_]/g,"").toLowerCase();
-      return setDoc(doc(db, "submissions", id), sub);
-    },
+// ── Constants ─────────────────────────────────────────────────────────────────
+const ADMIN_PW = 'Azw123*';
+const DEFAULT_COMPANIES = [
+  {id:1, name:'ANDRITZ Soutec AG',             url:'https://www.andritz.com'},
+  {id:2, name:'Burckhardt Compression AG',      url:'https://www.burckhardtcompression.com'},
+  {id:3, name:'Corvaglia Mould AG',             url:'https://www.corvaglia.ch'},
+  {id:4, name:'Elektrizitätswerk der Stadt ZH', url:'https://www.ewz.ch'},
+  {id:5, name:'Fehr Lagerlogistik',             url:'https://www.fehr.net'},
+  {id:6, name:'Heim AG Heizsysteme',            url:'https://www.heim-ag.ch'},
+  {id:7, name:'HFS Aqua AG',                    url:'https://www.hfs-aqua.ch'},
+  {id:8, name:'Hug Engineering AG',             url:'https://www.hug-engineering.com'},
+  {id:9, name:'Kanadevia Inova AG',             url:'https://www.kanadevia-inova.com'},
+  {id:10,name:'KELLER Pressure AG',             url:'https://www.keller-pressure.com'},
+  {id:11,name:'Linde Kryotechnik AG',           url:'https://www.linde-kryotechnik.ch'},
+  {id:12,name:'Nobel Biocare Services AG',      url:'https://www.nobelbiocare.com'},
+  {id:13,name:'Stadler Winterthur AG',          url:'https://www.stadlerrail.com'},
+  {id:14,name:'Sulzer Chemtech AG',             url:'https://www.sulzer.com'},
+  {id:15,name:'Sulzer Management AG',           url:'https://www.sulzer.com'},
+  {id:16,name:'TEDAG Dichtungstechnik AG',      url:'https://www.tedag.ch'},
+  {id:17,name:'WinGD Ltd.',                     url:'https://www.wingd.com'},
+  {id:18,name:'ZHAW School of Engineering',     url:'https://www.zhaw.ch'},
+  {id:19,name:'Zimmer Biomet GmbH',             url:'https://www.zimmerbiomet.ch'},
+];
 
-    deleteSubmission: (id) => deleteDoc(doc(db, "submissions", id)),
+// ── State ─────────────────────────────────────────────────────────────────────
+let state = {
+  view: 'form',       // form | success | admin
+  adminTab: 'data',
+  submissions: [],
+  setup: { companies: DEFAULT_COMPANIES, students: [], deadline: '' },
+  form: {
+    name:'', plz:'', ort:'', email:'', bms:'', schultage:'', ferien:'', ferienText:'', selfie:'',
+    points:{}, hidden:[], orderedIds: DEFAULT_COMPANIES.map(c=>c.id), sortApplied:false,
+  },
+  selfieStreaming: false, selfieReady: false, selfieStream: null,
+  showHidden: false, showLoginModal: false, loginPw: '', loginErr: false,
+  loading: true, adminDrawerOpen: false,
+};
 
-    deleteAllSubmissions: async () => {
-      const snap = await getDocs(collection(db, "submissions"));
-      return Promise.all(snap.docs.map(d => deleteDoc(d.ref)));
-    },
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const $  = (id) => document.getElementById(id);
+const el = (tag, cls='', inner='') => { const e=document.createElement(tag); if(cls) e.className=cls; if(inner) e.innerHTML=inner; return e; };
+const emptyPoints = (cos) => cos.reduce((a,c)=>({...a,[c.id]:0}),{});
+const svg = (path, size=16) =>
+  `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${path}"/></svg>`;
+const checkSvg  = (s=14) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>`;
+const warnSvg   = (s=14) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+const eyeOffSvg = (s=14) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+const eyeOnSvg  = (s=14) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+const lockSvg   = (s=18) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
+const camSvg    = (s=24) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>`;
+const trashSvg  = (s=13) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/></svg>`;
+const sortSvg   = (s=14) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/></svg>`;
+const chevD     = (s=14) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`;
+const chevU     = (s=14) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>`;
+const linkSvg   = (s=10) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
+const dlSvg     = (s=16) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
+const plusSvg   = (s=13) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
 
-    loadSetup: async () => {
-      const d = await getDoc(doc(db, "config", "setup"));
-      return d.exists() ? d.data() : null;
-    },
-
-    saveSetup: (cfg) => setDoc(doc(db, "config", "setup"), cfg),
+// ── Computed values ───────────────────────────────────────────────────────────
+function computed() {
+  const f = state.form;
+  const cos = state.setup.companies;
+  const pts = f.points;
+  const total = Object.values(pts).reduce((a,b)=>a+b,0);
+  const remaining = 100 - total;
+  const withPoints = Object.values(pts).filter(v=>v>0).length;
+  const nonZeroDup = () => {
+    const vals = Object.entries(pts).filter(([id,v])=>v>0&&!f.hidden.includes(Number(id))).map(([,v])=>v);
+    return vals.length !== new Set(vals).size;
   };
+  const rankMap = {};
+  Object.entries(pts).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,8).forEach(([id],i)=>{ rankMap[Number(id)]=i+1; });
+  const deadlinePassed = state.setup.deadline && new Date() > new Date(state.setup.deadline);
+  const valid = total===100 && !nonZeroDup() && withPoints===8 &&
+    f.name && f.plz && f.ort && f.email && f.bms && f.schultage && f.ferien &&
+    (f.ferien==='Nein'||(f.ferien==='Ja'&&f.ferienText)) && f.selfie && !deadlinePassed;
+  return { total, remaining, withPoints, nonZeroDup: nonZeroDup(), rankMap, valid, deadlinePassed };
+}
 
-  window._fbReady = true;
-  window.dispatchEvent(new Event("firebase-ready"));
+// ── Render ────────────────────────────────────────────────────────────────────
+function render() {
+  const app = document.getElementById('app');
+  if (state.loading) {
+    app.innerHTML = `<div style="min-height:100vh;display:flex;align-items:center;justify-content:center"><div style="text-align:center"><div class="spinner" style="margin-bottom:12px"></div><p style="color:#6b7280;font-size:14px">Verbindung wird hergestellt…</p></div></div>`;
+    return;
+  }
+  if (state.view === 'admin') { renderAdmin(); return; }
+  if (state.view === 'success') { renderSuccess(); return; }
+  renderForm();
+}
+
+// ── Form View ─────────────────────────────────────────────────────────────────
+function renderForm() {
+  const app = document.getElementById('app');
+  const cv = computed();
+  const f = state.form;
+  const { deadline } = state.setup;
+
+  if (cv.deadlinePassed) {
+    app.innerHTML = `<div class="deadlined"><div class="success-card"><div style="font-size:3rem;margin-bottom:12px">🔒</div><h2 style="font-size:18px;font-weight:700;color:#1f2937;margin-bottom:8px">Umfrage geschlossen</h2><p style="color:#6b7280;font-size:13px">Die Eingabefrist ist abgelaufen (${new Date(deadline).toLocaleDateString('de-DE')}).</p></div></div>`;
+    return;
+  }
+
+  // Banner colour
+  const bannerClass = cv.remaining===0?'ok':cv.remaining<0?'over':'pending';
+
+  // Criteria pills
+  const pills = [
+    { ok: cv.total===100,      label: `${cv.total}/100 Pts` },
+    { ok: cv.withPoints===8,   label: `${cv.withPoints}/8 Firmen` },
+    { ok: !cv.nonZeroDup,      label: 'Keine Duplikate' },
+    { ok: !!(f.name&&f.plz&&f.ort&&f.email), label: 'Angaben' },
+    { ok: !!(f.bms&&f.schultage&&f.ferien),  label: 'Optionen' },
+    { ok: !!f.selfie,          label: 'Selfie' },
+  ];
+
+  const visibleIds = f.orderedIds.filter(id=>!f.hidden.includes(id));
+  const hiddenCos  = state.setup.companies.filter(c=>f.hidden.includes(c.id));
+
+  // Companies HTML
+  let cosHtml = '';
+  visibleIds.forEach(id => {
+    const co = state.setup.companies.find(c=>c.id===id);
+    if (!co) return;
+    const val = f.points[id]||0;
+    const rank = cv.rankMap[id];
+    const isDup = val>0 && Object.entries(f.points).some(([oid,ov])=>Number(oid)!==id&&ov===val);
+    cosHtml += `
+    <div class="company-row" data-id="${id}">
+      <div class="company-top">
+        <div class="rank-badge ${rank?'active':'empty'}">${rank||''}</div>
+        <a href="${co.url}" target="_blank" class="company-name">${co.name}</a>
+        <span class="link-ico">${linkSvg(9)}</span>
+        ${isDup?`<span class="dup-label">Duplikat!</span>`:''}
+        <input class="num-input${isDup?' dup':''}" type="number" min="0" max="50" value="${val}" data-cid="${id}" onchange="setPoint(${id},this.value)" oninput="setPoint(${id},this.value)"/>
+        <button class="eye-btn" onclick="hideCompany(${id})" title="Ausblenden">${eyeOffSvg(14)}</button>
+      </div>
+      <input type="range" min="0" max="50" value="${val}" class="slider" data-cid="${id}" oninput="setPoint(${id},this.value)"/>
+    </div>`;
+  });
+
+  // Hidden companies
+  let hiddenHtml = '';
+  hiddenCos.forEach(co => {
+    hiddenHtml += `<div class="drawer-item"><a href="${co.url}" target="_blank" style="font-size:13px;color:#9ca3af;text-decoration:line-through;display:flex;align-items:center;gap:4px">${co.name} ${linkSvg(9)}</a><button onclick="showCompany(${co.id})" style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:#6366f1;background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:6px">${eyeOnSvg(13)} Einblenden</button></div>`;
+  });
+
+  // Selfie section
+  let selfieHtml = '';
+  if (f.selfie) {
+    selfieHtml = `<img src="${f.selfie}" class="selfie-preview" style="margin-bottom:8px"/><button onclick="resetSelfie()" style="font-size:12px;font-weight:600;color:#6366f1;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px">${camSvg(13)} Neues Selfie aufnehmen</button>`;
+  } else if (state.selfieStreaming) {
+    selfieHtml = `<video id="selfie-video" autoplay muted playsinline style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:12px;background:#000;margin-bottom:8px"></video>
+    ${!state.selfieReady?`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;color:#6b7280;font-size:13px"><div class="spinner" style="width:20px;height:20px;border-width:2px"></div>Kamera wird gestartet…</div>`:''}
+    <div style="display:flex;gap:8px">
+      <button onclick="captureSelfie()" ${state.selfieReady?'':'disabled'} class="btn btn-primary btn-sm" style="flex:1;${state.selfieReady?'':'opacity:.5;cursor:not-allowed'}">${camSvg(16)} ${state.selfieReady?'Aufnehmen':'Warte…'}</button>
+      <button onclick="switchCamera()" class="btn btn-outline btn-sm">🔄</button>
+      <button onclick="stopCamera()" class="btn btn-outline btn-sm">✕</button>
+    </div>`;
+  } else {
+    selfieHtml = `<div class="selfie-wrap" onclick="startCamera()">${camSvg(32)}<p style="font-size:13px;font-weight:600;color:#6366f1;margin-top:8px">Kamera öffnen & Selfie aufnehmen</p></div>`;
+  }
+
+  // Name field (dropdown or text)
+  let nameField = '';
+  if (state.setup.students.length > 0) {
+    nameField = `<select onchange="setFormField('name',this.value)" style="width:100%;padding:8px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;background:#fff"><option value="">-- Name auswählen --</option>${state.setup.students.map(s=>`<option value="${s}" ${f.name===s?'selected':''}>${s}</option>`).join('')}</select>`;
+  } else {
+    nameField = `<input type="text" value="${f.name}" placeholder="Vorname Nachname" oninput="setFormField('name',this.value)"/>`;
+  }
+
+  app.innerHTML = `
+  <!-- Sticky Banner -->
+  <div class="sticky-bar ${bannerClass}">
+    <div class="sticky-top">
+      <span class="lbl">Punkte übrig</span>
+      <span class="big">${cv.remaining}</span>
+    </div>
+    <div class="pills">
+      ${pills.map(p=>`<div class="pill ${p.ok?'ok':'ng'}">${p.ok?checkSvg(10):warnSvg(10)} ${p.label}</div>`).join('')}
+    </div>
+  </div>
+
+  <div class="main-wrap">
+    <!-- Header -->
+    <div class="card" style="margin-top:0">
+      <div class="card-body">
+        <h1 style="font-size:17px;font-weight:800;color:#1f2937;margin-bottom:4px">Wunschliste Versetzungsfirmen</h1>
+        <p style="font-size:13px;color:#6b7280;margin-bottom:10px">Erstelle deine persönliche Wunschliste indem du 100 Punkte auf 8 Firmen verteilst.</p>
+        <div class="info-box">
+          <div>• Genau 8 Firmen müssen mindestens 1 Punkt erhalten</div>
+          <div>• Keine Firmen dürfen gleich viele Punkte erhalten</div>
+        </div>
+        ${deadline?`<p style="font-size:12px;color:#ea580c;font-weight:600;margin-top:8px">📅 Eingabe möglich bis: ${new Date(deadline).toLocaleString('de-DE')}</p>`:''}
+      </div>
+    </div>
+
+    <!-- Personal Info -->
+    <div class="card">
+      <div class="card-body">
+        <p class="section-title">Persönliche Angaben</p>
+        <div style="margin-bottom:10px">
+          <label class="lbl">Name *</label>
+          ${nameField}
+        </div>
+        <div class="grid2">
+          <div><label class="lbl">PLZ *</label><input type="text" value="${f.plz}" placeholder="8400" oninput="setFormField('plz',this.value)"/></div>
+          <div><label class="lbl">Ort *</label><input type="text" value="${f.ort}" placeholder="Winterthur" oninput="setFormField('ort',this.value)"/></div>
+          <div class="col2"><label class="lbl">E-Mail *</label><input type="email" value="${f.email}" placeholder="max@mail.ch" oninput="setFormField('email',this.value)"/></div>
+        </div>
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:12px">
+          <div>
+            <p class="lbl">BMS *</p>
+            <div class="radio-group">
+              <label><input type="radio" name="bms" ${f.bms==='Ja'?'checked':''} onchange="setFormField('bms','Ja')"/> Ja</label>
+              <label><input type="radio" name="bms" ${f.bms==='Nein'?'checked':''} onchange="setFormField('bms','Nein')"/> Nein</label>
+            </div>
+          </div>
+          <div>
+            <p class="lbl">Schultage *</p>
+            <div class="radio-group">
+              <label><input type="radio" name="schultage" ${f.schultage==='Mo/Di'?'checked':''} onchange="setFormField('schultage','Mo/Di')"/> Montag / Dienstag</label>
+              <label><input type="radio" name="schultage" ${f.schultage==='Do/Fr'?'checked':''} onchange="setFormField('schultage','Do/Fr')"/> Donnerstag / Freitag</label>
+            </div>
+          </div>
+          <div>
+            <p class="lbl">Frühlingsferien *</p>
+            <div class="radio-group">
+              <label><input type="radio" name="ferien" ${f.ferien==='Ja'?'checked':''} onchange="setFormField('ferien','Ja')"/> Ja</label>
+              <label><input type="radio" name="ferien" ${f.ferien==='Nein'?'checked':''} onchange="setFormField('ferien','Nein')"/> Nein</label>
+            </div>
+          </div>
+          ${f.ferien==='Ja'?`<div><label class="lbl">Zeitraum Frühlingsferien *</label><input type="text" value="${f.ferienText}" placeholder="z.B. 14.04. – 25.04.2025" oninput="setFormField('ferienText',this.value)"/></div>`:''}
+        </div>
+        <div style="margin-top:14px">
+          <p class="lbl">Selfie (direkt mit Kamera aufnehmen) *</p>
+          ${selfieHtml}
+        </div>
+      </div>
+    </div>
+
+    <!-- Validation -->
+    <div class="card">
+      <div class="card-body" style="padding:12px 16px">
+        ${[
+          { ok: cv.total===100,    label:`100 Punkte verteilt (${cv.total}/100)` },
+          { ok: cv.withPoints===8, label:`Genau 8 Firmen bewertet (${cv.withPoints}/8)${cv.withPoints>8?' – zu viele!':''}` },
+          { ok: !cv.nonZeroDup,    label:'Keine doppelten Punktzahlen' },
+          { ok: !!(f.name&&f.plz&&f.ort&&f.email), label:'Alle Pflichtfelder ausgefüllt' },
+          { ok: !!(f.bms&&f.schultage&&f.ferien),  label:'BMS / Schultage / Ferien ausgefüllt' },
+          { ok: !!f.selfie,        label:'Selfie aufgenommen' },
+        ].map(v=>`<div class="validation-row ${v.ok?'ok':'ng'}">${v.ok?checkSvg(13):warnSvg(13)} ${v.label}</div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Companies -->
+    <div class="card">
+      <div class="company-header">
+        <p class="section-title" style="margin:0">Firmen bewerten</p>
+        <span style="font-size:12px;color:#9ca3af;font-weight:600">${cv.withPoints}/8 bewertet</span>
+      </div>
+      <div id="companies-list">${cosHtml}</div>
+    </div>
+
+    <!-- Hidden drawer -->
+    ${hiddenCos.length>0?`
+    <div class="card">
+      <button class="drawer-toggle" onclick="toggleHiddenDrawer()">
+        <span>Ausgeblendete Firmen (${hiddenCos.length})</span>
+        ${state.showHidden?chevU():chevD()}
+      </button>
+      ${state.showHidden?`<div class="drawer-content">${hiddenHtml}</div>`:''}
+    </div>`:''}
+
+    <!-- Buttons -->
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+      <button class="btn btn-gray" onclick="hideUnrated()">
+        ${eyeOffSvg(15)} Nicht bewertete Firmen ausblenden
+      </button>
+      <button class="btn btn-blue" onclick="doSort()">
+        ${sortSvg()} ${f.sortApplied?'✓ Nach Bewertung sortiert':'Nach Bewertung sortieren'}
+      </button>
+      <button class="btn btn-primary" onclick="handleSubmit()" ${cv.valid?'':'disabled'} style="${cv.valid?'':'opacity:.5;cursor:not-allowed'}">
+        ${cv.valid?'Wunschliste einreichen ✓':'Bitte alle Anforderungen erfüllen'}
+      </button>
+    </div>
+  </div>
+
+  <!-- Lock button -->
+  <button onclick="showLogin()" style="position:fixed;bottom:20px;right:20px;z-index:40;background:#fff;border:1px solid #e5e7eb;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.15);cursor:pointer;color:#9ca3af">
+    ${lockSvg(18)}
+  </button>
+
+  ${state.showLoginModal ? renderLoginModal() : ''}
+  `;
+
+  // Attach selfie video stream if streaming
+  if (state.selfieStreaming) {
+    const vid = document.getElementById('selfie-video');
+    if (vid && state.selfieStream) {
+      vid.srcObject = state.selfieStream;
+      vid.play().catch(()=>{});
+    }
+  }
+}
+
+function renderSuccess() {
+  document.getElementById('app').innerHTML = `
+  <div class="success-page">
+    <div class="success-card">
+      <div class="check-circle">${checkSvg(32)}</div>
+      <h2 style="font-size:20px;font-weight:800;color:#1f2937;margin-bottom:8px">Erfolgreich eingereicht!</h2>
+      <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Du erhältst eine Bestätigung an <strong>${state.form.email}</strong>.</p>
+      <button onclick="backToForm()" class="btn btn-primary" style="width:auto;padding:10px 24px;font-size:14px">
+        ← Zurück zur Wunschliste
+      </button>
+    </div>
+  </div>`;
+}
+
+function renderLoginModal() {
+  return `<div onclick="closeLogin(event)" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px">
+    <div onclick="event.stopPropagation()" style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:300px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <h3 style="font-weight:700;font-size:16px">Admin-Login</h3>
+        <button onclick="closeLoginModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#9ca3af">✕</button>
+      </div>
+      <input type="password" id="login-pw" value="${state.loginPw}" placeholder="Passwort"
+        oninput="state.loginPw=this.value"
+        onkeydown="if(event.key==='Enter')doLogin()"
+        style="width:100%;padding:8px 12px;border:2px solid ${state.loginErr?'#ef4444':'#e5e7eb'};border-radius:8px;font-size:14px;outline:none;margin-bottom:${state.loginErr?'4px':'12px'}"/>
+      ${state.loginErr?`<p style="color:#ef4444;font-size:12px;margin-bottom:8px">Falsches Passwort</p>`:''}
+      <button onclick="doLogin()" class="btn btn-primary" style="font-size:14px;padding:10px">Anmelden</button>
+    </div>
+  </div>`;
+}
+
+// ── Admin View ────────────────────────────────────────────────────────────────
+function renderAdmin() {
+  const subs = state.submissions;
+  const cos  = state.setup.companies;
+  const stus = state.setup.students;
+  const total = stus.length > 0 ? stus.length : 40;
+  const pct   = total > 0 ? Math.min(100, Math.round(subs.length/total*100)) : 0;
+
+  let content = '';
+  if (state.adminTab === 'data') {
+    let rows = subs.map((s,i) => {
+      const sum = Object.values(s.points||{}).reduce((a,b)=>a+b,0);
+      return `<tr>
+        <td>${i+1}</td>
+        <td style="font-weight:600;white-space:nowrap">${s.name||''}</td>
+        <td>${s.bms||''}</td>
+        <td style="white-space:nowrap">${s.schultage||''}</td>
+        <td>${s.ferien||''}${s.ferienText?' ('+s.ferienText+')':''}</td>
+        <td style="color:#9ca3af;white-space:nowrap;font-size:11px">${s.timestamp||''}</td>
+        <td style="text-align:center">${s.selfie?`<a href="${s.selfie}" target="_blank"><img src="${s.selfie}" style="width:28px;height:28px;border-radius:50%;object-fit:cover"/></a>`:''}</td>
+        ${cos.map(c=>`<td style="text-align:center;font-weight:600;color:${(s.points&&s.points[c.id])>0?'#6366f1':'#d1d5db'}">${(s.points&&s.points[c.id])||'–'}</td>`).join('')}
+        <td style="text-align:center;font-weight:700;color:#6366f1">${sum}</td>
+        <td><button onclick="delSub('${s._id}')" style="background:none;border:none;cursor:pointer;color:#d1d5db;padding:4px" title="Löschen">${trashSvg(14)}</button></td>
+      </tr>`;
+    }).join('');
+
+    let avgRow = cos.map(c=>{
+      const avg = subs.length ? subs.reduce((a,s)=>a+(s.points&&s.points[c.id]||0),0)/subs.length : 0;
+      return `<td style="text-align:center;font-weight:600;color:#6366f1">${avg.toFixed(1)}</td>`;
+    }).join('');
+
+    content = `
+    <div class="card">
+      <div class="card-body">
+        <p class="section-title">Fortschritt</p>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-size:14px;font-weight:700;color:#374151">Einreichungen</span>
+          <span style="font-size:14px;font-weight:700;color:#6366f1">${subs.length} / ${total} (${pct}%)</span>
+        </div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+        <div class="stats-grid">
+          <div><div class="stat-num" style="color:#6366f1">${subs.length}</div><div class="stat-lbl">Eingereicht</div></div>
+          <div><div class="stat-num" style="color:#f97316">${Math.max(0,total-subs.length)}</div><div class="stat-lbl">Ausstehend</div></div>
+          <div><div class="stat-num" style="color:#16a34a">${pct}%</div><div class="stat-lbl">Quote</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body" style="padding:12px">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button onclick="exportCSV()" ${subs.length?'':'disabled'} class="btn btn-green btn-sm" style="${subs.length?'':'opacity:.5;cursor:not-allowed'}">${dlSvg()} CSV exportieren</button>
+          <button onclick="clearAll()" ${subs.length?'':'disabled'} class="btn btn-red btn-sm" style="${subs.length?'':'opacity:.5;cursor:not-allowed'}">Alle löschen</button>
+        </div>
+      </div>
+    </div>
+
+    ${subs.length>0?`
+    <div class="card">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>#</th><th>Name</th><th>BMS</th><th>Schultage</th><th>Ferien</th><th>Zeit</th><th>📷</th>
+            ${cos.map(c=>`<th title="${c.name}" style="text-align:center">${c.id}</th>`).join('')}
+            <th style="text-align:center">Σ</th><th></th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+          <tfoot style="background:#eff6ff">
+            <tr><td colspan="7" style="font-weight:700;padding:7px 6px;color:#374151">⌀ Durchschnitt</td>${avgRow}<td></td><td></td></tr>
+          </tfoot>
+        </table>
+      </div>
+      <div style="padding:12px 16px;background:#f8fafc;border-top:1px solid #e5e7eb">
+        <p style="font-size:11px;font-weight:700;color:#6b7280;margin-bottom:6px">Firmen-Legende</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px">
+          ${cos.map(c=>`<p style="font-size:11px;color:#6b7280"><span style="font-weight:700;color:#6366f1">${c.id}.</span> ${c.name}</p>`).join('')}
+        </div>
+      </div>
+    </div>`:`<div class="card"><div class="card-body" style="text-align:center;color:#9ca3af;padding:40px">Noch keine Einreichungen vorhanden.</div></div>`}`;
+
+  } else {
+    // Setup tab
+    const s = state.setup;
+    content = `
+    <div class="card">
+      <div class="card-body">
+        <p class="section-title">Eingabefrist</p>
+        <label class="lbl">Umfrage offen bis (Datum & Uhrzeit)</label>
+        <input type="datetime-local" value="${s.deadline||''}" onchange="updateSetupDeadline(this.value)"/>
+        ${s.deadline?`<p style="font-size:12px;color:#ea580c;margin-top:4px">Schliesst: ${new Date(s.deadline).toLocaleString('de-DE')}</p>`:''}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <p class="section-title">Lernende (${s.students.length})</p>
+        <p class="import-hint">Liste aus Excel kopieren – ein Name pro Zeile (Vorname Nachname):</p>
+        <textarea id="stu-paste" class="mono" rows="5" placeholder="Max Muster&#10;Anna Mueller&#10;Peter Schmid" style="margin-bottom:8px"></textarea>
+        <button onclick="importStudents()" class="btn btn-primary" style="font-size:13px;padding:8px;margin-bottom:12px">Liste importieren</button>
+        <div id="stu-msg" style="color:#16a34a;font-size:12px;font-weight:600;margin-bottom:4px;min-height:16px"></div>
+        <div style="max-height:160px;overflow-y:auto;border:1px solid #f3f4f6;border-radius:8px;padding:4px">
+          ${s.students.length?s.students.map((n,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;border-radius:4px"><span style="font-size:13px;color:#374151">${i+1}. ${n}</span><button onclick="removeStudent('${n.replace(/'/g,"\\'")}') " style="background:none;border:none;cursor:pointer;color:#d1d5db;padding:2px">${trashSvg(12)}</button></div>`).join(''):'<p style="font-size:12px;color:#9ca3af;font-style:italic;padding:8px">Noch keine Lernenden. Namen werden als Freitext angezeigt.</p>'}
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <p class="section-title">Firmen (${s.companies.length})</p>
+        <p class="import-hint">Zwei Spalten aus Excel kopieren (Spalte A = Name, Spalte B = URL, Tab-getrennt):</p>
+        <textarea id="co-paste" class="mono" rows="5" placeholder="ANDRITZ Soutec AG&#9;https://www.andritz.com&#10;Burckhardt AG&#9;https://www.burckhardtcompression.com" style="margin-bottom:8px"></textarea>
+        <button onclick="importCompanies()" class="btn btn-primary" style="font-size:13px;padding:8px;margin-bottom:12px">Firmen importieren</button>
+        <div id="co-msg" style="color:#16a34a;font-size:12px;font-weight:600;margin-bottom:6px;min-height:16px"></div>
+        <div style="max-height:280px;overflow-y:auto;border:1px solid #f3f4f6;border-radius:8px;padding:4px">
+          ${s.companies.map((co,i)=>`<div style="display:flex;gap:6px;align-items:center;padding:3px 4px"><span style="font-size:11px;color:#9ca3af;width:20px;text-align:right;flex-shrink:0">${i+1}.</span><input value="${co.name}" onchange="updateCompany(${i},'name',this.value)" style="flex:1;padding:4px 8px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;outline:none"/><input value="${co.url}" onchange="updateCompany(${i},'url',this.value)" style="flex:1;padding:4px 8px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;outline:none"/></div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <button onclick="saveSetup()" id="save-btn" class="btn btn-primary" style="font-size:14px;margin-bottom:16px">Einstellungen speichern</button>`;
+  }
+
+  document.getElementById('app').innerHTML = `
+  <div style="min-height:100vh;background:linear-gradient(135deg,#f5f3ff,#eff6ff);padding:16px">
+    <div style="max-width:900px;margin:0 auto">
+      <div class="card">
+        <div class="card-body" style="display:flex;justify-content:space-between;align-items:center">
+          <div><h1 style="font-size:18px;font-weight:800;color:#1f2937">Admin-Bereich</h1><p style="font-size:12px;color:#9ca3af">Wunschliste Versetzungsfirmen</p></div>
+          <button onclick="logout()" class="btn btn-red btn-sm">Abmelden</button>
+        </div>
+      </div>
+      <div class="admin-tabs">
+        <button onclick="setAdminTab('data')" class="tab-btn ${state.adminTab==='data'?'active':'inactive'}">📊 Daten</button>
+        <button onclick="setAdminTab('setup')" class="tab-btn ${state.adminTab==='setup'?'active':'inactive'}">⚙️ Einstellungen</button>
+      </div>
+      ${content}
+    </div>
+  </div>`;
+}
+
+// ── Actions ───────────────────────────────────────────────────────────────────
+window.setFormField = (k,v) => { state.form[k]=v; render(); };
+window.setPoint = (id,v) => {
+  const n = Math.max(0,Math.min(50,parseInt(v)||0));
+  state.form.points[id]=n; render();
+};
+window.hideCompany = (id) => {
+  state.form.points[id]=0;
+  state.form.hidden.push(id);
+  state.form.orderedIds = state.form.orderedIds.filter(x=>x!==id);
+  render();
+};
+window.showCompany = (id) => {
+  state.form.hidden = state.form.hidden.filter(x=>x!==id);
+  state.form.orderedIds.push(id);
+  render();
+};
+window.hideUnrated = () => {
+  const toHide = state.form.orderedIds.filter(id=>(state.form.points[id]||0)===0);
+  toHide.forEach(id=>{ state.form.hidden.push(id); });
+  state.form.orderedIds = state.form.orderedIds.filter(id=>(state.form.points[id]||0)>0);
+  render();
+};
+window.toggleHiddenDrawer = () => { state.showHidden=!state.showHidden; render(); };
+window.doSort = () => {
+  state.form.orderedIds.sort((a,b)=>{
+    const pa=state.form.points[a]||0, pb=state.form.points[b]||0;
+    if(pa===0&&pb===0) return a-b;
+    if(pa===0) return 1; if(pb===0) return -1;
+    return pb-pa;
+  });
+  state.form.sortApplied=true; render();
+};
+window.handleSubmit = async () => {
+  const cv = computed();
+  if (!cv.valid) return;
+  const f = state.form;
+  const existing = state.submissions.find(s=>s.name===f.name);
+  const sub = {
+    name:f.name, plz:f.plz, ort:f.ort, email:f.email,
+    bms:f.bms, schultage:f.schultage, ferien:f.ferien,
+    ferienText:f.ferien==='Ja'?f.ferienText:'',
+    selfie:f.selfie, timestamp:new Date().toLocaleString('de-DE'),
+    points:{...f.points}
+  };
+  await FB.save(sub);
+
+  // Confirmation email
+  const cos = state.setup.companies;
+  const ranked = [...cos].filter(c=>f.points[c.id]>0).sort((a,b)=>f.points[b.id]-f.points[a.id]);
+  let body = `Hallo ${f.name},\n\nhier ist deine eingereichte Wunschliste:\n\n`;
+  ranked.forEach((c,i)=>{ body+=`${i+1}. ${c.name}: ${f.points[c.id]} Punkte\n`; });
+  body+=`\nTotal: ${cv.total} Punkte\n\nDies ist eine automatische Bestätigung.`;
+  window.location.href=`mailto:${f.email}?subject=${encodeURIComponent('Wunschliste Versetzungsfirmen – Bestätigung')}&body=${encodeURIComponent(body)}`;
+
+  if (existing) {
+    setTimeout(()=>{
+      let cb=`${f.name} hat seine Wunschliste aktualisiert.\n\nÄNDERUNGEN:\n`;
+      cos.forEach(c=>{ const o=existing.points[c.id]||0,n=f.points[c.id]||0; if(o!==n) cb+=`>>> ${c.name}: ${o} → ${n}\n`; });
+      window.open(`mailto:?subject=${encodeURIComponent('Aktualisierung: '+f.name)}&body=${encodeURIComponent(cb)}`);
+    },600);
+  }
+  state.view='success'; render();
+};
+window.backToForm = () => { state.view='form'; render(); };
+
+// Selfie
+let facingMode = 'user';
+window.startCamera = async () => {
+  state.selfieReady=false; state.selfieStreaming=true; render();
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({video:{facingMode,width:{ideal:640},height:{ideal:640}},audio:false});
+    state.selfieStream=stream;
+    const vid=document.getElementById('selfie-video');
+    if(vid){ vid.srcObject=stream; vid.muted=true; vid.onloadedmetadata=()=>{ vid.play().then(()=>{ const t=setInterval(()=>{ if(vid.readyState>=2&&vid.videoWidth>0){state.selfieReady=true;clearInterval(t);render();} },200); }); }; }
+  } catch(e) { state.selfieStreaming=false; alert('Kamera: '+e.message); render(); }
+};
+window.captureSelfie = () => {
+  const vid=document.getElementById('selfie-video');
+  const sz=Math.min(vid.videoWidth,vid.videoHeight);
+  const canvas=document.createElement('canvas'); canvas.width=sz; canvas.height=sz;
+  const ox=(vid.videoWidth-sz)/2, oy=(vid.videoHeight-sz)/2;
+  canvas.getContext('2d').drawImage(vid,ox,oy,sz,sz,0,0,sz,sz);
+  state.form.selfie=canvas.toDataURL('image/jpeg',.8);
+  stopCamera(); render();
+};
+window.switchCamera = () => { facingMode=facingMode==='user'?'environment':'user'; stopCamera(); setTimeout(()=>window.startCamera(),300); };
+window.stopCamera = () => { if(state.selfieStream){state.selfieStream.getTracks().forEach(t=>t.stop());state.selfieStream=null;} state.selfieStreaming=false; state.selfieReady=false; };
+window.resetSelfie = () => { state.form.selfie=''; startCamera(); };
+
+// Login
+window.showLogin=()=>{ state.showLoginModal=true; state.loginPw=''; state.loginErr=false; render(); };
+window.closeLoginModal=()=>{ state.showLoginModal=false; render(); };
+window.closeLogin=(e)=>{ if(e.target===e.currentTarget){state.showLoginModal=false;render();} };
+window.doLogin=()=>{ if(state.loginPw===ADMIN_PW){state.view='admin';state.showLoginModal=false;render();}else{state.loginErr=true;render();setTimeout(()=>{state.loginErr=false;render();},2000);} };
+window.logout=()=>{ state.view='form'; render(); };
+window.setAdminTab=(t)=>{ state.adminTab=t; render(); };
+
+// Admin data
+window.delSub = async (id) => { if(window.confirm('Eintrag löschen?')) await FB.del(id); };
+window.clearAll = async () => { if(window.confirm('Wirklich alle Daten löschen?')) await FB.delAll(); };
+window.exportCSV = () => {
+  const subs=state.submissions; const cos=state.setup.companies;
+  if(!subs.length) return;
+  const hdrs=['Name','PLZ','Ort','BMS','Schultage','Ferien','Ferienzeit','E-Mail','Zeit',...cos.map(c=>c.name),'Summe'];
+  const rows=subs.map(s=>[s.name,s.plz,s.ort,s.bms,s.schultage,s.ferien,s.ferienText,s.email,s.timestamp,...cos.map(c=>s.points&&s.points[c.id]||0),Object.values(s.points||{}).reduce((a,b)=>a+b,0)]);
+  const csv=[hdrs.join(';'),...rows.map(r=>r.join(';'))].join('\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}));
+  a.download=`wunschliste_${new Date().toISOString().split('T')[0]}.csv`; a.click();
+};
+
+// Setup
+window.updateSetupDeadline = (v) => { state.setup.deadline=v; };
+window.importStudents = () => {
+  const ta=document.getElementById('stu-paste'); if(!ta) return;
+  const lines=ta.value.split(/\n/).map(l=>l.trim()).filter(Boolean);
+  state.setup.students=[...new Set(lines)].sort();
+  ta.value='';
+  const msg=document.getElementById('stu-msg'); if(msg) { msg.textContent=`✓ ${state.setup.students.length} Lernende importiert`; setTimeout(()=>{if(msg)msg.textContent='';},3000); }
+  render();
+};
+window.removeStudent = (n) => { state.setup.students=state.setup.students.filter(x=>x!==n); render(); };
+window.importCompanies = () => {
+  const ta=document.getElementById('co-paste'); if(!ta) return;
+  const lines=ta.value.split(/\n/).map(l=>l.trim()).filter(Boolean);
+  state.setup.companies=lines.map((line,i)=>{ const p=line.split(/\t/); return {id:i+1,name:p[0]||'',url:p[1]||''}; });
+  ta.value='';
+  const msg=document.getElementById('co-msg'); if(msg){msg.textContent=`✓ ${state.setup.companies.length} Firmen importiert`;setTimeout(()=>{if(msg)msg.textContent='';},3000);}
+  render();
+};
+window.updateCompany = (i,field,val) => { state.setup.companies[i][field]=val; };
+window.saveSetup = async () => {
+  const btn=document.getElementById('save-btn');
+  if(btn){btn.textContent='Speichern…';btn.disabled=true;}
+  await FB.saveSetup(state.setup);
+  if(btn){btn.textContent='✓ Gespeichert!';btn.style.background='#16a34a';setTimeout(()=>{if(btn){btn.textContent='Einstellungen speichern';btn.style.background='';btn.disabled=false;}},2000);}
+};
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+async function init() {
+  // Load setup from Firebase
+  const cfg = await FB.loadSetup();
+  if (cfg) {
+    state.setup = cfg;
+    state.form.points = emptyPoints(cfg.companies);
+    state.form.orderedIds = cfg.companies.map(c=>c.id);
+  } else {
+    state.form.points = emptyPoints(DEFAULT_COMPANIES);
+  }
+
+  // Subscribe to submissions
+  FB.subscribe(subs => {
+    state.submissions = subs;
+    state.loading = false;
+    render();
+  });
+}
+
+init();
 </script>
 </body>
 </html>
