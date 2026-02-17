@@ -1,544 +1,881 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wunschliste Versetzungsfirmen</title>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .slider::-webkit-slider-thumb {
-            appearance: none; width: 16px; height: 16px;
-            background: #4f46e5; cursor: pointer; border-radius: 50%;
-        }
-        .slider::-moz-range-thumb {
-            width: 16px; height: 16px; background: #4f46e5;
-            cursor: pointer; border-radius: 50%; border: none;
-        }
-        .slider { height: 4px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wunschliste Versetzungsfirmen</title>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  .slider::-webkit-slider-thumb{appearance:none;width:16px;height:16px;background:#4f46e5;cursor:pointer;border-radius:50%}
+  .slider::-moz-range-thumb{width:16px;height:16px;background:#4f46e5;cursor:pointer;border-radius:50%;border:none}
+  .slider{height:4px}
+  .selfie-preview{width:100%;max-height:200px;object-fit:cover;border-radius:12px}
+</style>
 </head>
 <body class="bg-gray-100">
-    <div id="root"></div>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
+const ADMIN_PASSWORD = 'Azw2026*';
+const STORAGE_KEY    = 'wunschliste_v4';
+const SETUP_KEY      = 'wunschliste_setup_v4';
 
-        const ADMIN_PASSWORD = 'Azw2026*';
+const DEFAULT_COMPANIES = [
+  { id:1,  name:'ANDRITZ Soutec AG',               url:'https://www.andritz.com' },
+  { id:2,  name:'Burckhardt Compression AG',        url:'https://www.burckhardtcompression.com' },
+  { id:3,  name:'Corvaglia Mould AG',               url:'https://www.corvaglia.ch' },
+  { id:4,  name:'Elektrizitätswerk der Stadt ZH',   url:'https://www.ewz.ch' },
+  { id:5,  name:'Fehr Lagerlogistik',               url:'https://www.fehr.net' },
+  { id:6,  name:'Heim AG Heizsysteme',              url:'https://www.heim-ag.ch' },
+  { id:7,  name:'HFS Aqua AG',                      url:'https://www.hfs-aqua.ch' },
+  { id:8,  name:'Hug Engineering AG',               url:'https://www.hug-engineering.com' },
+  { id:9,  name:'Kanadevia Inova AG',               url:'https://www.kanadevia-inova.com' },
+  { id:10, name:'KELLER Pressure AG',               url:'https://www.keller-pressure.com' },
+  { id:11, name:'Linde Kryotechnik AG',             url:'https://www.linde-kryotechnik.ch' },
+  { id:12, name:'Nobel Biocare Services AG',        url:'https://www.nobelbiocare.com' },
+  { id:13, name:'Stadler Winterthur AG',            url:'https://www.stadlerrail.com' },
+  { id:14, name:'Sulzer Chemtech AG',               url:'https://www.sulzer.com' },
+  { id:15, name:'Sulzer Management AG',             url:'https://www.sulzer.com' },
+  { id:16, name:'TEDAG Dichtungstechnik AG',        url:'https://www.tedag.ch' },
+  { id:17, name:'WinGD Ltd.',                       url:'https://www.wingd.com' },
+  { id:18, name:'ZHAW School of Engineering',       url:'https://www.zhaw.ch' },
+  { id:19, name:'Zimmer Biomet GmbH',               url:'https://www.zimmerbiomet.ch' },
+];
 
-        const COMPANIES = [
-            { id: 1,  name: 'ANDRITZ Soutec AG',                  url: 'https://www.andritz.com' },
-            { id: 2,  name: 'Burckhardt Compression AG',           url: 'https://www.burckhardtcompression.com' },
-            { id: 3,  name: 'Corvaglia Mould AG',                  url: 'https://www.corvaglia.ch' },
-            { id: 4,  name: 'Elektrizitätswerk der Stadt ZH',      url: 'https://www.ewz.ch' },
-            { id: 5,  name: 'Fehr Lagerlogistik',                  url: 'https://www.fehr.net' },
-            { id: 6,  name: 'Heim AG Heizsysteme',                 url: 'https://www.heim-ag.ch' },
-            { id: 7,  name: 'HFS Aqua AG',                         url: 'https://www.hfs-aqua.ch' },
-            { id: 8,  name: 'Hug Engineering AG',                  url: 'https://www.hug-engineering.com' },
-            { id: 9,  name: 'Kanadevia Inova AG',                  url: 'https://www.kanadevia-inova.com' },
-            { id: 10, name: 'KELLER Pressure AG',                  url: 'https://www.keller-pressure.com' },
-            { id: 11, name: 'Linde Kryotechnik AG',                url: 'https://www.linde-kryotechnik.ch' },
-            { id: 12, name: 'Nobel Biocare Services AG',            url: 'https://www.nobelbiocare.com' },
-            { id: 13, name: 'Stadler Winterthur AG',               url: 'https://www.stadlerrail.com' },
-            { id: 14, name: 'Sulzer Chemtech AG',                  url: 'https://www.sulzer.com' },
-            { id: 15, name: 'Sulzer Management AG',                url: 'https://www.sulzer.com' },
-            { id: 16, name: 'TEDAG Dichtungstechnik AG',           url: 'https://www.tedag.ch' },
-            { id: 17, name: 'WinGD Ltd.',                          url: 'https://www.wingd.com' },
-            { id: 18, name: 'ZHAW School of Engineering',          url: 'https://www.zhaw.ch' },
-            { id: 19, name: 'Zimmer Biomet GmbH',                  url: 'https://www.zimmerbiomet.ch' },
-        ];
+const DEFAULT_SETUP = {
+  companies: DEFAULT_COMPANIES,
+  students: [],
+  deadline: '',
+};
 
-        const emptyPoints = () => COMPANIES.reduce((acc, c) => ({ ...acc, [c.id]: 0 }), {});
+const emptyPoints = (companies) => companies.reduce((a,c)=>({...a,[c.id]:0}),{});
 
-        // ── Icons ──────────────────────────────────────────────────────────────────
-        const Icon = ({ d, size=16, extra="" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={extra}>
-                <path d={d}/>
-            </svg>
-        );
-        const CheckCircleIcon = ({size=16}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>;
-        const WarnIcon        = ({size=16}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>;
-        const EyeOffIcon      = ({size=14}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>;
-        const EyeOnIcon       = ({size=14}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
-        const LockIcon        = ({size=18}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>;
-        const DownloadIcon    = ({size=16}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
-        const LinkIcon        = ({size=11}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>;
-        const SortIcon        = ({size=15}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/></svg>;
-        const ChevronDown     = ({size=15}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>;
-        const ChevronUp       = ({size=15}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>;
+// ── Icons ──────────────────────────────────────────────────────────────────────
+const Ico = ({path,size=16,cls=""}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={cls}>
+    <path d={path}/>
+  </svg>
+);
+const CheckCircle = ({s=14}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>;
+const WarnCircle  = ({s=14}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>;
+const EyeOff = ({s=14}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>;
+const EyeOn  = ({s=14}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
+const LockIco= ({s=18}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>;
+const DlIco  = ({s=16}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
+const LinkIco= ({s=10}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>;
+const SortIco= ({s=15}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/></svg>;
+const ChevD  = ({s=15}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>;
+const ChevU  = ({s=15}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>;
+const CamIco = ({s=20}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>;
+const TrashIco=({s=14}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>;
+const PlusIco= ({s=14}) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
 
-        // ── Student Form ──────────────────────────────────────────────────────────
-        function StudentForm({ submissions, onSubmit }) {
-            const [vorname,  setVorname]  = useState('');
-            const [nachname, setNachname] = useState('');
-            const [plz,      setPlz]      = useState('');
-            const [ort,      setOrt]      = useState('');
-            const [bms,      setBms]      = useState(false);
-            const [email,    setEmail]    = useState('');
-            const [points,   setPoints]   = useState(emptyPoints());
-            const [hidden,   setHidden]   = useState([]);
-            const [showHidden, setShowHidden] = useState(false);
-            const [orderedIds, setOrderedIds] = useState(COMPANIES.map(c => c.id));
-            const [sortApplied, setSortApplied] = useState(false);
-            const [submitted, setSubmitted] = useState(false);
+// ── Radio / Checkbox helper ────────────────────────────────────────────────────
+const YesNo = ({label, value, onChange}) => (
+  <div>
+    <p className="text-xs font-semibold text-gray-500 mb-1">{label}</p>
+    <div className="flex gap-4">
+      {['Ja','Nein'].map(opt => (
+        <label key={opt} className="flex items-center gap-1.5 cursor-pointer text-sm font-medium text-gray-700">
+          <input type="radio" name={label} checked={value===opt} onChange={()=>onChange(opt)}
+            className="accent-indigo-600 w-4 h-4"/>
+          {opt}
+        </label>
+      ))}
+    </div>
+  </div>
+);
 
-            const total      = Object.values(points).reduce((a, b) => a + b, 0);
-            const remaining  = 100 - total;
-            const withPoints = Object.values(points).filter(v => v > 0).length;
+const MultiCheck = ({label, options, value, onChange}) => (
+  <div>
+    <p className="text-xs font-semibold text-gray-500 mb-1">{label}</p>
+    <div className="flex flex-wrap gap-4">
+      {options.map(opt => (
+        <label key={opt} className="flex items-center gap-1.5 cursor-pointer text-sm font-medium text-gray-700">
+          <input type="checkbox" checked={value===opt} onChange={()=>onChange(opt)}
+            className="accent-indigo-600 w-4 h-4"/>
+          {opt}
+        </label>
+      ))}
+    </div>
+  </div>
+);
 
-            const visibleIds       = orderedIds.filter(id => !hidden.includes(id));
-            const hiddenCompanies  = COMPANIES.filter(c => hidden.includes(c.id));
+// ── Selfie Capture ─────────────────────────────────────────────────────────────
+function SelfieCapture({ selfie, onCapture }) {
+  const videoRef = useRef(null);
+  const [streaming, setStreaming] = useState(false);
+  const [error, setError]         = useState('');
 
-            const nonZeroDup = () => {
-                const vals = Object.entries(points)
-                    .filter(([id, v]) => v > 0 && !hidden.includes(Number(id)))
-                    .map(([, v]) => v);
-                return vals.length !== new Set(vals).size;
-            };
+  const startCamera = async () => {
+    setError('');
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user' }, audio: false
+      });
+      videoRef.current.srcObject = stream;
+      setStreaming(true);
+    } catch(e) {
+      setError('Kamera konnte nicht geöffnet werden. Bitte Zugriff erlauben.');
+    }
+  };
 
-            const isValid = () =>
-                total === 100 &&
-                !nonZeroDup() &&
-                withPoints === 8 &&
-                vorname.trim() && nachname.trim() && plz.trim() && ort.trim() && email.trim();
+  const stopCamera = () => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      videoRef.current.srcObject.getTracks().forEach(t => t.stop());
+      videoRef.current.srcObject = null;
+    }
+    setStreaming(false);
+  };
 
-            const handleChange = (id, raw) => {
-                const n = Math.max(0, Math.min(50, parseInt(raw) || 0));
-                setPoints(prev => ({ ...prev, [id]: n }));
-            };
+  const capture = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width  = videoRef.current.videoWidth;
+    canvas.height = videoRef.current.videoHeight;
+    canvas.getContext('2d').drawImage(videoRef.current, 0, 0);
+    onCapture(canvas.toDataURL('image/jpeg', 0.7));
+    stopCamera();
+  };
 
-            const hideCompany = (id) => {
-                setPoints(prev => ({ ...prev, [id]: 0 }));
-                setHidden(prev => [...prev, id]);
-                setOrderedIds(prev => prev.filter(x => x !== id));
-            };
+  return (
+    <div>
+      <p className="text-xs font-semibold text-gray-500 mb-2">Selfie (Pflicht – direkt mit Kamera aufnehmen) *</p>
+      {selfie ? (
+        <div>
+          <img src={selfie} alt="Selfie" className="selfie-preview mb-2"/>
+          <button onClick={()=>{ onCapture(''); startCamera(); }}
+            className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold flex items-center gap-1">
+            <CamIco s={13}/> Neues Selfie aufnehmen
+          </button>
+        </div>
+      ) : (
+        <div>
+          {streaming ? (
+            <div>
+              <video ref={videoRef} autoPlay playsInline className="w-full rounded-xl mb-2 max-h-52 object-cover bg-black"/>
+              <div className="flex gap-2">
+                <button onClick={capture}
+                  className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
+                  <CamIco s={16}/> Aufnehmen
+                </button>
+                <button onClick={stopCamera}
+                  className="px-4 py-2 rounded-xl text-sm font-semibold border-2 border-gray-200 text-gray-500 hover:bg-gray-50">
+                  Abbrechen
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button onClick={startCamera}
+              className="w-full border-2 border-dashed border-indigo-300 rounded-xl py-6 flex flex-col items-center gap-2 text-indigo-500 hover:bg-indigo-50 transition-colors">
+              <CamIco s={28}/>
+              <span className="text-sm font-semibold">Kamera öffnen & Selfie aufnehmen</span>
+            </button>
+          )}
+          {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+          <video ref={streaming ? undefined : videoRef} className="hidden"/>
+        </div>
+      )}
+    </div>
+  );
+}
 
-            const showCompany = (id) => {
-                setHidden(prev => prev.filter(x => x !== id));
-                setOrderedIds(prev => [...prev, id]);
-            };
+// ── Student Form ───────────────────────────────────────────────────────────────
+function StudentForm({ submissions, onSubmit, setup }) {
+  const { companies, students, deadline } = setup;
+  const [name,       setName]       = useState('');
+  const [plz,        setPlz]        = useState('');
+  const [ort,        setOrt]        = useState('');
+  const [bms,        setBms]        = useState('');
+  const [schultage,  setSchultage]  = useState('');
+  const [ferien,     setFerien]     = useState('');
+  const [ferienText, setFerienText] = useState('');
+  const [email,      setEmail]      = useState('');
+  const [selfie,     setSelfie]     = useState('');
+  const [points,     setPoints]     = useState(emptyPoints(companies));
+  const [hidden,     setHidden]     = useState([]);
+  const [showHidden, setShowHidden] = useState(false);
+  const [orderedIds, setOrderedIds] = useState(companies.map(c=>c.id));
+  const [sortApplied,setSortApplied]= useState(false);
+  const [submitted,  setSubmitted]  = useState(false);
 
-            const doSort = () => {
-                const sorted = [...orderedIds].sort((a, b) => {
-                    const pa = points[a], pb = points[b];
-                    if (pa === 0 && pb === 0) return a - b;
-                    if (pa === 0) return 1;
-                    if (pb === 0) return -1;
-                    return pb - pa;
-                });
-                setOrderedIds(sorted);
-                setSortApplied(true);
-            };
+  const total      = Object.values(points).reduce((a,b)=>a+b,0);
+  const remaining  = 100 - total;
+  const withPoints = Object.values(points).filter(v=>v>0).length;
+  const visibleIds = orderedIds.filter(id=>!hidden.includes(id));
+  const hiddenCos  = companies.filter(c=>hidden.includes(c.id));
 
-            const handleSubmit = () => {
-                if (!isValid()) return;
-                const fullName = `${vorname.trim()} ${nachname.trim()}`;
-                const existing = submissions.find(s => s.fullName === fullName);
-                const sub = {
-                    fullName, vorname: vorname.trim(), nachname: nachname.trim(),
-                    plz: plz.trim(), ort: ort.trim(), bms,
-                    email: email.trim(),
-                    timestamp: new Date().toLocaleString('de-DE'),
-                    points: { ...points }
-                };
-                onSubmit(sub, existing);
+  // Rank map: id → rank (1-8) for companies with points, sorted descending
+  const rankMap = (() => {
+    const ranked = Object.entries(points)
+      .filter(([,v])=>v>0)
+      .sort((a,b)=>b[1]-a[1])
+      .slice(0,8);
+    const m = {};
+    ranked.forEach(([id],i) => { m[Number(id)] = i+1; });
+    return m;
+  })();
 
-                // Confirmation e-mail to student
-                const ranked = [...COMPANIES]
-                    .filter(c => points[c.id] > 0)
-                    .sort((a, b) => points[b.id] - points[a.id]);
-                let body = `Hallo ${vorname.trim()},\n\nhier ist deine eingereichte Wunschliste:\n\n`;
-                ranked.forEach((c, i) => { body += `${i + 1}. ${c.name}: ${points[c.id]} Punkte\n`; });
-                body += `\nTotal: ${total} Punkte\n\nDies ist eine automatische Bestätigung.`;
-                window.location.href =
-                    `mailto:${email.trim()}?subject=${encodeURIComponent('Wunschliste Versetzungsfirmen – Bestätigung')}&body=${encodeURIComponent(body)}`;
+  const nonZeroDup = () => {
+    const vals = Object.entries(points).filter(([id,v])=>v>0&&!hidden.includes(Number(id))).map(([,v])=>v);
+    return vals.length !== new Set(vals).size;
+  };
 
-                // If update: change e-mail (slight delay so first mailto can fire)
-                if (existing) {
-                    setTimeout(() => {
-                        let changeBody = `${fullName} hat seine Wunschliste aktualisiert.\n\nÄNDERUNGEN:\n`;
-                        COMPANIES.forEach(c => {
-                            const o = existing.points[c.id] || 0, n = points[c.id] || 0;
-                            if (o !== n) changeBody += `>>> ${c.name}: ${o} → ${n} Punkte\n`;
-                        });
-                        changeBody += `\nNEUER STAND:\n`;
-                        [...COMPANIES].filter(c => points[c.id] > 0).sort((a, b) => points[b.id] - points[a.id])
-                            .forEach((c, i) => { changeBody += `${i + 1}. ${c.name}: ${points[c.id]} Punkte\n`; });
-                        changeBody += `\nALTER STAND:\n`;
-                        [...COMPANIES].filter(c => existing.points[c.id] > 0).sort((a, b) => existing.points[b.id] - existing.points[a.id])
-                            .forEach((c, i) => { changeBody += `${i + 1}. ${c.name}: ${existing.points[c.id]} Punkte\n`; });
-                        window.open(`mailto:?subject=${encodeURIComponent('Aktualisierung: ' + fullName)}&body=${encodeURIComponent(changeBody)}`);
-                    }, 600);
-                }
-                setSubmitted(true);
-            };
+  const deadlinePassed = deadline && new Date() > new Date(deadline);
 
-            const reset = () => {
-                setVorname(''); setNachname(''); setPlz(''); setOrt('');
-                setBms(false); setEmail('');
-                setPoints(emptyPoints());
-                setHidden([]); setOrderedIds(COMPANIES.map(c => c.id));
-                setSortApplied(false); setSubmitted(false);
-            };
+  const isValid = () =>
+    !deadlinePassed &&
+    total===100 && !nonZeroDup() && withPoints===8 &&
+    name.trim() && plz.trim() && ort.trim() && email.trim() &&
+    bms && schultage && ferien &&
+    (ferien==='Nein' || (ferien==='Ja' && ferienText.trim())) &&
+    selfie;
 
-            // ── Sticky banner colour
-            const bannerBg = remaining === 0 ? 'bg-green-500' : remaining < 0 ? 'bg-red-500' : 'bg-indigo-600';
+  const handleChange = (id, raw) => {
+    const n = Math.max(0, Math.min(50, parseInt(raw)||0));
+    setPoints(prev=>({...prev,[id]:n}));
+  };
 
-            if (submitted) return (
-                <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full text-center">
-                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <CheckCircleIcon size={36}/>
-                        </div>
-                        <h2 className="text-2xl font-bold text-gray-800 mb-2">Erfolgreich eingereicht!</h2>
-                        <p className="text-gray-500 text-sm mb-6">Du erhältst eine Bestätigung an <strong>{email}</strong>.</p>
-                        <button onClick={reset} className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm">
-                            Neue Eingabe
-                        </button>
+  const hideCompany = (id) => {
+    setPoints(prev=>({...prev,[id]:0}));
+    setHidden(prev=>[...prev,id]);
+    setOrderedIds(prev=>prev.filter(x=>x!==id));
+  };
+
+  const showCompany = (id) => {
+    setHidden(prev=>prev.filter(x=>x!==id));
+    setOrderedIds(prev=>[...prev,id]);
+  };
+
+  const doSort = () => {
+    const sorted = [...orderedIds].sort((a,b)=>{
+      const pa=points[a], pb=points[b];
+      if(pa===0&&pb===0) return a-b;
+      if(pa===0) return 1; if(pb===0) return -1;
+      return pb-pa;
+    });
+    setOrderedIds(sorted); setSortApplied(true);
+  };
+
+  const handleSubmit = () => {
+    if (!isValid()) return;
+    const existing = submissions.find(s=>s.name===name.trim());
+    const sub = {
+      name: name.trim(), plz: plz.trim(), ort: ort.trim(),
+      bms, schultage, ferien, ferienText: ferien==='Ja'?ferienText.trim():'',
+      email: email.trim(), selfie,
+      timestamp: new Date().toLocaleString('de-DE'),
+      points: {...points}
+    };
+    onSubmit(sub, existing);
+
+    // Confirmation mail
+    const ranked = [...companies].filter(c=>points[c.id]>0).sort((a,b)=>points[b.id]-points[a.id]);
+    let body = `Hallo ${name.trim()},\n\nhier ist deine eingereichte Wunschliste:\n\n`;
+    ranked.forEach((c,i)=>{ body+=`${i+1}. ${c.name}: ${points[c.id]} Punkte\n`; });
+    body+=`\nTotal: ${total} Punkte\n\nDies ist eine automatische Bestätigung.`;
+    window.location.href=`mailto:${email.trim()}?subject=${encodeURIComponent('Wunschliste Versetzungsfirmen – Bestätigung')}&body=${encodeURIComponent(body)}`;
+
+    if (existing) {
+      setTimeout(()=>{
+        let cb=`${name.trim()} hat seine Wunschliste aktualisiert.\n\nÄNDERUNGEN:\n`;
+        companies.forEach(c=>{
+          const o=existing.points[c.id]||0, n=points[c.id]||0;
+          if(o!==n) cb+=`>>> ${c.name}: ${o} → ${n} Punkte\n`;
+        });
+        cb+=`\nNEUER STAND:\n`;
+        [...companies].filter(c=>points[c.id]>0).sort((a,b)=>points[b.id]-points[a.id])
+          .forEach((c,i)=>{ cb+=`${i+1}. ${c.name}: ${points[c.id]} Punkte\n`; });
+        cb+=`\nALTER STAND:\n`;
+        [...companies].filter(c=>existing.points[c.id]>0).sort((a,b)=>existing.points[b.id]-existing.points[a.id])
+          .forEach((c,i)=>{ cb+=`${i+1}. ${c.name}: ${existing.points[c.id]} Punkte\n`; });
+        window.open(`mailto:?subject=${encodeURIComponent('Aktualisierung: '+name.trim())}&body=${encodeURIComponent(cb)}`);
+      }, 600);
+    }
+    setSubmitted(true);
+  };
+
+  const reset = () => {
+    setName(''); setPlz(''); setOrt(''); setBms(''); setSchultage('');
+    setFerien(''); setFerienText(''); setEmail(''); setSelfie('');
+    setPoints(emptyPoints(companies));
+    setHidden([]); setOrderedIds(companies.map(c=>c.id));
+    setSortApplied(false); setSubmitted(false);
+  };
+
+  // Criteria for header
+  const criteria = [
+    { ok: total===100,     label:`${total}/100 Punkte` },
+    { ok: withPoints===8,  label:`${withPoints}/8 Firmen` },
+    { ok: !nonZeroDup(),   label:`Keine Duplikate` },
+  ];
+
+  const bannerBg = remaining===0?'bg-green-500':remaining<0?'bg-red-500':'bg-indigo-600';
+
+  if (deadlinePassed) return (
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full text-center">
+        <div className="text-5xl mb-4">🔒</div>
+        <h2 className="text-xl font-bold text-gray-800 mb-2">Umfrage geschlossen</h2>
+        <p className="text-gray-500 text-sm">Die Eingabefrist ist abgelaufen ({new Date(deadline).toLocaleDateString('de-DE')}).</p>
+      </div>
+    </div>
+  );
+
+  if (submitted) return (
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full text-center">
+        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <CheckCircle s={36}/>
+        </div>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">Erfolgreich eingereicht!</h2>
+        <p className="text-gray-500 text-sm mb-6">Du erhältst eine Bestätigung an <strong>{email}</strong>.</p>
+        <button onClick={reset} className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm">
+          Neue Eingabe
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gray-100 pb-10">
+      {/* Sticky Header */}
+      <div className={`${bannerBg} text-white sticky top-0 z-40 shadow-md transition-colors duration-300`}>
+        <div className="flex items-center justify-between px-4 py-2">
+          <span className="text-xs font-semibold opacity-80 uppercase tracking-wide">Übrig</span>
+          <span className="text-4xl font-black leading-none">{remaining}</span>
+          <span className="text-xs font-semibold opacity-80">{total}/100</span>
+        </div>
+        {/* Criteria pills */}
+        <div className="flex gap-2 px-3 pb-2 overflow-x-auto">
+          {criteria.map((c,i)=>(
+            <div key={i} className={`flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full whitespace-nowrap ${c.ok?'bg-white/25 text-white':'bg-white/10 text-white/60'}`}>
+              {c.ok ? <CheckCircle s={11}/> : <WarnCircle s={11}/>} {c.label}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="max-w-xl mx-auto pt-3 px-3 space-y-3">
+        {/* Header */}
+        <div className="bg-white rounded-xl shadow-sm p-4">
+          <h1 className="text-lg font-bold text-gray-800 mb-1">Wunschliste Versetzungsfirmen</h1>
+          <p className="text-gray-500 text-sm mb-3">Erstelle deine persönliche Wunschliste indem du 100 Punkte auf 8 Firmen verteilst.</p>
+          <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 space-y-1">
+            <p className="text-xs text-blue-700 font-medium">• Genau 8 Firmen müssen mindestens 1 Punkt erhalten</p>
+            <p className="text-xs text-blue-700 font-medium">• Keine Firmen dürfen gleich viele Punkte erhalten</p>
+          </div>
+          {deadline && (
+            <p className="text-xs text-orange-600 font-semibold mt-2">
+              📅 Eingabe möglich bis: {new Date(deadline).toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}
+            </p>
+          )}
+        </div>
+
+        {/* Personal Info */}
+        <div className="bg-white rounded-xl shadow-sm p-4">
+          <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Persönliche Angaben</h2>
+          <div className="space-y-3">
+            {/* Name Dropdown */}
+            <div>
+              <label className="text-xs font-semibold text-gray-500 mb-1 block">Name *</label>
+              {students.length > 0 ? (
+                <select value={name} onChange={e=>setName(e.target.value)}
+                  className="w-full px-3 py-1.5 border-2 border-gray-200 rounded-lg text-sm focus:border-indigo-400 focus:outline-none bg-white">
+                  <option value="">-- Name auswählen --</option>
+                  {students.map((s,i)=><option key={i} value={s}>{s}</option>)}
+                </select>
+              ) : (
+                <input type="text" value={name} onChange={e=>setName(e.target.value)} placeholder="Vorname Nachname"
+                  className="w-full px-3 py-1.5 border-2 border-gray-200 rounded-lg text-sm focus:border-indigo-400 focus:outline-none"/>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-2.5">
+              <div>
+                <label className="text-xs font-semibold text-gray-500 mb-1 block">PLZ *</label>
+                <input type="text" value={plz} onChange={e=>setPlz(e.target.value)} placeholder="8400"
+                  className="w-full px-3 py-1.5 border-2 border-gray-200 rounded-lg text-sm focus:border-indigo-400 focus:outline-none"/>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-gray-500 mb-1 block">Ort *</label>
+                <input type="text" value={ort} onChange={e=>setOrt(e.target.value)} placeholder="Winterthur"
+                  className="w-full px-3 py-1.5 border-2 border-gray-200 rounded-lg text-sm focus:border-indigo-400 focus:outline-none"/>
+              </div>
+              <div className="col-span-2">
+                <label className="text-xs font-semibold text-gray-500 mb-1 block">E-Mail *</label>
+                <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="max@mail.ch"
+                  className="w-full px-3 py-1.5 border-2 border-gray-200 rounded-lg text-sm focus:border-indigo-400 focus:outline-none"/>
+              </div>
+            </div>
+
+            {/* BMS */}
+            <YesNo label="BMS *" value={bms} onChange={setBms}/>
+
+            {/* Schultage */}
+            <div>
+              <p className="text-xs font-semibold text-gray-500 mb-1">Schultage *</p>
+              <div className="flex flex-wrap gap-4">
+                {['Montag / Dienstag','Donnerstag / Freitag'].map(opt=>(
+                  <label key={opt} className="flex items-center gap-1.5 cursor-pointer text-sm font-medium text-gray-700">
+                    <input type="radio" name="schultage" checked={schultage===opt} onChange={()=>setSchultage(opt)}
+                      className="accent-indigo-600 w-4 h-4"/>
+                    {opt}
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Frühlingsferien */}
+            <YesNo label="Frühlingsferien *" value={ferien} onChange={setFerien}/>
+            {ferien==='Ja' && (
+              <div>
+                <label className="text-xs font-semibold text-gray-500 mb-1 block">Zeitraum Frühlingsferien (von – bis) *</label>
+                <input type="text" value={ferienText} onChange={e=>setFerienText(e.target.value)}
+                  placeholder="z.B. 14.04.2025 – 25.04.2025"
+                  className="w-full px-3 py-1.5 border-2 border-gray-200 rounded-lg text-sm focus:border-indigo-400 focus:outline-none"/>
+              </div>
+            )}
+
+            {/* Selfie */}
+            <SelfieCapture selfie={selfie} onCapture={setSelfie}/>
+          </div>
+        </div>
+
+        {/* Company List */}
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div className="px-4 py-2.5 border-b border-gray-100 flex items-center justify-between">
+            <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Firmen bewerten</h2>
+            <span className="text-xs text-gray-400 font-medium">{withPoints}/8 bewertet</span>
+          </div>
+          <div className="divide-y divide-gray-100">
+            {visibleIds.map(id => {
+              const co   = companies.find(c=>c.id===id);
+              const val  = points[id];
+              const rank = rankMap[id];
+              const isDup= val>0 && Object.entries(points).some(([oid,ov])=>Number(oid)!==id&&ov===val);
+              if (!co) return null;
+              return (
+                <div key={id} className={`px-3 py-2 ${isDup?'bg-red-50':''}`}>
+                  <div className="flex items-center gap-2 mb-1">
+                    {/* Rank badge */}
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black shrink-0 ${rank?'bg-indigo-600 text-white':'bg-gray-100 text-gray-400'}`}>
+                      {rank||''}
                     </div>
+                    <a href={co.url} target="_blank" rel="noopener noreferrer"
+                      className="text-sm font-semibold text-gray-800 hover:text-indigo-600 truncate flex items-center gap-1 min-w-0 flex-1">
+                      <span className="truncate">{co.name}</span>
+                      <LinkIco s={10} className="shrink-0 text-gray-300"/>
+                    </a>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {isDup && <span className="text-xs font-bold text-red-500">Duplikat!</span>}
+                      <input type="number" min="0" max="50" value={val}
+                        onChange={e=>handleChange(id,e.target.value)}
+                        className={`w-14 px-1 py-1 text-center text-sm font-bold border-2 rounded-lg focus:outline-none ${isDup?'border-red-400':'border-gray-200 focus:border-indigo-400'}`}/>
+                      <button onClick={()=>hideCompany(id)} title="Ausblenden"
+                        className="text-gray-300 hover:text-red-400 p-0.5 transition-colors">
+                        <EyeOff s={14}/>
+                      </button>
+                    </div>
+                  </div>
+                  <input type="range" min="0" max="50" value={val}
+                    onChange={e=>handleChange(id,e.target.value)}
+                    className="w-full slider bg-gray-200 rounded-full appearance-none cursor-pointer ml-8" style={{width:'calc(100% - 2rem)'}}/>
                 </div>
-            );
+              );
+            })}
+          </div>
+        </div>
 
-            return (
-                <div className="min-h-screen bg-gray-100 pb-10">
-                    {/* ── Sticky points banner ── */}
-                    <div className={`${bannerBg} text-white py-2 px-4 flex items-center justify-between shadow-md sticky top-0 z-40 transition-colors duration-300`}>
-                        <span className="text-xs font-semibold uppercase tracking-wide opacity-80">Punkte übrig</span>
-                        <span className="text-4xl font-black leading-none">{remaining}</span>
-                        <span className="text-xs font-semibold opacity-80">{total} / 100</span>
-                    </div>
-
-                    <div className="max-w-xl mx-auto pt-3 px-3 space-y-3">
-                        {/* Header */}
-                        <div className="bg-white rounded-xl shadow-sm p-4">
-                            <h1 className="text-lg font-bold text-gray-800 mb-1">Wunschliste Versetzungsfirmen</h1>
-                            <p className="text-gray-500 text-sm mb-3">
-                                Erstelle deine persönliche Wunschliste indem du 100 Punkte auf 8 Firmen verteilst.
-                            </p>
-                            <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 space-y-1">
-                                <p className="text-xs text-blue-700 font-medium flex items-start gap-1.5"><span>•</span> Genau 8 Firmen müssen mindestens 1 Punkt erhalten</p>
-                                <p className="text-xs text-blue-700 font-medium flex items-start gap-1.5"><span>•</span> Keine Firmen dürfen gleich viele Punkte erhalten</p>
-                            </div>
-                        </div>
-
-                        {/* Personal Info */}
-                        <div className="bg-white rounded-xl shadow-sm p-4">
-                            <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Persönliche Angaben</h2>
-                            <div className="grid grid-cols-2 gap-2.5">
-                                {[
-                                    { label:'Vorname *',  val:vorname,  set:setVorname,  ph:'Max',           span:1 },
-                                    { label:'Nachname *', val:nachname, set:setNachname, ph:'Muster',        span:1 },
-                                    { label:'PLZ *',      val:plz,      set:setPlz,      ph:'8400',          span:1 },
-                                    { label:'Ort *',      val:ort,      set:setOrt,      ph:'Winterthur',    span:1 },
-                                    { label:'E-Mail *',   val:email,    set:setEmail,    ph:'max@mail.ch',   span:2, type:'email' },
-                                ].map(f => (
-                                    <div key={f.label} className={f.span===2?'col-span-2':''}>
-                                        <label className="text-xs font-semibold text-gray-500 mb-1 block">{f.label}</label>
-                                        <input type={f.type||'text'} value={f.val} onChange={e=>f.set(e.target.value)} placeholder={f.ph}
-                                            className="w-full px-3 py-1.5 border-2 border-gray-200 rounded-lg text-sm focus:border-indigo-400 focus:outline-none"/>
-                                    </div>
-                                ))}
-                                <div className="col-span-2">
-                                    <label className="flex items-center gap-2.5 cursor-pointer">
-                                        <input type="checkbox" checked={bms} onChange={e=>setBms(e.target.checked)} className="w-4 h-4 accent-indigo-600"/>
-                                        <span className="text-sm font-medium text-gray-700">BMS</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Validation */}
-                        <div className="bg-white rounded-xl shadow-sm px-4 py-3 space-y-1.5">
-                            {[
-                                { ok: total === 100,                               label: `100 Punkte verteilt (${total}/100)` },
-                                { ok: withPoints === 8,                            label: `Genau 8 Firmen bewertet (${withPoints}/8)${withPoints > 8 ? ' – zu viele!' : ''}` },
-                                { ok: !nonZeroDup(),                               label: 'Keine doppelten Punktzahlen' },
-                                { ok: !!(vorname&&nachname&&plz&&ort&&email),      label: 'Alle Pflichtfelder ausgefüllt' },
-                            ].map((v, i) => (
-                                <div key={i} className={`flex items-center gap-2 text-xs font-medium ${v.ok ? 'text-green-600' : 'text-red-500'}`}>
-                                    {v.ok ? <CheckCircleIcon size={13}/> : <WarnIcon size={13}/>} {v.label}
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Company List */}
-                        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-                            <div className="px-4 py-2.5 border-b border-gray-100 flex items-center justify-between">
-                                <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Firmen bewerten</h2>
-                                <span className="text-xs text-gray-400 font-medium">{withPoints}/8 bewertet</span>
-                            </div>
-                            <div className="divide-y divide-gray-100">
-                                {visibleIds.map(id => {
-                                    const co  = COMPANIES.find(c => c.id === id);
-                                    const val = points[id];
-                                    const isDup = val > 0 && Object.entries(points).some(([oid, ov]) => Number(oid) !== id && ov === val);
-                                    return (
-                                        <div key={id} className={`px-3 py-2 ${isDup ? 'bg-red-50' : ''}`}>
-                                            <div className="flex items-center justify-between gap-2 mb-1">
-                                                <a href={co.url} target="_blank" rel="noopener noreferrer"
-                                                    className="text-sm font-semibold text-gray-800 hover:text-indigo-600 truncate flex items-center gap-1 min-w-0">
-                                                    <span className="truncate">{co.name}</span>
-                                                    <LinkIcon size={10} className="shrink-0 text-gray-300"/>
-                                                </a>
-                                                <div className="flex items-center gap-1.5 shrink-0">
-                                                    {isDup && <span className="text-xs font-bold text-red-500 whitespace-nowrap">Duplikat!</span>}
-                                                    <input type="number" min="0" max="50" value={val}
-                                                        onChange={e => handleChange(id, e.target.value)}
-                                                        className={`w-14 px-1 py-1 text-center text-sm font-bold border-2 rounded-lg focus:outline-none ${isDup ? 'border-red-400' : 'border-gray-200 focus:border-indigo-400'}`}/>
-                                                    <button onClick={() => hideCompany(id)} title="Ausblenden"
-                                                        className="text-gray-300 hover:text-red-400 p-0.5 transition-colors">
-                                                        <EyeOffIcon size={14}/>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            <input type="range" min="0" max="50" value={val}
-                                                onChange={e => handleChange(id, e.target.value)}
-                                                className="w-full slider bg-gray-200 rounded-full appearance-none cursor-pointer"/>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-
-                        {/* Hidden Companies Drawer */}
-                        {hiddenCompanies.length > 0 && (
-                            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-                                <button onClick={() => setShowHidden(!showHidden)}
-                                    className="w-full px-4 py-3 flex items-center justify-between text-xs font-bold text-gray-500 uppercase tracking-wider hover:bg-gray-50 transition-colors">
-                                    <span>Ausgeblendete Firmen ({hiddenCompanies.length})</span>
-                                    {showHidden ? <ChevronUp/> : <ChevronDown/>}
-                                </button>
-                                {showHidden && (
-                                    <div className="border-t border-gray-100 divide-y divide-gray-100">
-                                        {hiddenCompanies.map(co => (
-                                            <div key={co.id} className="px-4 py-2.5 flex items-center justify-between">
-                                                <a href={co.url} target="_blank" rel="noopener noreferrer"
-                                                    className="text-sm text-gray-400 line-through flex items-center gap-1 hover:text-gray-600 truncate">
-                                                    {co.name}<LinkIcon size={9}/>
-                                                </a>
-                                                <button onClick={() => showCompany(co.id)}
-                                                    className="flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-800 ml-2 shrink-0 px-2 py-1 rounded hover:bg-indigo-50">
-                                                    <EyeOnIcon size={13}/> Einblenden
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {/* Sort + Submit */}
-                        <button onClick={doSort}
-                            className="w-full py-2.5 rounded-xl font-semibold text-sm bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white flex items-center justify-center gap-2 transition-colors">
-                            <SortIcon/> {sortApplied ? '✓ Nach Bewertung sortiert' : 'Nach Bewertung sortieren'}
-                        </button>
-
-                        <button onClick={handleSubmit} disabled={!isValid()}
-                            className={`w-full py-3.5 rounded-xl font-bold text-base transition-all ${isValid()
-                                ? 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white shadow-lg'
-                                : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
-                            {isValid() ? 'Wunschliste einreichen ✓' : 'Bitte alle Anforderungen erfüllen'}
-                        </button>
-                    </div>
-                </div>
-            );
-        }
-
-        // ── Admin View ────────────────────────────────────────────────────────────
-        function AdminView({ submissions, onLogout, onClear }) {
-            const exportCSV = () => {
-                if (!submissions.length) return;
-                const hdrs = ['Vorname','Nachname','PLZ','Ort','BMS','E-Mail','Zeitstempel', ...COMPANIES.map(c => c.name),'Summe'];
-                const rows = submissions.map(s => [
-                    s.vorname, s.nachname, s.plz, s.ort, s.bms ? 'Ja' : 'Nein', s.email, s.timestamp,
-                    ...COMPANIES.map(c => s.points[c.id] || 0),
-                    Object.values(s.points).reduce((a, b) => a + b, 0),
-                ]);
-                const csv = [hdrs.join(';'), ...rows.map(r => r.join(';'))].join('\n');
-                const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
-                const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-                a.download = `wunschliste_${new Date().toISOString().split('T')[0]}.csv`; a.click();
-            };
-
-            return (
-                <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-50 p-4">
-                    <div className="max-w-7xl mx-auto space-y-4">
-                        <div className="bg-white rounded-xl shadow p-5 flex items-center justify-between">
-                            <div>
-                                <h1 className="text-xl font-bold text-gray-800">Admin-Bereich</h1>
-                                <p className="text-gray-400 text-sm">Wunschliste Versetzungsfirmen</p>
-                            </div>
-                            <button onClick={onLogout} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold">
-                                Abmelden
-                            </button>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-3">
-                            <div className="bg-white rounded-xl shadow p-4 text-center">
-                                <div className="text-3xl font-black text-indigo-600">{submissions.length}</div>
-                                <div className="text-xs text-gray-400 mt-1">Einreichungen</div>
-                            </div>
-                            <div className="bg-white rounded-xl shadow p-4 text-center">
-                                <div className="text-3xl font-black text-green-600">{submissions.length ? Math.round(submissions.length/40*100) : 0}%</div>
-                                <div className="text-xs text-gray-400 mt-1">Teilnahmequote</div>
-                            </div>
-                        </div>
-
-                        <div className="bg-white rounded-xl shadow p-4 flex gap-3 flex-wrap">
-                            <button onClick={exportCSV} disabled={!submissions.length}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold ${submissions.length ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
-                                <DownloadIcon/> CSV exportieren
-                            </button>
-                            <button onClick={onClear} disabled={!submissions.length}
-                                className={`px-4 py-2 rounded-lg text-sm font-semibold ${submissions.length ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
-                                Alle löschen
-                            </button>
-                        </div>
-
-                        {submissions.length > 0 ? (
-                            <div className="bg-white rounded-xl shadow overflow-hidden">
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-xs">
-                                        <thead className="bg-gray-50 border-b-2 border-gray-200">
-                                            <tr>
-                                                {['#','Name','PLZ/Ort','BMS','E-Mail','Zeit'].map(h => (
-                                                    <th key={h} className="px-3 py-2 text-left font-semibold text-gray-600">{h}</th>
-                                                ))}
-                                                {COMPANIES.map(c => (
-                                                    <th key={c.id} title={c.name} className="px-2 py-2 text-center font-semibold text-gray-600 max-w-12">
-                                                        {c.name.split(' ')[0].replace(',','')}
-                                                    </th>
-                                                ))}
-                                                <th className="px-3 py-2 text-center font-bold text-gray-700">Σ</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-100">
-                                            {submissions.map((s, i) => (
-                                                <tr key={i} className="hover:bg-gray-50">
-                                                    <td className="px-3 py-2 text-gray-400">{i+1}</td>
-                                                    <td className="px-3 py-2 font-semibold whitespace-nowrap">{s.vorname} {s.nachname}</td>
-                                                    <td className="px-3 py-2 whitespace-nowrap">{s.plz} {s.ort}</td>
-                                                    <td className="px-3 py-2 text-center">{s.bms ? '✓' : ''}</td>
-                                                    <td className="px-3 py-2">{s.email}</td>
-                                                    <td className="px-3 py-2 text-gray-400 whitespace-nowrap">{s.timestamp}</td>
-                                                    {COMPANIES.map(c => (
-                                                        <td key={c.id} className={`px-2 py-2 text-center font-semibold ${s.points[c.id] > 0 ? 'text-indigo-700' : 'text-gray-300'}`}>
-                                                            {s.points[c.id] > 0 ? s.points[c.id] : '–'}
-                                                        </td>
-                                                    ))}
-                                                    <td className="px-3 py-2 text-center font-bold text-indigo-600">
-                                                        {Object.values(s.points).reduce((a, b) => a + b, 0)}
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div className="p-4 bg-indigo-50 border-t border-indigo-100">
-                                    <h3 className="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">⌀ Durchschnitt</h3>
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                                        {COMPANIES.map(c => {
-                                            const avg = submissions.reduce((a, s) => a + (s.points[c.id]||0), 0) / submissions.length;
-                                            return (
-                                                <div key={c.id} className="bg-white rounded-lg p-2 flex justify-between items-center">
-                                                    <span className="text-xs text-gray-500 truncate mr-2">{c.name}</span>
-                                                    <span className="text-sm font-bold text-indigo-600 shrink-0">{avg.toFixed(1)}</span>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="bg-white rounded-xl shadow p-12 text-center text-gray-400 text-sm">
-                                Noch keine Einreichungen vorhanden.
-                            </div>
-                        )}
-                    </div>
-                </div>
-            );
-        }
-
-        // ── Admin Login Modal ─────────────────────────────────────────────────────
-        function LoginModal({ onLogin, onClose }) {
-            const [pw,   setPw]   = useState('');
-            const [show, setShow] = useState(false);
-            const [err,  setErr]  = useState(false);
-            const attempt = () => {
-                if (pw === ADMIN_PASSWORD) { onLogin(); }
-                else { setErr(true); setTimeout(() => setErr(false), 2000); }
-            };
-            return (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-xs">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="font-bold text-gray-800">Admin-Login</h3>
-                            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">✕</button>
-                        </div>
-                        <div className="relative mb-2">
-                            <input type={show ? 'text' : 'password'} value={pw}
-                                onChange={e => setPw(e.target.value)}
-                                onKeyDown={e => e.key === 'Enter' && attempt()}
-                                placeholder="Passwort"
-                                className={`w-full px-3 py-2 border-2 rounded-lg text-sm focus:outline-none pr-10 ${err ? 'border-red-400' : 'border-gray-200 focus:border-indigo-400'}`}/>
-                            <button onClick={() => setShow(!show)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
-                                {show ? <EyeOffIcon size={15}/> : <EyeOnIcon size={15}/>}
-                            </button>
-                        </div>
-                        {err && <p className="text-red-500 text-xs mb-2">Falsches Passwort</p>}
-                        <button onClick={attempt} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-sm font-semibold">
-                            Anmelden
-                        </button>
-                    </div>
-                </div>
-            );
-        }
-
-        // ── App Root ──────────────────────────────────────────────────────────────
-        function App() {
-            const [submissions, setSubmissions] = useState([]);
-            const [isAdmin,     setIsAdmin]     = useState(false);
-            const [showLogin,   setShowLogin]   = useState(false);
-
-            useEffect(() => {
-                const saved = localStorage.getItem('wunschliste_v3');
-                if (saved) setSubmissions(JSON.parse(saved));
-            }, []);
-
-            const persist = (data) => {
-                localStorage.setItem('wunschliste_v3', JSON.stringify(data));
-                setSubmissions(data);
-            };
-
-            const handleSubmit = (submission, existing) => {
-                const updated = existing
-                    ? submissions.map(s => s.fullName === submission.fullName ? submission : s)
-                    : [...submissions, submission];
-                persist(updated);
-            };
-
-            const handleClear = () => {
-                if (window.confirm('Wirklich alle Daten löschen? Diese Aktion kann nicht rückgängig gemacht werden.')) persist([]);
-            };
-
-            if (isAdmin) return <AdminView submissions={submissions} onLogout={() => setIsAdmin(false)} onClear={handleClear}/>;
-
-            return (
-                <>
-                    <StudentForm submissions={submissions} onSubmit={handleSubmit}/>
-                    {/* Floating lock button */}
-                    <button onClick={() => setShowLogin(true)}
-                        className="fixed bottom-5 right-5 z-40 bg-white shadow-xl rounded-full p-3 text-gray-400 hover:text-indigo-600 border border-gray-200 transition-colors">
-                        <LockIcon size={18}/>
+        {/* Hidden Companies */}
+        {hiddenCos.length > 0 && (
+          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <button onClick={()=>setShowHidden(!showHidden)}
+              className="w-full px-4 py-3 flex items-center justify-between text-xs font-bold text-gray-500 uppercase tracking-wider hover:bg-gray-50 transition-colors">
+              <span>Ausgeblendete Firmen ({hiddenCos.length})</span>
+              {showHidden?<ChevU/>:<ChevD/>}
+            </button>
+            {showHidden && (
+              <div className="border-t border-gray-100 divide-y divide-gray-100">
+                {hiddenCos.map(co=>(
+                  <div key={co.id} className="px-4 py-2.5 flex items-center justify-between">
+                    <a href={co.url} target="_blank" rel="noopener noreferrer"
+                      className="text-sm text-gray-400 line-through flex items-center gap-1 hover:text-gray-600 truncate">
+                      {co.name}<LinkIco s={9}/>
+                    </a>
+                    <button onClick={()=>showCompany(co.id)}
+                      className="flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-800 ml-2 shrink-0 px-2 py-1 rounded hover:bg-indigo-50">
+                      <EyeOn s={13}/> Einblenden
                     </button>
-                    {showLogin && <LoginModal onLogin={() => { setIsAdmin(true); setShowLogin(false); }} onClose={() => setShowLogin(false)}/>}
-                </>
-            );
-        }
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
-        ReactDOM.render(<App/>, document.getElementById('root'));
-    </script>
+        {/* Sort + Submit */}
+        <button onClick={doSort}
+          className="w-full py-2.5 rounded-xl font-semibold text-sm bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center gap-2 transition-colors">
+          <SortIco/> {sortApplied?'✓ Nach Bewertung sortiert':'Nach Bewertung sortieren'}
+        </button>
+        <button onClick={handleSubmit} disabled={!isValid()}
+          className={`w-full py-3.5 rounded-xl font-bold text-base transition-all ${isValid()?'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg':'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
+          {isValid()?'Wunschliste einreichen ✓':'Bitte alle Anforderungen erfüllen'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Admin: Setup Tab ───────────────────────────────────────────────────────────
+function SetupTab({ setup, onSave }) {
+  const [companies, setCompanies] = useState(setup.companies.map(c=>({...c})));
+  const [students,  setStudents]  = useState([...setup.students]);
+  const [deadline,  setDeadline]  = useState(setup.deadline||'');
+  const [newStudent,setNewStudent]= useState('');
+  const [saved,     setSaved]     = useState(false);
+
+  const updateCo = (id, field, val) =>
+    setCompanies(prev=>prev.map(c=>c.id===id?{...c,[field]:val}:c));
+
+  const addStudent = () => {
+    const n = newStudent.trim();
+    if (n && !students.includes(n)) { setStudents(prev=>[...prev,n].sort()); setNewStudent(''); }
+  };
+
+  const removeStudent = (s) => setStudents(prev=>prev.filter(x=>x!==s));
+
+  const save = () => {
+    onSave({ companies, students, deadline });
+    setSaved(true); setTimeout(()=>setSaved(false),2000);
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Deadline */}
+      <div className="bg-white rounded-xl shadow-sm p-4">
+        <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Eingabefrist</h3>
+        <label className="text-xs font-semibold text-gray-500 mb-1 block">Umfrage offen bis (Datum & Uhrzeit)</label>
+        <input type="datetime-local" value={deadline} onChange={e=>setDeadline(e.target.value)}
+          className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg text-sm focus:border-indigo-400 focus:outline-none"/>
+        {deadline && <p className="text-xs text-orange-600 mt-1">Umfrage schliesst: {new Date(deadline).toLocaleString('de-DE')}</p>}
+      </div>
+
+      {/* Students */}
+      <div className="bg-white rounded-xl shadow-sm p-4">
+        <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Lernende ({students.length})</h3>
+        <div className="flex gap-2 mb-3">
+          <input type="text" value={newStudent} onChange={e=>setNewStudent(e.target.value)}
+            onKeyDown={e=>e.key==='Enter'&&addStudent()}
+            placeholder="Vorname Nachname"
+            className="flex-1 px-3 py-1.5 border-2 border-gray-200 rounded-lg text-sm focus:border-indigo-400 focus:outline-none"/>
+          <button onClick={addStudent}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1 text-sm">
+            <PlusIco/> Add
+          </button>
+        </div>
+        <div className="max-h-48 overflow-y-auto space-y-1">
+          {students.map((s,i)=>(
+            <div key={i} className="flex items-center justify-between py-1 px-2 rounded hover:bg-gray-50">
+              <span className="text-sm text-gray-700">{i+1}. {s}</span>
+              <button onClick={()=>removeStudent(s)} className="text-gray-300 hover:text-red-400 transition-colors">
+                <TrashIco s={13}/>
+              </button>
+            </div>
+          ))}
+          {students.length===0 && <p className="text-xs text-gray-400 italic">Noch keine Lernenden eingetragen. Namen werden als Freitext-Eingabe angezeigt.</p>}
+        </div>
+      </div>
+
+      {/* Companies */}
+      <div className="bg-white rounded-xl shadow-sm p-4">
+        <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Firmen</h3>
+        <div className="space-y-2 max-h-96 overflow-y-auto">
+          {companies.map(co=>(
+            <div key={co.id} className="grid grid-cols-5 gap-1.5 items-center">
+              <span className="text-xs text-gray-400 text-center">{co.id}</span>
+              <input value={co.name} onChange={e=>updateCo(co.id,'name',e.target.value)}
+                className="col-span-2 px-2 py-1 border border-gray-200 rounded text-xs focus:border-indigo-400 focus:outline-none"/>
+              <input value={co.url} onChange={e=>updateCo(co.id,'url',e.target.value)}
+                className="col-span-2 px-2 py-1 border border-gray-200 rounded text-xs focus:border-indigo-400 focus:outline-none"/>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <button onClick={save}
+        className={`w-full py-3 rounded-xl font-bold text-sm transition-all ${saved?'bg-green-600 text-white':'bg-indigo-600 hover:bg-indigo-700 text-white'}`}>
+        {saved?'✓ Gespeichert!':'Einstellungen speichern'}
+      </button>
+    </div>
+  );
+}
+
+// ── Admin: Data Tab ────────────────────────────────────────────────────────────
+function DataTab({ submissions, setup, onDelete, onClear }) {
+  const { companies, students } = setup;
+  const total = students.length || 40;
+  const pct   = total>0 ? Math.round(submissions.length/total*100) : 0;
+
+  const exportCSV = () => {
+    if (!submissions.length) return;
+    const hdrs = ['Name','PLZ','Ort','BMS','Schultage','Frühlingsferien','Ferienzeit','E-Mail','Zeitstempel',...companies.map(c=>c.name),'Summe'];
+    const rows = submissions.map(s=>[
+      s.name,s.plz,s.ort,s.bms,s.schultage,s.ferien,s.ferienText,s.email,s.timestamp,
+      ...companies.map(c=>s.points[c.id]||0),
+      Object.values(s.points).reduce((a,b)=>a+b,0)
+    ]);
+    const csv=[hdrs.join(';'),...rows.map(r=>r.join(';'))].join('\n');
+    const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=`wunschliste_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="bg-white rounded-xl shadow-sm p-3 text-center">
+          <div className="text-2xl font-black text-indigo-600">{submissions.length}</div>
+          <div className="text-xs text-gray-400">Eingereicht</div>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm p-3 text-center">
+          <div className="text-2xl font-black text-orange-500">{total-submissions.length}</div>
+          <div className="text-xs text-gray-400">Ausstehend</div>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm p-3 text-center">
+          <div className="text-2xl font-black text-green-600">{pct}%</div>
+          <div className="text-xs text-gray-400">{submissions.length} von {total}</div>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="bg-white rounded-xl shadow-sm p-3 flex gap-2 flex-wrap">
+        <button onClick={exportCSV} disabled={!submissions.length}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold ${submissions.length?'bg-green-600 hover:bg-green-700 text-white':'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
+          <DlIco/> CSV exportieren
+        </button>
+        <button onClick={onClear} disabled={!submissions.length}
+          className={`px-4 py-2 rounded-lg text-sm font-semibold ${submissions.length?'bg-red-500 hover:bg-red-600 text-white':'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
+          Alle löschen
+        </button>
+      </div>
+
+      {/* Table */}
+      {submissions.length>0 ? (
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead className="bg-gray-50 border-b-2 border-gray-200">
+                <tr>
+                  <th className="px-2 py-2 text-left">#</th>
+                  <th className="px-2 py-2 text-left">Name</th>
+                  <th className="px-2 py-2 text-center">BMS</th>
+                  <th className="px-2 py-2 text-center">Schultage</th>
+                  <th className="px-2 py-2 text-center">Ferien</th>
+                  <th className="px-2 py-2 text-left">Zeit</th>
+                  <th className="px-2 py-2 text-center">📷</th>
+                  {companies.map(c=>(
+                    <th key={c.id} title={c.name} className="px-1 py-2 text-center font-semibold">
+                      {c.id}
+                    </th>
+                  ))}
+                  <th className="px-2 py-2 text-center font-bold">Σ</th>
+                  <th className="px-2 py-2"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {submissions.map((s,i)=>(
+                  <tr key={i} className="hover:bg-gray-50">
+                    <td className="px-2 py-2 text-gray-400">{i+1}</td>
+                    <td className="px-2 py-2 font-semibold whitespace-nowrap">{s.name}</td>
+                    <td className="px-2 py-2 text-center">{s.bms}</td>
+                    <td className="px-2 py-2 text-center whitespace-nowrap text-gray-600">{s.schultage}</td>
+                    <td className="px-2 py-2 text-center">{s.ferien}{s.ferien==='Ja'&&s.ferienText?` (${s.ferienText})`:''}</td>
+                    <td className="px-2 py-2 text-gray-400 whitespace-nowrap">{s.timestamp}</td>
+                    <td className="px-2 py-2 text-center">
+                      {s.selfie && (
+                        <a href={s.selfie} target="_blank" rel="noopener noreferrer">
+                          <img src={s.selfie} alt="selfie" className="w-8 h-8 rounded-full object-cover mx-auto"/>
+                        </a>
+                      )}
+                    </td>
+                    {companies.map(c=>(
+                      <td key={c.id} className={`px-1 py-2 text-center font-semibold ${s.points[c.id]>0?'text-indigo-700':'text-gray-300'}`}>
+                        {s.points[c.id]>0?s.points[c.id]:'–'}
+                      </td>
+                    ))}
+                    <td className="px-2 py-2 text-center font-bold text-indigo-600">
+                      {Object.values(s.points).reduce((a,b)=>a+b,0)}
+                    </td>
+                    <td className="px-2 py-2">
+                      <button onClick={()=>onDelete(i)}
+                        className="text-gray-300 hover:text-red-500 transition-colors p-1">
+                        <TrashIco s={14}/>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Company legend */}
+          <div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
+            <p className="text-xs font-bold text-gray-500 mb-2">Firmen-Legende (Spalten-Nr.)</p>
+            <div className="grid grid-cols-2 gap-1">
+              {companies.map(c=>(
+                <div key={c.id} className="text-xs text-gray-500">
+                  <span className="font-bold text-indigo-600">{c.id}.</span> {c.name}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Averages */}
+          <div className="p-4 bg-indigo-50 border-t border-indigo-100">
+            <h3 className="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">⌀ Durchschnitt</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {companies.map(c=>{
+                const avg=submissions.reduce((a,s)=>a+(s.points[c.id]||0),0)/submissions.length;
+                return (
+                  <div key={c.id} className="bg-white rounded-lg p-2 flex justify-between items-center">
+                    <span className="text-xs text-gray-500 truncate mr-2">{c.name}</span>
+                    <span className="text-sm font-bold text-indigo-600 shrink-0">{avg.toFixed(1)}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-white rounded-xl shadow-sm p-10 text-center text-gray-400 text-sm">
+          Noch keine Einreichungen vorhanden.
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Admin View ─────────────────────────────────────────────────────────────────
+function AdminView({ submissions, setup, onLogout, onDelete, onClear, onSaveSetup }) {
+  const [tab, setTab] = useState('data');
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-50 p-4">
+      <div className="max-w-7xl mx-auto space-y-4">
+        <div className="bg-white rounded-xl shadow p-4 flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold text-gray-800">Admin-Bereich</h1>
+            <p className="text-gray-400 text-xs">Wunschliste Versetzungsfirmen</p>
+          </div>
+          <button onClick={onLogout} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold">
+            Abmelden
+          </button>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-2">
+          {[['data','📊 Daten'],['setup','⚙️ Einstellungen']].map(([id,label])=>(
+            <button key={id} onClick={()=>setTab(id)}
+              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${tab===id?'bg-indigo-600 text-white shadow':'bg-white text-gray-600 hover:bg-gray-50 shadow-sm'}`}>
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {tab==='data'
+          ? <DataTab submissions={submissions} setup={setup} onDelete={onDelete} onClear={onClear}/>
+          : <SetupTab setup={setup} onSave={onSaveSetup}/>
+        }
+      </div>
+    </div>
+  );
+}
+
+// ── Login Modal ────────────────────────────────────────────────────────────────
+function LoginModal({ onLogin, onClose }) {
+  const [pw,setPw]=useState(''); const [show,setShow]=useState(false); const [err,setErr]=useState(false);
+  const attempt = () => { if(pw===ADMIN_PASSWORD){onLogin();}else{setErr(true);setTimeout(()=>setErr(false),2000);} };
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-xs">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="font-bold text-gray-800">Admin-Login</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+        </div>
+        <div className="relative mb-2">
+          <input type={show?'text':'password'} value={pw} onChange={e=>setPw(e.target.value)}
+            onKeyDown={e=>e.key==='Enter'&&attempt()} placeholder="Passwort"
+            className={`w-full px-3 py-2 border-2 rounded-lg text-sm focus:outline-none pr-10 ${err?'border-red-400':'border-gray-200 focus:border-indigo-400'}`}/>
+          <button onClick={()=>setShow(!show)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+            {show?<EyeOff s={15}/>:<EyeOn s={15}/>}
+          </button>
+        </div>
+        {err&&<p className="text-red-500 text-xs mb-2">Falsches Passwort</p>}
+        <button onClick={attempt} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-sm font-semibold">
+          Anmelden
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── App Root ───────────────────────────────────────────────────────────────────
+function App() {
+  const [submissions, setSubmissions] = useState([]);
+  const [setup,       setSetup]       = useState(DEFAULT_SETUP);
+  const [isAdmin,     setIsAdmin]     = useState(false);
+  const [showLogin,   setShowLogin]   = useState(false);
+
+  useEffect(()=>{
+    const s=localStorage.getItem(STORAGE_KEY); if(s) setSubmissions(JSON.parse(s));
+    const cfg=localStorage.getItem(SETUP_KEY);  if(cfg) setSetup(JSON.parse(cfg));
+  },[]);
+
+  const persist = (data) => { localStorage.setItem(STORAGE_KEY,JSON.stringify(data)); setSubmissions(data); };
+  const saveSetup= (cfg)  => { localStorage.setItem(SETUP_KEY, JSON.stringify(cfg));  setSetup(cfg); };
+
+  const handleSubmit = (sub,existing) => {
+    const updated = existing
+      ? submissions.map(s=>s.name===sub.name?sub:s)
+      : [...submissions,sub];
+    persist(updated);
+  };
+
+  const handleDelete = (idx) => {
+    if(window.confirm('Diesen Eintrag löschen?')) persist(submissions.filter((_,i)=>i!==idx));
+  };
+
+  const handleClear = () => {
+    if(window.confirm('Wirklich alle Daten löschen?')) persist([]);
+  };
+
+  if(isAdmin) return (
+    <AdminView submissions={submissions} setup={setup}
+      onLogout={()=>setIsAdmin(false)}
+      onDelete={handleDelete}
+      onClear={handleClear}
+      onSaveSetup={saveSetup}/>
+  );
+
+  return (
+    <>
+      <StudentForm submissions={submissions} onSubmit={handleSubmit} setup={setup}/>
+      <button onClick={()=>setShowLogin(true)}
+        className="fixed bottom-5 right-5 z-40 bg-white shadow-xl rounded-full p-3 text-gray-400 hover:text-indigo-600 border border-gray-200 transition-colors">
+        <LockIco s={18}/>
+      </button>
+      {showLogin&&<LoginModal onLogin={()=>{setIsAdmin(true);setShowLogin(false);}} onClose={()=>setShowLogin(false)}/>}
+    </>
+  );
+}
+
+ReactDOM.render(<App/>, document.getElementById('root'));
+</script>
 </body>
 </html>
