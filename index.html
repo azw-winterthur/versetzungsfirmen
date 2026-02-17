@@ -887,31 +887,64 @@ function App() {
   const [setup,       setSetup]       = useState(DEFAULT_SETUP);
   const [isAdmin,     setIsAdmin]     = useState(false);
   const [showLogin,   setShowLogin]   = useState(false);
+  const [fbReady,     setFbReady]     = useState(!!window._fbReady);
+  const [loading,     setLoading]     = useState(true);
 
-  useEffect(()=>{
-    const s=localStorage.getItem(STORAGE_KEY); if(s) setSubmissions(JSON.parse(s));
-    const cfg=localStorage.getItem(SETUP_KEY);  if(cfg) setSetup(JSON.parse(cfg));
-  },[]);
+  useEffect(() => {
+    if (window._fbReady) { setFbReady(true); }
+    else {
+      const handler = () => setFbReady(true);
+      window.addEventListener('firebase-ready', handler);
+      return () => window.removeEventListener('firebase-ready', handler);
+    }
+  }, []);
 
-  const persist = (data) => { localStorage.setItem(STORAGE_KEY,JSON.stringify(data)); setSubmissions(data); };
-  const saveSetup= (cfg)  => { localStorage.setItem(SETUP_KEY, JSON.stringify(cfg));  setSetup(cfg); };
+  useEffect(() => {
+    if (!fbReady) return;
+    const fb = window._fb;
+    fb.loadSetup().then(cfg => { if (cfg) setSetup(cfg); });
+    const unsub = fb.subscribeSubmissions(data => {
+      setSubmissions(data);
+      setLoading(false);
+    });
+    return () => unsub();
+  }, [fbReady]);
 
-  const handleSubmit = (sub,existing) => {
-    const updated = existing
-      ? submissions.map(s=>s.name===sub.name?sub:s)
-      : [...submissions,sub];
-    persist(updated);
+  const handleSubmit = async (sub, existing) => {
+    await window._fb.saveSubmission(sub);
   };
 
-  const handleDelete = (idx) => {
-    if(window.confirm('Diesen Eintrag löschen?')) persist(submissions.filter((_,i)=>i!==idx));
+  const handleDelete = async (idx) => {
+    const sub = submissions[idx];
+    if (window.confirm('Diesen Eintrag loeschen?')) {
+      await window._fb.deleteSubmission(sub._id);
+    }
   };
 
-  const handleClear = () => {
-    if(window.confirm('Wirklich alle Daten löschen?')) persist([]);
+  const handleClear = async () => {
+    if (window.confirm('Wirklich alle Daten loeschen?')) {
+      await window._fb.deleteAllSubmissions();
+    }
   };
 
-  if(isAdmin) return (
+  const saveSetup = async (cfg) => {
+    await window._fb.saveSetup(cfg);
+    setSetup(cfg);
+  };
+
+  if (!fbReady || loading) return (
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="text-center">
+        <svg className="animate-spin w-10 h-10 text-indigo-500 mx-auto mb-3" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity=".2"/>
+          <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+        </svg>
+        <p className="text-gray-500 text-sm font-medium">Verbindung wird hergestellt...</p>
+      </div>
+    </div>
+  );
+
+  if (isAdmin) return (
     <AdminView submissions={submissions} setup={setup}
       onLogout={()=>setIsAdmin(false)}
       onDelete={handleDelete}
@@ -932,6 +965,50 @@ function App() {
 }
 
 ReactDOM.render(<App/>, document.getElementById('root'));
+</script>
+
+<script type="module">
+  import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, doc, getDocs, setDoc, deleteDoc, onSnapshot, getDoc }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const app = initializeApp({
+    apiKey:            "AIzaSyDfW6L8LP1UW-opMlX1DoqM_Y58qQUOYpQ",
+    authDomain:        "wunschliste-versetzungsfirmen.firebaseapp.com",
+    projectId:         "wunschliste-versetzungsfirmen",
+    storageBucket:     "wunschliste-versetzungsfirmen.firebasestorage.app",
+    messagingSenderId: "511185053099",
+    appId:             "1:511185053099:web:11561dfcafce8ab8021eee"
+  });
+  const db = getFirestore(app);
+
+  window._fb = {
+    subscribeSubmissions: (cb) =>
+      onSnapshot(collection(db, "submissions"), snap =>
+        cb(snap.docs.map(d => ({ _id: d.id, ...d.data() })))),
+
+    saveSubmission: (sub) => {
+      const id = sub.name.replace(/\s+/g,"_").replace(/[^a-zA-Z0-9_]/g,"").toLowerCase();
+      return setDoc(doc(db, "submissions", id), sub);
+    },
+
+    deleteSubmission: (id) => deleteDoc(doc(db, "submissions", id)),
+
+    deleteAllSubmissions: async () => {
+      const snap = await getDocs(collection(db, "submissions"));
+      return Promise.all(snap.docs.map(d => deleteDoc(d.ref)));
+    },
+
+    loadSetup: async () => {
+      const d = await getDoc(doc(db, "config", "setup"));
+      return d.exists() ? d.data() : null;
+    },
+
+    saveSetup: (cfg) => setDoc(doc(db, "config", "setup"), cfg),
+  };
+
+  window._fbReady = true;
+  window.dispatchEvent(new Event("firebase-ready"));
 </script>
 </body>
 </html>
