@@ -3,560 +3,542 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firmen Bewertung - Punkteverteilung</title>
+    <title>Wunschliste Versetzungsfirmen</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .slider::-webkit-slider-thumb {
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            background: #4f46e5;
-            cursor: pointer;
-            border-radius: 50%;
+            appearance: none; width: 16px; height: 16px;
+            background: #4f46e5; cursor: pointer; border-radius: 50%;
         }
         .slider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            background: #4f46e5;
-            cursor: pointer;
-            border-radius: 50%;
-            border: none;
+            width: 16px; height: 16px; background: #4f46e5;
+            cursor: pointer; border-radius: 50%; border: none;
         }
+        .slider { height: 4px; }
     </style>
 </head>
-<body>
+<body class="bg-gray-100">
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // Lucide Icons als einfache SVG-Komponenten
-        const Download = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
+        const ADMIN_PASSWORD = 'Azw2026*';
+
+        const COMPANIES = [
+            { id: 1,  name: 'ANDRITZ Soutec AG',                  url: 'https://www.andritz.com' },
+            { id: 2,  name: 'Burckhardt Compression AG',           url: 'https://www.burckhardtcompression.com' },
+            { id: 3,  name: 'Corvaglia Mould AG',                  url: 'https://www.corvaglia.ch' },
+            { id: 4,  name: 'Elektrizitätswerk der Stadt ZH',      url: 'https://www.ewz.ch' },
+            { id: 5,  name: 'Fehr Lagerlogistik',                  url: 'https://www.fehr.net' },
+            { id: 6,  name: 'Heim AG Heizsysteme',                 url: 'https://www.heim-ag.ch' },
+            { id: 7,  name: 'HFS Aqua AG',                         url: 'https://www.hfs-aqua.ch' },
+            { id: 8,  name: 'Hug Engineering AG',                  url: 'https://www.hug-engineering.com' },
+            { id: 9,  name: 'Kanadevia Inova AG',                  url: 'https://www.kanadevia-inova.com' },
+            { id: 10, name: 'KELLER Pressure AG',                  url: 'https://www.keller-pressure.com' },
+            { id: 11, name: 'Linde Kryotechnik AG',                url: 'https://www.linde-kryotechnik.ch' },
+            { id: 12, name: 'Nobel Biocare Services AG',            url: 'https://www.nobelbiocare.com' },
+            { id: 13, name: 'Stadler Winterthur AG',               url: 'https://www.stadlerrail.com' },
+            { id: 14, name: 'Sulzer Chemtech AG',                  url: 'https://www.sulzer.com' },
+            { id: 15, name: 'Sulzer Management AG',                url: 'https://www.sulzer.com' },
+            { id: 16, name: 'TEDAG Dichtungstechnik AG',           url: 'https://www.tedag.ch' },
+            { id: 17, name: 'WinGD Ltd.',                          url: 'https://www.wingd.com' },
+            { id: 18, name: 'ZHAW School of Engineering',          url: 'https://www.zhaw.ch' },
+            { id: 19, name: 'Zimmer Biomet GmbH',                  url: 'https://www.zimmerbiomet.ch' },
+        ];
+
+        const emptyPoints = () => COMPANIES.reduce((acc, c) => ({ ...acc, [c.id]: 0 }), {});
+
+        // ── Icons ──────────────────────────────────────────────────────────────────
+        const Icon = ({ d, size=16, extra="" }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={extra}>
+                <path d={d}/>
             </svg>
         );
+        const CheckCircleIcon = ({size=16}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>;
+        const WarnIcon        = ({size=16}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>;
+        const EyeOffIcon      = ({size=14}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>;
+        const EyeOnIcon       = ({size=14}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
+        const LockIcon        = ({size=18}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>;
+        const DownloadIcon    = ({size=16}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
+        const LinkIcon        = ({size=11}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>;
+        const SortIcon        = ({size=15}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/></svg>;
+        const ChevronDown     = ({size=15}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>;
+        const ChevronUp       = ({size=15}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>;
 
-        const AlertCircle = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="8" x2="12" y2="12" />
-                <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
-        );
+        // ── Student Form ──────────────────────────────────────────────────────────
+        function StudentForm({ submissions, onSubmit }) {
+            const [vorname,  setVorname]  = useState('');
+            const [nachname, setNachname] = useState('');
+            const [plz,      setPlz]      = useState('');
+            const [ort,      setOrt]      = useState('');
+            const [bms,      setBms]      = useState(false);
+            const [email,    setEmail]    = useState('');
+            const [points,   setPoints]   = useState(emptyPoints());
+            const [hidden,   setHidden]   = useState([]);
+            const [showHidden, setShowHidden] = useState(false);
+            const [orderedIds, setOrderedIds] = useState(COMPANIES.map(c => c.id));
+            const [sortApplied, setSortApplied] = useState(false);
+            const [submitted, setSubmitted] = useState(false);
 
-        const CheckCircle2 = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
-                <path d="m9 12 2 2 4-4" />
-            </svg>
-        );
+            const total      = Object.values(points).reduce((a, b) => a + b, 0);
+            const remaining  = 100 - total;
+            const withPoints = Object.values(points).filter(v => v > 0).length;
 
-        const Lock = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-        );
+            const visibleIds       = orderedIds.filter(id => !hidden.includes(id));
+            const hiddenCompanies  = COMPANIES.filter(c => hidden.includes(c.id));
 
-        const Eye = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                <circle cx="12" cy="12" r="3" />
-            </svg>
-        );
-
-        const EyeOff = ({ size = 24, className = "" }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-                <line x1="1" y1="1" x2="23" y2="23" />
-            </svg>
-        );
-
-        function PointDistributionSurvey() {
-            const companies = [
-                'Firma 1', 'Firma 2', 'Firma 3', 'Firma 4', 'Firma 5',
-                'Firma 6', 'Firma 7', 'Firma 8', 'Firma 9', 'Firma 10',
-                'Firma 11', 'Firma 12', 'Firma 13', 'Firma 14', 'Firma 15',
-                'Firma 16', 'Firma 17', 'Firma 18', 'Firma 19'
-            ];
-
-            const ADMIN_PASSWORD = 'admin2024';
-
-            const [studentName, setStudentName] = useState('');
-            const [points, setPoints] = useState(
-                companies.reduce((acc, company) => ({ ...acc, [company]: 0 }), {})
-            );
-            const [submissions, setSubmissions] = useState([]);
-            const [showSuccess, setShowSuccess] = useState(false);
-            const [sortedCompanies, setSortedCompanies] = useState(companies);
-            const [isSorted, setIsSorted] = useState(false);
-            
-            const [isAdminMode, setIsAdminMode] = useState(false);
-            const [passwordInput, setPasswordInput] = useState('');
-            const [showPasswordInput, setShowPasswordInput] = useState(false);
-            const [passwordError, setPasswordError] = useState(false);
-            const [showPassword, setShowPassword] = useState(false);
-
-            useEffect(() => {
-                const saved = localStorage.getItem('surveySubmissions');
-                if (saved) {
-                    setSubmissions(JSON.parse(saved));
-                }
-            }, []);
-
-            useEffect(() => {
-                if (submissions.length > 0) {
-                    localStorage.setItem('surveySubmissions', JSON.stringify(submissions));
-                }
-            }, [submissions]);
-
-            const totalPoints = Object.values(points).reduce((sum, val) => sum + val, 0);
-            const remainingPoints = 100 - totalPoints;
-
-            const hasDuplicates = () => {
-                const values = Object.values(points).filter(val => val > 0);
-                return values.length !== new Set(values).size;
+            const nonZeroDup = () => {
+                const vals = Object.entries(points)
+                    .filter(([id, v]) => v > 0 && !hidden.includes(Number(id)))
+                    .map(([, v]) => v);
+                return vals.length !== new Set(vals).size;
             };
 
-            const allPointsAssigned = () => {
-                const companiesWithPoints = Object.values(points).filter(val => val >= 1).length;
-                return companiesWithPoints >= 8;
+            const isValid = () =>
+                total === 100 &&
+                !nonZeroDup() &&
+                withPoints === 8 &&
+                vorname.trim() && nachname.trim() && plz.trim() && ort.trim() && email.trim();
+
+            const handleChange = (id, raw) => {
+                const n = Math.max(0, Math.min(50, parseInt(raw) || 0));
+                setPoints(prev => ({ ...prev, [id]: n }));
             };
 
-            const isValid = () => {
-                return (
-                    totalPoints === 100 &&
-                    !hasDuplicates() &&
-                    allPointsAssigned() &&
-                    studentName.trim() !== ''
-                );
+            const hideCompany = (id) => {
+                setPoints(prev => ({ ...prev, [id]: 0 }));
+                setHidden(prev => [...prev, id]);
+                setOrderedIds(prev => prev.filter(x => x !== id));
             };
 
-            const handlePointChange = (company, value) => {
-                const numValue = parseInt(value) || 0;
-                setPoints(prev => ({
-                    ...prev,
-                    [company]: Math.max(0, Math.min(50, numValue))
-                }));
+            const showCompany = (id) => {
+                setHidden(prev => prev.filter(x => x !== id));
+                setOrderedIds(prev => [...prev, id]);
+            };
+
+            const doSort = () => {
+                const sorted = [...orderedIds].sort((a, b) => {
+                    const pa = points[a], pb = points[b];
+                    if (pa === 0 && pb === 0) return a - b;
+                    if (pa === 0) return 1;
+                    if (pb === 0) return -1;
+                    return pb - pa;
+                });
+                setOrderedIds(sorted);
+                setSortApplied(true);
             };
 
             const handleSubmit = () => {
-                if (isValid()) {
-                    const submission = {
-                        name: studentName,
-                        timestamp: new Date().toLocaleString('de-DE'),
-                        ...points
-                    };
-                    setSubmissions(prev => [...prev, submission]);
-                    setShowSuccess(true);
-                    
-                    setStudentName('');
-                    setPoints(companies.reduce((acc, company) => ({ ...acc, [company]: 0 }), {}));
-                    setSortedCompanies(companies);
-                    setIsSorted(false);
-                    
-                    setTimeout(() => setShowSuccess(false), 3000);
+                if (!isValid()) return;
+                const fullName = `${vorname.trim()} ${nachname.trim()}`;
+                const existing = submissions.find(s => s.fullName === fullName);
+                const sub = {
+                    fullName, vorname: vorname.trim(), nachname: nachname.trim(),
+                    plz: plz.trim(), ort: ort.trim(), bms,
+                    email: email.trim(),
+                    timestamp: new Date().toLocaleString('de-DE'),
+                    points: { ...points }
+                };
+                onSubmit(sub, existing);
+
+                // Confirmation e-mail to student
+                const ranked = [...COMPANIES]
+                    .filter(c => points[c.id] > 0)
+                    .sort((a, b) => points[b.id] - points[a.id]);
+                let body = `Hallo ${vorname.trim()},\n\nhier ist deine eingereichte Wunschliste:\n\n`;
+                ranked.forEach((c, i) => { body += `${i + 1}. ${c.name}: ${points[c.id]} Punkte\n`; });
+                body += `\nTotal: ${total} Punkte\n\nDies ist eine automatische Bestätigung.`;
+                window.location.href =
+                    `mailto:${email.trim()}?subject=${encodeURIComponent('Wunschliste Versetzungsfirmen – Bestätigung')}&body=${encodeURIComponent(body)}`;
+
+                // If update: change e-mail (slight delay so first mailto can fire)
+                if (existing) {
+                    setTimeout(() => {
+                        let changeBody = `${fullName} hat seine Wunschliste aktualisiert.\n\nÄNDERUNGEN:\n`;
+                        COMPANIES.forEach(c => {
+                            const o = existing.points[c.id] || 0, n = points[c.id] || 0;
+                            if (o !== n) changeBody += `>>> ${c.name}: ${o} → ${n} Punkte\n`;
+                        });
+                        changeBody += `\nNEUER STAND:\n`;
+                        [...COMPANIES].filter(c => points[c.id] > 0).sort((a, b) => points[b.id] - points[a.id])
+                            .forEach((c, i) => { changeBody += `${i + 1}. ${c.name}: ${points[c.id]} Punkte\n`; });
+                        changeBody += `\nALTER STAND:\n`;
+                        [...COMPANIES].filter(c => existing.points[c.id] > 0).sort((a, b) => existing.points[b.id] - existing.points[a.id])
+                            .forEach((c, i) => { changeBody += `${i + 1}. ${c.name}: ${existing.points[c.id]} Punkte\n`; });
+                        window.open(`mailto:?subject=${encodeURIComponent('Aktualisierung: ' + fullName)}&body=${encodeURIComponent(changeBody)}`);
+                    }, 600);
                 }
+                setSubmitted(true);
             };
 
-            const handleSortByPoints = () => {
-                const sorted = [...companies].sort((a, b) => {
-                    const pointsA = points[a];
-                    const pointsB = points[b];
-                    
-                    if (pointsA === 0 && pointsB === 0) {
-                        return a.localeCompare(b, 'de', { numeric: true });
-                    }
-                    
-                    if (pointsA === 0) return 1;
-                    if (pointsB === 0) return -1;
-                    
-                    return pointsB - pointsA;
-                });
-                
-                setSortedCompanies(sorted);
-                setIsSorted(true);
+            const reset = () => {
+                setVorname(''); setNachname(''); setPlz(''); setOrt('');
+                setBms(false); setEmail('');
+                setPoints(emptyPoints());
+                setHidden([]); setOrderedIds(COMPANIES.map(c => c.id));
+                setSortApplied(false); setSubmitted(false);
             };
 
-            const handleAdminLogin = () => {
-                if (passwordInput === ADMIN_PASSWORD) {
-                    setIsAdminMode(true);
-                    setPasswordError(false);
-                    setShowPasswordInput(false);
-                    setPasswordInput('');
-                } else {
-                    setPasswordError(true);
-                    setTimeout(() => setPasswordError(false), 2000);
-                }
-            };
+            // ── Sticky banner colour
+            const bannerBg = remaining === 0 ? 'bg-green-500' : remaining < 0 ? 'bg-red-500' : 'bg-indigo-600';
 
-            const handleAdminLogout = () => {
-                setIsAdminMode(false);
-                setPasswordInput('');
-            };
-
-            const exportToCSV = () => {
-                if (submissions.length === 0) return;
-
-                const headers = ['Name', 'Zeitstempel', ...companies];
-                const rows = submissions.map(sub => [
-                    sub.name,
-                    sub.timestamp,
-                    ...companies.map(company => sub[company])
-                ]);
-
-                const csvContent = [
-                    headers.join(';'),
-                    ...rows.map(row => row.join(';'))
-                ].join('\n');
-
-                const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = `umfrage_ergebnisse_${new Date().toISOString().split('T')[0]}.csv`;
-                link.click();
-            };
-
-            const clearAllData = () => {
-                if (window.confirm('Möchtest du wirklich ALLE Einreichungen löschen? Dies kann nicht rückgängig gemacht werden!')) {
-                    setSubmissions([]);
-                    localStorage.removeItem('surveySubmissions');
-                }
-            };
-
-            const getCompanyError = (company) => {
-                const value = points[company];
-                if (value === 0) return null;
-                
-                const otherValues = Object.entries(points)
-                    .filter(([c]) => c !== company)
-                    .map(([, v]) => v);
-                
-                if (otherValues.includes(value)) {
-                    return 'Doppelte Punktzahl';
-                }
-                return null;
-            };
-
-            if (isAdminMode) {
-                return (
-                    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 p-4">
-                        <div className="max-w-6xl mx-auto">
-                            <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <Lock size={32} className="text-purple-600" />
-                                        <div>
-                                            <h1 className="text-3xl font-bold text-gray-800">Admin-Bereich</h1>
-                                            <p className="text-gray-600">Übersicht aller eingereichten Bewertungen</p>
-                                        </div>
-                                    </div>
-                                    <button
-                                        onClick={handleAdminLogout}
-                                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
-                                    >
-                                        Abmelden
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                                <div className="bg-white rounded-lg shadow p-6">
-                                    <div className="text-3xl font-bold text-indigo-600 mb-2">{submissions.length}</div>
-                                    <div className="text-gray-600">Einreichungen</div>
-                                </div>
-                                <div className="bg-white rounded-lg shadow p-6">
-                                    <div className="text-3xl font-bold text-green-600 mb-2">{40 - submissions.length}</div>
-                                    <div className="text-gray-600">Noch ausstehend</div>
-                                </div>
-                                <div className="bg-white rounded-lg shadow p-6">
-                                    <div className="text-3xl font-bold text-purple-600 mb-2">
-                                        {submissions.length > 0 ? Math.round((submissions.length / 40) * 100) : 0}%
-                                    </div>
-                                    <div className="text-gray-600">Teilnahmequote</div>
-                                </div>
-                            </div>
-
-                            <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-                                <div className="flex flex-wrap gap-4">
-                                    <button
-                                        onClick={exportToCSV}
-                                        disabled={submissions.length === 0}
-                                        className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors ${
-                                            submissions.length > 0
-                                                ? 'bg-green-600 hover:bg-green-700 text-white'
-                                                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                        }`}
-                                    >
-                                        <Download size={20} />
-                                        CSV exportieren ({submissions.length})
-                                    </button>
-                                    <button
-                                        onClick={clearAllData}
-                                        disabled={submissions.length === 0}
-                                        className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors ${
-                                            submissions.length > 0
-                                                ? 'bg-red-600 hover:bg-red-700 text-white'
-                                                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                        }`}
-                                    >
-                                        Alle Daten löschen
-                                    </button>
-                                </div>
-                            </div>
-
-                            {submissions.length > 0 ? (
-                                <div className="bg-white rounded-lg shadow-lg p-6">
-                                    <h2 className="text-2xl font-bold text-gray-800 mb-4">Alle Bewertungen</h2>
-                                    <div className="overflow-x-auto">
-                                        <table className="w-full text-sm">
-                                            <thead>
-                                                <tr className="bg-gray-100 border-b-2 border-gray-300">
-                                                    <th className="px-4 py-3 text-left font-semibold">Nr.</th>
-                                                    <th className="px-4 py-3 text-left font-semibold">Name</th>
-                                                    <th className="px-4 py-3 text-left font-semibold">Zeitstempel</th>
-                                                    {companies.map(company => (
-                                                        <th key={company} className="px-4 py-3 text-center font-semibold">{company}</th>
-                                                    ))}
-                                                    <th className="px-4 py-3 text-center font-semibold">Summe</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {submissions.map((sub, idx) => {
-                                                    const sum = companies.reduce((acc, company) => acc + sub[company], 0);
-                                                    return (
-                                                        <tr key={idx} className="border-b border-gray-200 hover:bg-gray-50">
-                                                            <td className="px-4 py-3 font-medium">{idx + 1}</td>
-                                                            <td className="px-4 py-3 font-medium">{sub.name}</td>
-                                                            <td className="px-4 py-3 text-gray-600 text-xs">{sub.timestamp}</td>
-                                                            {companies.map(company => (
-                                                                <td key={company} className="px-4 py-3 text-center font-semibold">{sub[company]}</td>
-                                                            ))}
-                                                            <td className="px-4 py-3 text-center font-bold text-indigo-600">{sum}</td>
-                                                        </tr>
-                                                    );
-                                                })}
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-                                    <div className="mt-6 p-4 bg-indigo-50 rounded-lg">
-                                        <h3 className="font-bold text-gray-800 mb-3">Durchschnittliche Bewertungen:</h3>
-                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                            {companies.map(company => {
-                                                const avg = submissions.reduce((acc, sub) => acc + sub[company], 0) / submissions.length;
-                                                return (
-                                                    <div key={company} className="bg-white p-3 rounded shadow-sm">
-                                                        <div className="text-sm text-gray-600">{company}</div>
-                                                        <div className="text-xl font-bold text-indigo-600">{avg.toFixed(1)}</div>
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="bg-white rounded-lg shadow-lg p-12 text-center">
-                                    <AlertCircle size={64} className="mx-auto mb-4 text-gray-400" />
-                                    <h3 className="text-xl font-semibold text-gray-600 mb-2">Noch keine Einreichungen</h3>
-                                    <p className="text-gray-500">Sobald Lernende ihre Bewertungen abgeben, erscheinen sie hier.</p>
-                                </div>
-                            )}
+            if (submitted) return (
+                <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full text-center">
+                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <CheckCircleIcon size={36}/>
                         </div>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-2">Erfolgreich eingereicht!</h2>
+                        <p className="text-gray-500 text-sm mb-6">Du erhältst eine Bestätigung an <strong>{email}</strong>.</p>
+                        <button onClick={reset} className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm">
+                            Neue Eingabe
+                        </button>
                     </div>
-                );
-            }
+                </div>
+            );
 
             return (
-                <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-                    <div className="max-w-4xl mx-auto">
-                        <div className="flex justify-end mb-4">
-                            <button
-                                onClick={() => setShowPasswordInput(!showPasswordInput)}
-                                className="text-gray-400 hover:text-gray-600 p-2 rounded-lg transition-colors"
-                            >
-                                <Lock size={20} />
-                            </button>
-                        </div>
+                <div className="min-h-screen bg-gray-100 pb-10">
+                    {/* ── Sticky points banner ── */}
+                    <div className={`${bannerBg} text-white py-2 px-4 flex items-center justify-between shadow-md sticky top-0 z-40 transition-colors duration-300`}>
+                        <span className="text-xs font-semibold uppercase tracking-wide opacity-80">Punkte übrig</span>
+                        <span className="text-4xl font-black leading-none">{remaining}</span>
+                        <span className="text-xs font-semibold opacity-80">{total} / 100</span>
+                    </div>
 
-                        {showPasswordInput && (
-                            <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-                                <h3 className="text-lg font-semibold mb-4">Admin-Login</h3>
-                                <div className="flex gap-3">
-                                    <div className="relative flex-1">
-                                        <input
-                                            type={showPassword ? "text" : "password"}
-                                            value={passwordInput}
-                                            onChange={(e) => setPasswordInput(e.target.value)}
-                                            onKeyPress={(e) => e.key === 'Enter' && handleAdminLogin()}
-                                            placeholder="Passwort eingeben"
-                                            className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none ${
-                                                passwordError ? 'border-red-500' : 'border-gray-300 focus:border-indigo-500'
-                                            }`}
-                                        />
-                                        <button
-                                            onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                        >
-                                            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                                        </button>
-                                    </div>
-                                    <button
-                                        onClick={handleAdminLogin}
-                                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
-                                    >
-                                        Login
-                                    </button>
-                                </div>
-                                {passwordError && (
-                                    <p className="text-red-600 text-sm mt-2">Falsches Passwort!</p>
-                                )}
-                            </div>
-                        )}
-
-                        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-                            <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                                Punkteverteilung: 19 Firmen bewerten
-                            </h1>
-                            <p className="text-gray-600">
-                                Verteile 100 Punkte auf 19 Firmen (0-50 Punkte pro Firma). Mindestens 8 Firmen müssen mindestens 1 Punkt erhalten. Keine zwei Firmen dürfen die gleiche Punktzahl haben.
+                    <div className="max-w-xl mx-auto pt-3 px-3 space-y-3">
+                        {/* Header */}
+                        <div className="bg-white rounded-xl shadow-sm p-4">
+                            <h1 className="text-lg font-bold text-gray-800 mb-1">Wunschliste Versetzungsfirmen</h1>
+                            <p className="text-gray-500 text-sm mb-3">
+                                Erstelle deine persönliche Wunschliste indem du 100 Punkte auf 8 Firmen verteilst.
                             </p>
+                            <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 space-y-1">
+                                <p className="text-xs text-blue-700 font-medium flex items-start gap-1.5"><span>•</span> Genau 8 Firmen müssen mindestens 1 Punkt erhalten</p>
+                                <p className="text-xs text-blue-700 font-medium flex items-start gap-1.5"><span>•</span> Keine Firmen dürfen gleich viele Punkte erhalten</p>
+                            </div>
                         </div>
 
-                        {showSuccess && (
-                            <div className="bg-green-100 border-l-4 border-green-500 p-4 mb-6 rounded flex items-center gap-3">
-                                <CheckCircle2 size={24} className="text-green-600" />
-                                <p className="text-green-800 font-semibold">
-                                    Erfolgreich eingereicht! Vielen Dank für deine Teilnahme.
-                                </p>
-                            </div>
-                        )}
-
-                        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-                            <div className="mb-6">
-                                <label className="block text-gray-700 font-semibold mb-2">
-                                    Dein Name / Kennung
-                                </label>
-                                <input
-                                    type="text"
-                                    value={studentName}
-                                    onChange={(e) => setStudentName(e.target.value)}
-                                    placeholder="z.B. Max Mustermann"
-                                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:outline-none"
-                                />
-                            </div>
-
-                            <div className={`mb-8 p-6 rounded-lg text-center ${
-                                remainingPoints === 0 ? 'bg-green-100' : remainingPoints < 0 ? 'bg-red-100' : 'bg-yellow-100'
-                            }`}>
-                                <div className={`text-5xl font-bold mb-2 ${
-                                    remainingPoints === 0 ? 'text-green-600' : remainingPoints < 0 ? 'text-red-600' : 'text-yellow-600'
-                                }`}>
-                                    {remainingPoints}
-                                </div>
-                                <div className="text-lg font-semibold text-gray-700">
-                                    Punkte übrig
+                        {/* Personal Info */}
+                        <div className="bg-white rounded-xl shadow-sm p-4">
+                            <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Persönliche Angaben</h2>
+                            <div className="grid grid-cols-2 gap-2.5">
+                                {[
+                                    { label:'Vorname *',  val:vorname,  set:setVorname,  ph:'Max',           span:1 },
+                                    { label:'Nachname *', val:nachname, set:setNachname, ph:'Muster',        span:1 },
+                                    { label:'PLZ *',      val:plz,      set:setPlz,      ph:'8400',          span:1 },
+                                    { label:'Ort *',      val:ort,      set:setOrt,      ph:'Winterthur',    span:1 },
+                                    { label:'E-Mail *',   val:email,    set:setEmail,    ph:'max@mail.ch',   span:2, type:'email' },
+                                ].map(f => (
+                                    <div key={f.label} className={f.span===2?'col-span-2':''}>
+                                        <label className="text-xs font-semibold text-gray-500 mb-1 block">{f.label}</label>
+                                        <input type={f.type||'text'} value={f.val} onChange={e=>f.set(e.target.value)} placeholder={f.ph}
+                                            className="w-full px-3 py-1.5 border-2 border-gray-200 rounded-lg text-sm focus:border-indigo-400 focus:outline-none"/>
+                                    </div>
+                                ))}
+                                <div className="col-span-2">
+                                    <label className="flex items-center gap-2.5 cursor-pointer">
+                                        <input type="checkbox" checked={bms} onChange={e=>setBms(e.target.checked)} className="w-4 h-4 accent-indigo-600"/>
+                                        <span className="text-sm font-medium text-gray-700">BMS</span>
+                                    </label>
                                 </div>
                             </div>
+                        </div>
 
-                            <div className="space-y-4">
-                                {sortedCompanies.map((company) => {
-                                    const error = getCompanyError(company);
+                        {/* Validation */}
+                        <div className="bg-white rounded-xl shadow-sm px-4 py-3 space-y-1.5">
+                            {[
+                                { ok: total === 100,                               label: `100 Punkte verteilt (${total}/100)` },
+                                { ok: withPoints === 8,                            label: `Genau 8 Firmen bewertet (${withPoints}/8)${withPoints > 8 ? ' – zu viele!' : ''}` },
+                                { ok: !nonZeroDup(),                               label: 'Keine doppelten Punktzahlen' },
+                                { ok: !!(vorname&&nachname&&plz&&ort&&email),      label: 'Alle Pflichtfelder ausgefüllt' },
+                            ].map((v, i) => (
+                                <div key={i} className={`flex items-center gap-2 text-xs font-medium ${v.ok ? 'text-green-600' : 'text-red-500'}`}>
+                                    {v.ok ? <CheckCircleIcon size={13}/> : <WarnIcon size={13}/>} {v.label}
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Company List */}
+                        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                            <div className="px-4 py-2.5 border-b border-gray-100 flex items-center justify-between">
+                                <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Firmen bewerten</h2>
+                                <span className="text-xs text-gray-400 font-medium">{withPoints}/8 bewertet</span>
+                            </div>
+                            <div className="divide-y divide-gray-100">
+                                {visibleIds.map(id => {
+                                    const co  = COMPANIES.find(c => c.id === id);
+                                    const val = points[id];
+                                    const isDup = val > 0 && Object.entries(points).some(([oid, ov]) => Number(oid) !== id && ov === val);
                                     return (
-                                        <div key={company} className="border-2 border-gray-200 rounded-lg p-4 hover:border-indigo-300 transition-colors">
-                                            <div className="flex items-center justify-between mb-3">
-                                                <label className="text-lg font-semibold text-gray-700">
-                                                    {company}
-                                                </label>
-                                                <div className="flex items-center gap-3">
-                                                    <input
-                                                        type="number"
-                                                        min="0"
-                                                        max="50"
-                                                        value={points[company]}
-                                                        onChange={(e) => handlePointChange(company, e.target.value)}
-                                                        className={`w-20 px-3 py-2 text-center text-xl font-bold border-2 rounded-lg focus:outline-none ${
-                                                            error ? 'border-red-400 bg-red-50' : 'border-gray-300 focus:border-indigo-500'
-                                                        }`}
-                                                    />
-                                                    <span className="text-gray-500 font-semibold">Punkte</span>
+                                        <div key={id} className={`px-3 py-2 ${isDup ? 'bg-red-50' : ''}`}>
+                                            <div className="flex items-center justify-between gap-2 mb-1">
+                                                <a href={co.url} target="_blank" rel="noopener noreferrer"
+                                                    className="text-sm font-semibold text-gray-800 hover:text-indigo-600 truncate flex items-center gap-1 min-w-0">
+                                                    <span className="truncate">{co.name}</span>
+                                                    <LinkIcon size={10} className="shrink-0 text-gray-300"/>
+                                                </a>
+                                                <div className="flex items-center gap-1.5 shrink-0">
+                                                    {isDup && <span className="text-xs font-bold text-red-500 whitespace-nowrap">Duplikat!</span>}
+                                                    <input type="number" min="0" max="50" value={val}
+                                                        onChange={e => handleChange(id, e.target.value)}
+                                                        className={`w-14 px-1 py-1 text-center text-sm font-bold border-2 rounded-lg focus:outline-none ${isDup ? 'border-red-400' : 'border-gray-200 focus:border-indigo-400'}`}/>
+                                                    <button onClick={() => hideCompany(id)} title="Ausblenden"
+                                                        className="text-gray-300 hover:text-red-400 p-0.5 transition-colors">
+                                                        <EyeOffIcon size={14}/>
+                                                    </button>
                                                 </div>
                                             </div>
-                                            
-                                            <input
-                                                type="range"
-                                                min="0"
-                                                max="50"
-                                                value={points[company]}
-                                                onChange={(e) => handlePointChange(company, e.target.value)}
-                                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-                                            />
-                                            
-                                            {error && (
-                                                <div className="mt-2 text-red-600 text-sm flex items-center gap-1">
-                                                    <AlertCircle size={16} />
-                                                    {error}
-                                                </div>
-                                            )}
+                                            <input type="range" min="0" max="50" value={val}
+                                                onChange={e => handleChange(id, e.target.value)}
+                                                className="w-full slider bg-gray-200 rounded-full appearance-none cursor-pointer"/>
                                         </div>
                                     );
                                 })}
                             </div>
+                        </div>
 
-                            <div className="mt-6 space-y-2">
-                                <div className={`flex items-center gap-2 ${totalPoints === 100 ? 'text-green-600' : 'text-red-600'}`}>
-                                    {totalPoints === 100 ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
-                                    <span>Genau 100 Punkte verteilt: {totalPoints}/100</span>
-                                </div>
-                                <div className={`flex items-center gap-2 ${!hasDuplicates() ? 'text-green-600' : 'text-red-600'}`}>
-                                    {!hasDuplicates() ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
-                                    <span>Alle Punktzahlen sind unterschiedlich (außer 0)</span>
-                                </div>
-                                <div className={`flex items-center gap-2 ${allPointsAssigned() ? 'text-green-600' : 'text-red-600'}`}>
-                                    {allPointsAssigned() ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
-                                    <span>Mindestens 8 Firmen haben mindestens 1 Punkt ({Object.values(points).filter(val => val >= 1).length}/8)</span>
-                                </div>
-                                <div className={`flex items-center gap-2 ${studentName.trim() !== '' ? 'text-green-600' : 'text-red-600'}`}>
-                                    {studentName.trim() !== '' ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
-                                    <span>Name ausgefüllt</span>
-                                </div>
+                        {/* Hidden Companies Drawer */}
+                        {hiddenCompanies.length > 0 && (
+                            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                                <button onClick={() => setShowHidden(!showHidden)}
+                                    className="w-full px-4 py-3 flex items-center justify-between text-xs font-bold text-gray-500 uppercase tracking-wider hover:bg-gray-50 transition-colors">
+                                    <span>Ausgeblendete Firmen ({hiddenCompanies.length})</span>
+                                    {showHidden ? <ChevronUp/> : <ChevronDown/>}
+                                </button>
+                                {showHidden && (
+                                    <div className="border-t border-gray-100 divide-y divide-gray-100">
+                                        {hiddenCompanies.map(co => (
+                                            <div key={co.id} className="px-4 py-2.5 flex items-center justify-between">
+                                                <a href={co.url} target="_blank" rel="noopener noreferrer"
+                                                    className="text-sm text-gray-400 line-through flex items-center gap-1 hover:text-gray-600 truncate">
+                                                    {co.name}<LinkIcon size={9}/>
+                                                </a>
+                                                <button onClick={() => showCompany(co.id)}
+                                                    className="flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-800 ml-2 shrink-0 px-2 py-1 rounded hover:bg-indigo-50">
+                                                    <EyeOnIcon size={13}/> Einblenden
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
+                        )}
 
-                            <button
-                                onClick={handleSortByPoints}
-                                className="w-full mt-6 py-3 rounded-lg font-semibold text-lg transition-all bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center gap-2"
-                            >
-                                {isSorted ? '✓ Sortiert nach Bewertung' : 'Nach Bewertung sortieren'}
-                            </button>
+                        {/* Sort + Submit */}
+                        <button onClick={doSort}
+                            className="w-full py-2.5 rounded-xl font-semibold text-sm bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white flex items-center justify-center gap-2 transition-colors">
+                            <SortIcon/> {sortApplied ? '✓ Nach Bewertung sortiert' : 'Nach Bewertung sortieren'}
+                        </button>
 
-                            <button
-                                onClick={handleSubmit}
-                                disabled={!isValid()}
-                                className={`w-full mt-3 py-4 rounded-lg font-bold text-lg transition-all ${
-                                    isValid()
-                                        ? 'bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer transform hover:scale-105'
-                                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                }`}
-                            >
-                                {isValid() ? 'Bewertung absenden ✓' : 'Bitte alle Anforderungen erfüllen'}
-                            </button>
-                        </div>
-
-                        <div className="mt-8 text-center text-gray-600 text-sm">
-                            <p>Deine Bewertung wird sicher gespeichert.</p>
-                        </div>
+                        <button onClick={handleSubmit} disabled={!isValid()}
+                            className={`w-full py-3.5 rounded-xl font-bold text-base transition-all ${isValid()
+                                ? 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white shadow-lg'
+                                : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
+                            {isValid() ? 'Wunschliste einreichen ✓' : 'Bitte alle Anforderungen erfüllen'}
+                        </button>
                     </div>
                 </div>
             );
         }
 
-        ReactDOM.render(<PointDistributionSurvey />, document.getElementById('root'));
+        // ── Admin View ────────────────────────────────────────────────────────────
+        function AdminView({ submissions, onLogout, onClear }) {
+            const exportCSV = () => {
+                if (!submissions.length) return;
+                const hdrs = ['Vorname','Nachname','PLZ','Ort','BMS','E-Mail','Zeitstempel', ...COMPANIES.map(c => c.name),'Summe'];
+                const rows = submissions.map(s => [
+                    s.vorname, s.nachname, s.plz, s.ort, s.bms ? 'Ja' : 'Nein', s.email, s.timestamp,
+                    ...COMPANIES.map(c => s.points[c.id] || 0),
+                    Object.values(s.points).reduce((a, b) => a + b, 0),
+                ]);
+                const csv = [hdrs.join(';'), ...rows.map(r => r.join(';'))].join('\n');
+                const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+                const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+                a.download = `wunschliste_${new Date().toISOString().split('T')[0]}.csv`; a.click();
+            };
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-50 p-4">
+                    <div className="max-w-7xl mx-auto space-y-4">
+                        <div className="bg-white rounded-xl shadow p-5 flex items-center justify-between">
+                            <div>
+                                <h1 className="text-xl font-bold text-gray-800">Admin-Bereich</h1>
+                                <p className="text-gray-400 text-sm">Wunschliste Versetzungsfirmen</p>
+                            </div>
+                            <button onClick={onLogout} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold">
+                                Abmelden
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="bg-white rounded-xl shadow p-4 text-center">
+                                <div className="text-3xl font-black text-indigo-600">{submissions.length}</div>
+                                <div className="text-xs text-gray-400 mt-1">Einreichungen</div>
+                            </div>
+                            <div className="bg-white rounded-xl shadow p-4 text-center">
+                                <div className="text-3xl font-black text-green-600">{submissions.length ? Math.round(submissions.length/40*100) : 0}%</div>
+                                <div className="text-xs text-gray-400 mt-1">Teilnahmequote</div>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-xl shadow p-4 flex gap-3 flex-wrap">
+                            <button onClick={exportCSV} disabled={!submissions.length}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold ${submissions.length ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
+                                <DownloadIcon/> CSV exportieren
+                            </button>
+                            <button onClick={onClear} disabled={!submissions.length}
+                                className={`px-4 py-2 rounded-lg text-sm font-semibold ${submissions.length ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
+                                Alle löschen
+                            </button>
+                        </div>
+
+                        {submissions.length > 0 ? (
+                            <div className="bg-white rounded-xl shadow overflow-hidden">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-xs">
+                                        <thead className="bg-gray-50 border-b-2 border-gray-200">
+                                            <tr>
+                                                {['#','Name','PLZ/Ort','BMS','E-Mail','Zeit'].map(h => (
+                                                    <th key={h} className="px-3 py-2 text-left font-semibold text-gray-600">{h}</th>
+                                                ))}
+                                                {COMPANIES.map(c => (
+                                                    <th key={c.id} title={c.name} className="px-2 py-2 text-center font-semibold text-gray-600 max-w-12">
+                                                        {c.name.split(' ')[0].replace(',','')}
+                                                    </th>
+                                                ))}
+                                                <th className="px-3 py-2 text-center font-bold text-gray-700">Σ</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-100">
+                                            {submissions.map((s, i) => (
+                                                <tr key={i} className="hover:bg-gray-50">
+                                                    <td className="px-3 py-2 text-gray-400">{i+1}</td>
+                                                    <td className="px-3 py-2 font-semibold whitespace-nowrap">{s.vorname} {s.nachname}</td>
+                                                    <td className="px-3 py-2 whitespace-nowrap">{s.plz} {s.ort}</td>
+                                                    <td className="px-3 py-2 text-center">{s.bms ? '✓' : ''}</td>
+                                                    <td className="px-3 py-2">{s.email}</td>
+                                                    <td className="px-3 py-2 text-gray-400 whitespace-nowrap">{s.timestamp}</td>
+                                                    {COMPANIES.map(c => (
+                                                        <td key={c.id} className={`px-2 py-2 text-center font-semibold ${s.points[c.id] > 0 ? 'text-indigo-700' : 'text-gray-300'}`}>
+                                                            {s.points[c.id] > 0 ? s.points[c.id] : '–'}
+                                                        </td>
+                                                    ))}
+                                                    <td className="px-3 py-2 text-center font-bold text-indigo-600">
+                                                        {Object.values(s.points).reduce((a, b) => a + b, 0)}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div className="p-4 bg-indigo-50 border-t border-indigo-100">
+                                    <h3 className="font-bold text-gray-700 text-xs uppercase tracking-wide mb-2">⌀ Durchschnitt</h3>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                        {COMPANIES.map(c => {
+                                            const avg = submissions.reduce((a, s) => a + (s.points[c.id]||0), 0) / submissions.length;
+                                            return (
+                                                <div key={c.id} className="bg-white rounded-lg p-2 flex justify-between items-center">
+                                                    <span className="text-xs text-gray-500 truncate mr-2">{c.name}</span>
+                                                    <span className="text-sm font-bold text-indigo-600 shrink-0">{avg.toFixed(1)}</span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="bg-white rounded-xl shadow p-12 text-center text-gray-400 text-sm">
+                                Noch keine Einreichungen vorhanden.
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        // ── Admin Login Modal ─────────────────────────────────────────────────────
+        function LoginModal({ onLogin, onClose }) {
+            const [pw,   setPw]   = useState('');
+            const [show, setShow] = useState(false);
+            const [err,  setErr]  = useState(false);
+            const attempt = () => {
+                if (pw === ADMIN_PASSWORD) { onLogin(); }
+                else { setErr(true); setTimeout(() => setErr(false), 2000); }
+            };
+            return (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-xs">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="font-bold text-gray-800">Admin-Login</h3>
+                            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">✕</button>
+                        </div>
+                        <div className="relative mb-2">
+                            <input type={show ? 'text' : 'password'} value={pw}
+                                onChange={e => setPw(e.target.value)}
+                                onKeyDown={e => e.key === 'Enter' && attempt()}
+                                placeholder="Passwort"
+                                className={`w-full px-3 py-2 border-2 rounded-lg text-sm focus:outline-none pr-10 ${err ? 'border-red-400' : 'border-gray-200 focus:border-indigo-400'}`}/>
+                            <button onClick={() => setShow(!show)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                {show ? <EyeOffIcon size={15}/> : <EyeOnIcon size={15}/>}
+                            </button>
+                        </div>
+                        {err && <p className="text-red-500 text-xs mb-2">Falsches Passwort</p>}
+                        <button onClick={attempt} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-sm font-semibold">
+                            Anmelden
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        // ── App Root ──────────────────────────────────────────────────────────────
+        function App() {
+            const [submissions, setSubmissions] = useState([]);
+            const [isAdmin,     setIsAdmin]     = useState(false);
+            const [showLogin,   setShowLogin]   = useState(false);
+
+            useEffect(() => {
+                const saved = localStorage.getItem('wunschliste_v3');
+                if (saved) setSubmissions(JSON.parse(saved));
+            }, []);
+
+            const persist = (data) => {
+                localStorage.setItem('wunschliste_v3', JSON.stringify(data));
+                setSubmissions(data);
+            };
+
+            const handleSubmit = (submission, existing) => {
+                const updated = existing
+                    ? submissions.map(s => s.fullName === submission.fullName ? submission : s)
+                    : [...submissions, submission];
+                persist(updated);
+            };
+
+            const handleClear = () => {
+                if (window.confirm('Wirklich alle Daten löschen? Diese Aktion kann nicht rückgängig gemacht werden.')) persist([]);
+            };
+
+            if (isAdmin) return <AdminView submissions={submissions} onLogout={() => setIsAdmin(false)} onClear={handleClear}/>;
+
+            return (
+                <>
+                    <StudentForm submissions={submissions} onSubmit={handleSubmit}/>
+                    {/* Floating lock button */}
+                    <button onClick={() => setShowLogin(true)}
+                        className="fixed bottom-5 right-5 z-40 bg-white shadow-xl rounded-full p-3 text-gray-400 hover:text-indigo-600 border border-gray-200 transition-colors">
+                        <LockIcon size={18}/>
+                    </button>
+                    {showLogin && <LoginModal onLogin={() => { setIsAdmin(true); setShowLogin(false); }} onClose={() => setShowLogin(false)}/>}
+                </>
+            );
+        }
+
+        ReactDOM.render(<App/>, document.getElementById('root'));
     </script>
 </body>
 </html>
