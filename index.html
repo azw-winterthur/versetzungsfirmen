@@ -11,9 +11,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .sticky-bar.ok{background:#16a34a}
 .sticky-bar.over{background:#dc2626}
 .sticky-bar.pending{background:#1e293b}
-.sticky-top{display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 16px}
-.sticky-top .pts-label{font-size:16px;font-weight:800;letter-spacing:.02em}
-.pills{display:flex;gap:6px;padding:0 12px 8px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.sticky-top{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 16px 2px}
+.sticky-top .pts-num{font-size:3rem;font-weight:900;line-height:1}
+.sticky-top .pts-sub{font-size:11px;font-weight:600;opacity:.8;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+.pills{display:flex;gap:6px;padding:4px 12px 8px;overflow-x:auto;-webkit-overflow-scrolling:touch;justify-content:center}
 .pill{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
 .pill.ok{background:#22c55e;color:#fff}
 .pill.ng{background:#f97316;color:#fff}
@@ -233,8 +234,8 @@ function updateBannerFast(){
   const nonZeroDup=vals.length!==new Set(vals).size;
   const bar=document.querySelector('.sticky-bar');
   if(bar)bar.className='sticky-bar '+(total===100?'ok':total>100?'over':'pending');
-  const lbl=document.querySelector('.pts-label');
-  if(lbl)lbl.textContent=`Punkte: ${total}/100`;
+  const lbl=document.querySelector('.pts-num');
+  if(lbl)lbl.textContent=`${total}/100`;
   const pills=document.querySelectorAll('.pill');
   if(pills.length>=2){
     const setP=(el,ok,label)=>{
@@ -298,8 +299,8 @@ function renderForm(){
 
   let selfieHtml='';
   if(f.selfie){selfieHtml=`<img src="${f.selfie}" class="selfie-preview" style="margin-bottom:8px"/><button onclick="resetSelfie()" style="font-size:12px;font-weight:600;color:#6366f1;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px">${camSvg(13)} Neues Selfie aufnehmen</button>`;}
-  else if(state.selfieStreaming){selfieHtml=`<video id="selfie-video" autoplay muted playsinline style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:12px;background:#000;margin-bottom:8px"></video>${!state.selfieReady?`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;color:#6b7280;font-size:13px"><div class="spinner" style="width:20px;height:20px;border-width:2px"></div>Kamera wird gestartet…</div>`:''}<div style="display:flex;gap:8px"><button onclick="captureSelfie()" ${state.selfieReady?'':'disabled'} class="btn btn-primary btn-sm" style="flex:1;${state.selfieReady?'':'opacity:.5;cursor:not-allowed'}">${camSvg(16)} ${state.selfieReady?'Aufnehmen':'Warte…'}</button><button onclick="switchCamera()" class="btn btn-outline btn-sm">🔄</button><button onclick="stopCamera()" class="btn btn-outline btn-sm">✕</button></div>`;}
-  else{selfieHtml=`<div class="selfie-wrap" onclick="startCamera()">${camSvg(32)}<p style="font-size:13px;font-weight:600;color:#6366f1;margin-top:8px">Kamera öffnen & Selfie aufnehmen</p></div>`;}
+  else if(state.selfieStreaming){selfieHtml=`<video id="selfie-video" autoplay muted playsinline style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:12px;background:#000;margin-bottom:8px"></video>${!state.selfieReady?`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;color:#6b7280;font-size:13px"><div class="spinner" style="width:20px;height:20px;border-width:2px"></div>Kamera wird gestartet…</div>`:''}<div style="display:flex;gap:8px"><button onclick="captureSelfie()" ${state.selfieReady?'':'disabled'} class="btn btn-primary btn-sm" style="flex:1;${state.selfieReady?'':'opacity:.5;cursor:not-allowed'}">${camSvg(16)} ${state.selfieReady?'Aufnehmen':'Warte…'}</button><button onclick="stopCamera()" class="btn btn-outline btn-sm">✕</button></div>`;}
+  else{selfieHtml=`<div class="selfie-wrap" onclick="startCamera()">${camSvg(32)}<p style="font-size:13px;font-weight:600;color:#6366f1;margin-top:8px">Selfie aufnehmen (Frontkamera)</p></div>`;}
 
   // Name-Feld: kein oninput-Re-Render → Tastatur bleibt offen
   let nameField='';
@@ -311,7 +312,10 @@ function renderForm(){
 
   appEl.innerHTML=`
   <div class="sticky-bar ${bannerClass}">
-    <div class="sticky-top"><span class="pts-label">Punkte: ${cv.total}/100</span></div>
+    <div class="sticky-top">
+      <span class="pts-num">${cv.total}/100</span>
+      <span class="pts-sub">Punkte verteilt</span>
+    </div>
     <div class="pills">
       <div class="pill ${cv.withPoints===8?'ok':'ng'}">${cv.withPoints===8?checkSvg(10):warnSvg(10)} ${cv.withPoints}/8 Firmen</div>
       <div class="pill ${!cv.nonZeroDup?'ok':'ng'}">${!cv.nonZeroDup?checkSvg(10):warnSvg(10)} Keine Duplikate</div>
@@ -363,7 +367,7 @@ function renderForm(){
     </div></div>
 
     <div class="card">
-      <div class="company-header"><p class="section-title" style="margin:0">Firmen bewerten</p><span style="font-size:12px;color:#9ca3af;font-weight:600">${cv.withPoints}/8 bewertet</span></div>
+      <div class="company-header"><p class="section-title" style="margin:0">Punkte verteilen</p><span style="font-size:12px;color:#9ca3af;font-weight:600">${cv.withPoints}/8 bewertet</span></div>
       <div id="companies-list">${cosHtml}</div>
     </div>
 
@@ -388,8 +392,58 @@ function renderForm(){
 }
 
 function renderSuccess(){
-  document.getElementById('app').innerHTML=`<div class="success-page"><div class="success-card"><div class="check-circle">${checkSvg(32)}</div><h2 style="font-size:20px;font-weight:800;color:#1f2937;margin-bottom:8px">Erfolgreich eingereicht!</h2><p style="color:#6b7280;font-size:13px;margin-bottom:20px">Du erhältst eine Bestätigung an <strong>${state.form.email}</strong>.</p><button onclick="backToForm()" class="btn btn-primary" style="width:auto;padding:10px 24px;font-size:14px">← Zurück zur Wunschliste</button></div></div>`;
+  const f=state.form, cos=state.setup.companies;
+  const ranked=[...cos].filter(c=>f.points[c.id]>0).sort((a,b)=>f.points[b.id]-f.points[a.id]);
+  const total=Object.values(f.points).reduce((a,b)=>a+b,0);
+  const rankRows=ranked.map((c,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f3f4f6">
+      <div style="width:24px;height:24px;border-radius:50%;background:#6366f1;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0">${i+1}</div>
+      <span style="flex:1;font-size:13px;font-weight:600;color:#1f2937">${c.name}</span>
+      <span style="font-size:14px;font-weight:800;color:#6366f1">${f.points[c.id]} Pts</span>
+    </div>`).join('');
+  document.getElementById('app').innerHTML=`
+  <div class="success-page">
+    <div class="success-card" id="success-snapshot" style="max-width:400px">
+      <div class="check-circle">${checkSvg(32)}</div>
+      <h2 style="font-size:20px;font-weight:800;color:#1f2937;margin-bottom:4px">Eingereicht!</h2>
+      <p style="color:#6b7280;font-size:13px;margin-bottom:16px">${f.name}</p>
+      <div style="text-align:left;margin-bottom:12px">${rankRows}</div>
+      <div style="background:#f9fafb;border-radius:8px;padding:8px 12px;margin-bottom:20px;display:flex;justify-content:space-between">
+        <span style="font-size:13px;font-weight:600;color:#6b7280">Total</span>
+        <span style="font-size:15px;font-weight:900;color:#6366f1">${total} / 100 Pts</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button onclick="saveSnapshot()" class="btn btn-green" style="font-size:14px;padding:10px">
+          📸 Als Foto speichern
+        </button>
+        <button onclick="backToForm()" class="btn btn-outline" style="font-size:14px;padding:10px">
+          ← Zurück zur Wunschliste
+        </button>
+      </div>
+    </div>
+  </div>`;
 }
+
+window.saveSnapshot = async () => {
+  try {
+    const node = document.getElementById('success-snapshot');
+    // html2canvas über CDN laden
+    if (!window.html2canvas) {
+      await new Promise((res,rej)=>{
+        const s=document.createElement('script');
+        s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+        s.onload=res; s.onerror=rej; document.head.appendChild(s);
+      });
+    }
+    const canvas = await html2canvas(node, {scale:2, useCORS:true, backgroundColor:'#fff'});
+    const link = document.createElement('a');
+    link.download = `wunschliste_${state.form.name.replace(/\s+/g,'_')}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  } catch(e) {
+    alert('Screenshot konnte nicht erstellt werden: '+e.message);
+  }
+};
 
 function renderLoginModal(){
   return`<div onclick="closeLogin(event)" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px"><div onclick="event.stopPropagation()" style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:300px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h3 style="font-weight:700;font-size:16px">Admin-Login</h3><button onclick="closeLoginModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#9ca3af">✕</button></div><input type="password" id="login-pw" placeholder="Passwort" oninput="setLoginPw(this.value)" onkeydown="if(event.key==='Enter')doLogin()" style="width:100%;padding:8px 12px;border:2px solid ${state.loginErr?'#ef4444':'#e5e7eb'};border-radius:8px;font-size:16px;outline:none;margin-bottom:${state.loginErr?'4px':'12px'}"/>${state.loginErr?`<p style="color:#ef4444;font-size:12px;margin-bottom:8px">Falsches Passwort</p>`:''}<button onclick="doLogin()" class="btn btn-primary" style="font-size:14px;padding:10px">Anmelden</button></div></div>`;
@@ -473,12 +527,11 @@ window.handleSubmit = async () => {
 };
 window.backToForm = () => { state.view='form'; render(); };
 
-// Selfie
-let facingMode='user';
+// Selfie – immer Frontkamera
 window.startCamera = async () => {
   state.selfieReady=false; state.selfieStreaming=true; render();
   try {
-    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode,width:{ideal:640},height:{ideal:640}},audio:false});
+    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:640},height:{ideal:640}},audio:false});
     state.selfieStream=stream;
     const vid=document.getElementById('selfie-video');
     if(vid){vid.srcObject=stream;vid.muted=true;vid.onloadedmetadata=()=>{vid.play().then(()=>{const t=setInterval(()=>{if(vid.readyState>=2&&vid.videoWidth>0){state.selfieReady=true;clearInterval(t);render();}},200);});};}
@@ -492,7 +545,6 @@ window.captureSelfie = () => {
   state.form.selfie=canvas.toDataURL('image/jpeg',.8);
   stopCamera(); render();
 };
-window.switchCamera = () => { facingMode=facingMode==='user'?'environment':'user'; stopCamera(); setTimeout(()=>window.startCamera(),300); };
 window.stopCamera = () => { if(state.selfieStream){state.selfieStream.getTracks().forEach(t=>t.stop());state.selfieStream=null;} state.selfieStreaming=false; state.selfieReady=false; };
 window.resetSelfie = () => { state.form.selfie=''; startCamera(); };
 
