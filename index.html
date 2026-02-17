@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wunschliste Versetzungsfirmen</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f3f4f6;min-height:100vh}
@@ -13,8 +12,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .sticky-bar.over{background:#dc2626}
 .sticky-bar.pending{background:#1e293b}
 .sticky-top{display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 16px}
-.sticky-top .lbl{font-size:11px;font-weight:600;opacity:.75;text-transform:uppercase;letter-spacing:.05em}
-.sticky-top .big{font-size:2.5rem;font-weight:900;line-height:1}
+.sticky-top .pts-label{font-size:16px;font-weight:800;letter-spacing:.02em}
 .pills{display:flex;gap:6px;padding:0 12px 8px;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .pill{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
 .pill.ok{background:#22c55e;color:#fff}
@@ -23,50 +21,47 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .card-body{padding:16px}
 .section-title{font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
 label.lbl{font-size:12px;font-weight:600;color:#6b7280;display:block;margin-bottom:4px}
-input[type=text],input[type=email],input[type=datetime-local],select,textarea{width:100%;padding:8px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;font-family:inherit;background:#fff}
+input[type=text],input[type=email],input[type=datetime-local],select,textarea{width:100%;padding:8px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:16px;outline:none;font-family:inherit;background:#fff}
 input:focus,select:focus,textarea:focus{border-color:#6366f1}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .col2{grid-column:span 2}
 .radio-group{display:flex;gap:16px;flex-wrap:wrap}
 .radio-group label{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:500;color:#374151;cursor:pointer}
-input[type=radio],input[type=checkbox]{accent-color:#6366f1;width:16px;height:16px}
+input[type=radio]{accent-color:#6366f1;width:16px;height:16px}
 .company-row{padding:8px 12px;border-bottom:1px solid #f3f4f6}
 .company-row:last-child{border-bottom:none}
-.company-top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.company-top{display:flex;align-items:center;gap:6px;margin-bottom:4px}
 .rank-badge{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0}
 .rank-badge.active{background:#6366f1;color:#fff}
 .rank-badge.empty{background:#f3f4f6;color:#9ca3af}
 .company-name{font-size:13px;font-weight:600;color:#1f2937;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none}
 .company-name:hover{color:#6366f1}
 .link-ico{opacity:.3;flex-shrink:0}
-.num-input{width:52px;padding:4px 2px;text-align:center;font-size:14px;font-weight:700;border:2px solid #e5e7eb;border-radius:8px;outline:none}
+.dup-label{font-size:11px;font-weight:700;color:#ef4444;flex-shrink:0}
+.stepper-wrap{display:flex;align-items:center;gap:3px;flex-shrink:0}
+.step-btn{width:28px;height:28px;border-radius:7px;border:2px solid #e5e7eb;background:#fff;font-size:17px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#6366f1;line-height:1;flex-shrink:0;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.step-btn:active{background:#ede9fe;border-color:#6366f1}
+.num-input{width:46px;padding:3px 2px;text-align:center;font-size:14px;font-weight:700;border:2px solid #e5e7eb;border-radius:8px;outline:none}
 .num-input:focus{border-color:#6366f1}
 .num-input.dup{border-color:#ef4444;background:#fef2f2}
-.dup-label{font-size:11px;font-weight:700;color:#ef4444}
-.eye-btn{background:none;border:none;cursor:pointer;color:#d1d5db;padding:2px;flex-shrink:0}
+.eye-btn{background:none;border:none;cursor:pointer;color:#d1d5db;padding:2px;flex-shrink:0;touch-action:manipulation}
 .eye-btn:hover{color:#ef4444}
-.slider{width:100%;height:4px;-webkit-appearance:none;appearance:none;background:#e5e7eb;border-radius:4px;cursor:pointer;margin-left:30px;width:calc(100% - 30px)}
-.slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:#6366f1;border-radius:50%;cursor:pointer}
-.slider::-moz-range-thumb{width:16px;height:16px;background:#6366f1;border-radius:50%;border:none;cursor:pointer}
+.slider-row{padding:2px 0 4px 28px}
+.slider{width:100%;height:6px;-webkit-appearance:none;appearance:none;background:#e5e7eb;border-radius:4px;cursor:pointer;touch-action:none;display:block}
+.slider::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;background:#6366f1;border-radius:50%;cursor:pointer;border:3px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.25)}
+.slider::-moz-range-thumb{width:24px;height:24px;background:#6366f1;border-radius:50%;border:3px solid #fff;cursor:pointer;box-shadow:0 1px 5px rgba(0,0,0,.25)}
 .btn{width:100%;padding:12px;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
 .btn-primary{background:#6366f1;color:#fff}
 .btn-primary:hover{background:#4f46e5}
 .btn-primary:disabled{background:#e5e7eb;color:#9ca3af;cursor:not-allowed}
-.btn-blue{background:#3b82f6;color:#fff}
-.btn-blue:hover{background:#2563eb}
-.btn-gray{background:#6b7280;color:#fff}
-.btn-gray:hover{background:#4b5563}
-.btn-green{background:#16a34a;color:#fff}
-.btn-green:hover{background:#15803d}
-.btn-red{background:#ef4444;color:#fff}
-.btn-red:hover{background:#dc2626}
+.btn-blue{background:#3b82f6;color:#fff}.btn-blue:hover{background:#2563eb}
+.btn-gray{background:#6b7280;color:#fff}.btn-gray:hover{background:#4b5563}
+.btn-green{background:#16a34a;color:#fff}.btn-green:hover{background:#15803d}
+.btn-red{background:#ef4444;color:#fff}.btn-red:hover{background:#dc2626}
 .btn-sm{padding:7px 14px;font-size:13px;border-radius:8px;width:auto}
-.btn-outline{background:#fff;border:2px solid #e5e7eb;color:#6b7280}
-.btn-outline:hover{background:#f9fafb}
+.btn-outline{background:#fff;border:2px solid #e5e7eb;color:#6b7280}.btn-outline:hover{background:#f9fafb}
 .validation-row{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:2px 0}
-.validation-row.ok{color:#16a34a}
-.validation-row.ng{color:#ef4444}
-.hidden-drawer{overflow:hidden}
+.validation-row.ok{color:#16a34a}.validation-row.ng{color:#ef4444}
 .drawer-toggle{width:100%;background:none;border:none;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;cursor:pointer}
 .drawer-toggle:hover{background:#f9fafb}
 .drawer-content{border-top:1px solid #f3f4f6}
@@ -81,8 +76,7 @@ video#selfie-video{width:100%;border-radius:12px;background:#000;max-height:220p
 .progress-bar-bg{background:#e5e7eb;border-radius:999px;height:16px;overflow:hidden;margin:8px 0}
 .progress-bar-fill{height:100%;background:#6366f1;border-radius:999px;transition:width .5s}
 .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center;margin-top:12px}
-.stat-num{font-size:1.8rem;font-weight:900}
-.stat-lbl{font-size:11px;color:#9ca3af;margin-top:2px}
+.stat-num{font-size:1.8rem;font-weight:900}.stat-lbl{font-size:11px;color:#9ca3af;margin-top:2px}
 .admin-tabs{display:flex;gap:8px;margin-bottom:12px}
 .tab-btn{padding:8px 16px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
 .tab-btn.active{background:#6366f1;color:#fff}
@@ -118,8 +112,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getFirestore, collection, doc, getDocs, setDoc, deleteDoc, onSnapshot, getDoc }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// ── Firebase ──────────────────────────────────────────────────────────────────
-const app = initializeApp({
+const fireApp = initializeApp({
   apiKey:"AIzaSyDfW6L8LP1UW-opMlX1DoqM_Y58qQUOYpQ",
   authDomain:"wunschliste-versetzungsfirmen.firebaseapp.com",
   projectId:"wunschliste-versetzungsfirmen",
@@ -127,691 +120,375 @@ const app = initializeApp({
   messagingSenderId:"511185053099",
   appId:"1:511185053099:web:11561dfcafce8ab8021eee"
 });
-const db = getFirestore(app);
+const db = getFirestore(fireApp);
 
 const FB = {
-  subscribe: (cb) => onSnapshot(collection(db,'submissions'), snap =>
-    cb(snap.docs.map(d=>({_id:d.id,...d.data()})))),
-  save: (sub) => {
-    const id = sub.name.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'').toLowerCase()||'entry_'+Date.now();
-    return setDoc(doc(db,'submissions',id), sub);
-  },
+  subscribe: (cb) => onSnapshot(collection(db,'submissions'), snap => cb(snap.docs.map(d=>({_id:d.id,...d.data()})))),
+  save: (sub) => { const id=sub.name.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'').toLowerCase()||'entry_'+Date.now(); return setDoc(doc(db,'submissions',id),sub); },
   del:    (id)  => deleteDoc(doc(db,'submissions',id)),
   delAll: async () => { const s=await getDocs(collection(db,'submissions')); return Promise.all(s.docs.map(d=>deleteDoc(d.ref))); },
   loadSetup: async () => { const d=await getDoc(doc(db,'config','setup')); return d.exists()?d.data():null; },
-  saveSetup: (cfg) => setDoc(doc(db,'config','setup'), cfg),
+  saveSetup: (cfg) => setDoc(doc(db,'config','setup'),cfg),
 };
 
-// ── Constants ─────────────────────────────────────────────────────────────────
-const ADMIN_PW = 'Azw123*';
+const ADMIN_PW = 'Azw123!';
 const DEFAULT_COMPANIES = [
-  {id:1, name:'ANDRITZ Soutec AG',             url:'https://www.andritz.com'},
-  {id:2, name:'Burckhardt Compression AG',      url:'https://www.burckhardtcompression.com'},
-  {id:3, name:'Corvaglia Mould AG',             url:'https://www.corvaglia.ch'},
-  {id:4, name:'Elektrizitätswerk der Stadt ZH', url:'https://www.ewz.ch'},
-  {id:5, name:'Fehr Lagerlogistik',             url:'https://www.fehr.net'},
-  {id:6, name:'Heim AG Heizsysteme',            url:'https://www.heim-ag.ch'},
-  {id:7, name:'HFS Aqua AG',                    url:'https://www.hfs-aqua.ch'},
-  {id:8, name:'Hug Engineering AG',             url:'https://www.hug-engineering.com'},
-  {id:9, name:'Kanadevia Inova AG',             url:'https://www.kanadevia-inova.com'},
-  {id:10,name:'KELLER Pressure AG',             url:'https://www.keller-pressure.com'},
-  {id:11,name:'Linde Kryotechnik AG',           url:'https://www.linde-kryotechnik.ch'},
-  {id:12,name:'Nobel Biocare Services AG',      url:'https://www.nobelbiocare.com'},
-  {id:13,name:'Stadler Winterthur AG',          url:'https://www.stadlerrail.com'},
-  {id:14,name:'Sulzer Chemtech AG',             url:'https://www.sulzer.com'},
-  {id:15,name:'Sulzer Management AG',           url:'https://www.sulzer.com'},
-  {id:16,name:'TEDAG Dichtungstechnik AG',      url:'https://www.tedag.ch'},
-  {id:17,name:'WinGD Ltd.',                     url:'https://www.wingd.com'},
-  {id:18,name:'ZHAW School of Engineering',     url:'https://www.zhaw.ch'},
-  {id:19,name:'Zimmer Biomet GmbH',             url:'https://www.zimmerbiomet.ch'},
+  {id:1,name:'ANDRITZ Soutec AG',url:'https://www.andritz.com'},
+  {id:2,name:'Burckhardt Compression AG',url:'https://www.burckhardtcompression.com'},
+  {id:3,name:'Corvaglia Mould AG',url:'https://www.corvaglia.ch'},
+  {id:4,name:'Elektrizitätswerk der Stadt ZH',url:'https://www.ewz.ch'},
+  {id:5,name:'Fehr Lagerlogistik',url:'https://www.fehr.net'},
+  {id:6,name:'Heim AG Heizsysteme',url:'https://www.heim-ag.ch'},
+  {id:7,name:'HFS Aqua AG',url:'https://www.hfs-aqua.ch'},
+  {id:8,name:'Hug Engineering AG',url:'https://www.hug-engineering.com'},
+  {id:9,name:'Kanadevia Inova AG',url:'https://www.kanadevia-inova.com'},
+  {id:10,name:'KELLER Pressure AG',url:'https://www.keller-pressure.com'},
+  {id:11,name:'Linde Kryotechnik AG',url:'https://www.linde-kryotechnik.ch'},
+  {id:12,name:'Nobel Biocare Services AG',url:'https://www.nobelbiocare.com'},
+  {id:13,name:'Stadler Winterthur AG',url:'https://www.stadlerrail.com'},
+  {id:14,name:'Sulzer Chemtech AG',url:'https://www.sulzer.com'},
+  {id:15,name:'Sulzer Management AG',url:'https://www.sulzer.com'},
+  {id:16,name:'TEDAG Dichtungstechnik AG',url:'https://www.tedag.ch'},
+  {id:17,name:'WinGD Ltd.',url:'https://www.wingd.com'},
+  {id:18,name:'ZHAW School of Engineering',url:'https://www.zhaw.ch'},
+  {id:19,name:'Zimmer Biomet GmbH',url:'https://www.zimmerbiomet.ch'},
 ];
 
-// ── State ─────────────────────────────────────────────────────────────────────
 let state = {
-  view: 'form',       // form | success | admin
-  adminTab: 'data',
-  submissions: [],
-  setup: { companies: DEFAULT_COMPANIES, students: [], deadline: '' },
-  form: {
-    name:'', plz:'', ort:'', email:'', bms:'', schultage:'', ferien:'', ferienText:'', selfie:'',
-    points:{}, hidden:[], orderedIds: DEFAULT_COMPANIES.map(c=>c.id), sortApplied:false,
-  },
-  selfieStreaming: false, selfieReady: false, selfieStream: null,
-  showHidden: false, showLoginModal: false, loginPw: '', loginErr: false,
-  loading: true, adminDrawerOpen: false,
+  view:'form', adminTab:'data', submissions:[],
+  setup:{companies:DEFAULT_COMPANIES,students:[],deadline:''},
+  form:{name:'',plz:'',ort:'',email:'',bms:'',schultage:'',ferien:'',ferienText:'',selfie:'',
+        points:{},hidden:[],orderedIds:DEFAULT_COMPANIES.map(c=>c.id),sortApplied:false},
+  selfieStreaming:false,selfieReady:false,selfieStream:null,
+  showHidden:false,showLoginModal:false,loginPw:'',loginErr:false,loading:true,
 };
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-const $  = (id) => document.getElementById(id);
-const el = (tag, cls='', inner='') => { const e=document.createElement(tag); if(cls) e.className=cls; if(inner) e.innerHTML=inner; return e; };
 const emptyPoints = (cos) => cos.reduce((a,c)=>({...a,[c.id]:0}),{});
-const svg = (path, size=16) =>
-  `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${path}"/></svg>`;
-const checkSvg  = (s=14) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>`;
-const warnSvg   = (s=14) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
-const eyeOffSvg = (s=14) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
-const eyeOnSvg  = (s=14) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
-const lockSvg   = (s=18) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
-const camSvg    = (s=24) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>`;
-const trashSvg  = (s=13) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/></svg>`;
-const sortSvg   = (s=14) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/></svg>`;
-const chevD     = (s=14) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`;
-const chevU     = (s=14) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>`;
-const linkSvg   = (s=10) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
-const dlSvg     = (s=16) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
-const plusSvg   = (s=13) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
 
-// ── Computed values ───────────────────────────────────────────────────────────
+// SVG Icons
+const checkSvg=(s=14)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>`;
+const warnSvg=(s=14)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+const eyeOffSvg=(s=14)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+const eyeOnSvg=(s=14)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+const lockSvg=(s=18)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
+const camSvg=(s=24)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>`;
+const trashSvg=(s=13)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/></svg>`;
+const sortSvg=(s=14)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/></svg>`;
+const chevD=(s=14)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`;
+const chevU=(s=14)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>`;
+const linkSvg=(s=10)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
+const dlSvg=(s=16)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
+
+// ── Computed ──────────────────────────────────────────────────────────────────
 function computed() {
-  const f = state.form;
-  const cos = state.setup.companies;
-  const pts = f.points;
-  const total = Object.values(pts).reduce((a,b)=>a+b,0);
-  const remaining = 100 - total;
-  const withPoints = Object.values(pts).filter(v=>v>0).length;
-  const nonZeroDup = () => {
-    const vals = Object.entries(pts).filter(([id,v])=>v>0&&!f.hidden.includes(Number(id))).map(([,v])=>v);
-    return vals.length !== new Set(vals).size;
-  };
-  const rankMap = {};
-  Object.entries(pts).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,8).forEach(([id],i)=>{ rankMap[Number(id)]=i+1; });
-  const deadlinePassed = state.setup.deadline && new Date() > new Date(state.setup.deadline);
-  const valid = total===100 && !nonZeroDup() && withPoints===8 &&
-    f.name && f.plz && f.ort && f.email && f.bms && f.schultage && f.ferien &&
-    (f.ferien==='Nein'||(f.ferien==='Ja'&&f.ferienText)) && f.selfie && !deadlinePassed;
-  return { total, remaining, withPoints, nonZeroDup: nonZeroDup(), rankMap, valid, deadlinePassed };
+  const f=state.form, pts=f.points;
+  const total=Object.values(pts).reduce((a,b)=>a+b,0);
+  const withPoints=Object.values(pts).filter(v=>v>0).length;
+  const nonZeroDup=()=>{const vals=Object.entries(pts).filter(([id,v])=>v>0&&!f.hidden.includes(Number(id))).map(([,v])=>v);return vals.length!==new Set(vals).size;};
+  const rankMap={};
+  Object.entries(pts).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,8).forEach(([id],i)=>{rankMap[Number(id)]=i+1;});
+  const deadlinePassed=state.setup.deadline&&new Date()>new Date(state.setup.deadline);
+  const valid=total===100&&!nonZeroDup()&&withPoints===8&&f.name&&f.plz&&f.ort&&f.email&&f.bms&&f.schultage&&f.ferien&&(f.ferien==='Nein'||(f.ferien==='Ja'&&f.ferienText))&&f.selfie&&!deadlinePassed;
+  return{total,remaining:100-total,withPoints,nonZeroDup:nonZeroDup(),rankMap,valid,deadlinePassed};
 }
 
 // ── Render ────────────────────────────────────────────────────────────────────
 function render() {
-  const app = document.getElementById('app');
-  if (state.loading) {
-    app.innerHTML = `<div style="min-height:100vh;display:flex;align-items:center;justify-content:center"><div style="text-align:center"><div class="spinner" style="margin-bottom:12px"></div><p style="color:#6b7280;font-size:14px">Verbindung wird hergestellt...</p></div></div>`;
-    return;
-  }
-  if (state.view === 'admin') { renderAdmin(); return; }
-  if (state.view === 'success') { renderSuccess(); return; }
-  const active = document.activeElement;
-  const focusCid = active && active.dataset && active.dataset.cid ? active.dataset.cid : null;
-  const focusType = active ? active.type : null;
+  const appEl=document.getElementById('app');
+  if(state.loading){appEl.innerHTML=`<div style="min-height:100vh;display:flex;align-items:center;justify-content:center"><div style="text-align:center"><div class="spinner" style="margin-bottom:12px"></div><p style="color:#6b7280;font-size:14px">Verbindung wird hergestellt…</p></div></div>`;return;}
+  if(state.view==='admin'){renderAdmin();return;}
+  if(state.view==='success'){renderSuccess();return;}
   renderForm();
-  if (focusCid) {
-    const sel = focusType === 'range' ? `input[type=range][data-cid="${focusCid}"]` : `.num-input[data-cid="${focusCid}"]`;
-    const el = document.querySelector(sel);
-    if (el) el.focus();
-  }
 }
 
-// ── Form View ─────────────────────────────────────────────────────────────────
-function buildCosHtml(cv, f) {
-  const visibleIds = f.orderedIds.filter(id=>!f.hidden.includes(id));
-  let cosHtml = '';
-  visibleIds.forEach(id => {
-    const co = state.setup.companies.find(c=>c.id===id);
-    if (!co) return;
-    const val = f.points[id]||0;
-    const rank = cv.rankMap[id];
-    const isDup = val>0 && Object.entries(f.points).some(([oid,ov])=>Number(oid)!==id&&ov===val);
-    cosHtml += `
-    <div class="company-row" data-id="${id}">
+// ── Schnelle DOM-Updates für Slider (kein Re-Render) ─────────────────────────
+let _sliderTimer=null;
+function applyPointUpdate(id,n){
+  state.form.points[id]=n;
+  // Slider + Zahl synchronisieren ohne aktives Element zu überschreiben
+  document.querySelectorAll(`[data-cid="${id}"]`).forEach(el=>{if(el!==document.activeElement)el.value=n;});
+  // Duplikate für alle Firmen aktualisieren
+  const pts=state.form.points, hidden=state.form.hidden;
+  state.setup.companies.forEach(co=>{
+    const cid=co.id, val=pts[cid]||0;
+    const isDup=val>0&&Object.entries(pts).some(([oid,ov])=>Number(oid)!==cid&&ov===val&&!hidden.includes(Number(oid)));
+    const numIn=document.querySelector(`.num-input[data-cid="${cid}"]`);
+    if(numIn)numIn.classList.toggle('dup',isDup);
+    const existDup=document.querySelector(`.company-row[data-id="${cid}"] .dup-label`);
+    if(isDup&&!existDup){
+      const top=document.querySelector(`.company-row[data-id="${cid}"] .company-top`);
+      if(top&&numIn){const sp=document.createElement('span');sp.className='dup-label';sp.textContent='Duplikat!';top.insertBefore(sp,numIn);}
+    } else if(!isDup&&existDup){existDup.remove();}
+  });
+  updateBannerFast();
+  clearTimeout(_sliderTimer);
+  _sliderTimer=setTimeout(()=>render(),150);
+}
+
+function updateBannerFast(){
+  const pts=state.form.points, hidden=state.form.hidden;
+  const total=Object.values(pts).reduce((a,b)=>a+b,0);
+  const withPoints=Object.values(pts).filter(v=>v>0).length;
+  const vals=Object.entries(pts).filter(([id,v])=>v>0&&!hidden.includes(Number(id))).map(([,v])=>v);
+  const nonZeroDup=vals.length!==new Set(vals).size;
+  const bar=document.querySelector('.sticky-bar');
+  if(bar)bar.className='sticky-bar '+(total===100?'ok':total>100?'over':'pending');
+  const lbl=document.querySelector('.pts-label');
+  if(lbl)lbl.textContent=`Punkte: ${total}/100`;
+  const pills=document.querySelectorAll('.pill');
+  if(pills.length>=2){
+    const setP=(el,ok,label)=>{
+      el.className='pill '+(ok?'ok':'ng');
+      const icon=ok?`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>`:`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+      el.innerHTML=icon+' '+label;
+    };
+    setP(pills[0],withPoints===8,`${withPoints}/8 Firmen`);
+    setP(pills[1],!nonZeroDup,'Keine Duplikate');
+  }
+  const rankMap={};
+  Object.entries(pts).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,8).forEach(([id],i)=>{rankMap[Number(id)]=i+1;});
+  document.querySelectorAll('.company-row').forEach(row=>{
+    const cid=Number(row.dataset.id), badge=row.querySelector('.rank-badge');
+    if(badge){const rank=rankMap[cid];badge.className='rank-badge '+(rank?'active':'empty');badge.textContent=rank||'';}
+  });
+}
+
+// ── Companies HTML ────────────────────────────────────────────────────────────
+function buildCosHtml(cv,f){
+  const visibleIds=f.orderedIds.filter(id=>!f.hidden.includes(id));
+  let html='';
+  visibleIds.forEach(id=>{
+    const co=state.setup.companies.find(c=>c.id===id); if(!co)return;
+    const val=f.points[id]||0, rank=cv.rankMap[id];
+    const isDup=val>0&&Object.entries(f.points).some(([oid,ov])=>Number(oid)!==id&&ov===val&&!f.hidden.includes(Number(oid)));
+    html+=`<div class="company-row" data-id="${id}">
       <div class="company-top">
         <div class="rank-badge ${rank?'active':'empty'}">${rank||''}</div>
         <a href="${co.url}" target="_blank" class="company-name">${co.name}</a>
         <span class="link-ico">${linkSvg(9)}</span>
         ${isDup?`<span class="dup-label">Duplikat!</span>`:''}
-        <input class="num-input${isDup?' dup':''}" type="number" min="0" max="50" value="${val}" data-cid="${id}" onchange="setPoint(${id},this.value)" oninput="setPoint(${id},this.value)"/>
-        <button class="eye-btn" onclick="hideCompany(${id})" title="Ausblenden">${eyeOffSvg(14)}</button>
+        <div class="stepper-wrap">
+          <button class="step-btn" onclick="stepPoint(${id},-1)">−</button>
+          <input class="num-input${isDup?' dup':''}" type="number" min="0" max="50" value="${val}" data-cid="${id}"
+            oninput="setPointDirect(${id},this.value)" onchange="setPointDirect(${id},this.value)"/>
+          <button class="step-btn" onclick="stepPoint(${id},1)">+</button>
+        </div>
+        <button class="eye-btn" onclick="hideCompanyNow(${id})" title="Ausblenden">${eyeOffSvg(14)}</button>
       </div>
-      <input type="range" min="0" max="50" value="${val}" class="slider" data-cid="${id}" oninput="setPoint(${id},this.value)" onchange="setPoint(${id},this.value)"/>
+      <div class="slider-row">
+        <input type="range" min="0" max="50" value="${val}" class="slider" data-cid="${id}"
+          oninput="setPointSlider(${id},this.value)" onchange="setPointSlider(${id},this.value)"/>
+      </div>
     </div>`;
   });
-  return cosHtml;
+  return html;
 }
 
-function renderForm() {
-  const app = document.getElementById('app');
-  const cv = computed();
-  const f = state.form;
-  const { deadline } = state.setup;
+// ── renderForm ────────────────────────────────────────────────────────────────
+function renderForm(){
+  const appEl=document.getElementById('app'), cv=computed(), f=state.form, {deadline}=state.setup;
+  if(cv.deadlinePassed){appEl.innerHTML=`<div class="deadlined"><div class="success-card"><div style="font-size:3rem;margin-bottom:12px">🔒</div><h2 style="font-size:18px;font-weight:700;color:#1f2937;margin-bottom:8px">Umfrage geschlossen</h2><p style="color:#6b7280;font-size:13px">Die Eingabefrist ist abgelaufen (${new Date(deadline).toLocaleDateString('de-DE')}).</p></div></div>`;return;}
 
-  if (cv.deadlinePassed) {
-    app.innerHTML = `<div class="deadlined"><div class="success-card"><div style="font-size:3rem;margin-bottom:12px">🔒</div><h2 style="font-size:18px;font-weight:700;color:#1f2937;margin-bottom:8px">Umfrage geschlossen</h2><p style="color:#6b7280;font-size:13px">Die Eingabefrist ist abgelaufen (${new Date(deadline).toLocaleDateString('de-DE')}).</p></div></div>`;
-    return;
-  }
+  const bannerClass=cv.total===100?'ok':cv.total>100?'over':'pending';
+  const hiddenCos=state.setup.companies.filter(c=>f.hidden.includes(c.id));
+  const cosHtml=buildCosHtml(cv,f);
 
-  // Banner colour
-  const bannerClass = cv.remaining===0?'ok':cv.remaining<0?'over':'pending';
+  let hiddenHtml='';
+  hiddenCos.forEach(co=>{hiddenHtml+=`<div class="drawer-item"><a href="${co.url}" target="_blank" style="font-size:13px;color:#9ca3af;text-decoration:line-through;display:flex;align-items:center;gap:4px">${co.name} ${linkSvg(9)}</a><button onclick="showCompany(${co.id})" style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:#6366f1;background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:6px">${eyeOnSvg(13)} Einblenden</button></div>`;});
 
-  // Criteria pills
-  const pills = [
-    { ok: cv.total===100,      label: `${cv.total}/100 Pts` },
-    { ok: cv.withPoints===8,   label: `${cv.withPoints}/8 Firmen` },
-    { ok: !cv.nonZeroDup,      label: 'Keine Duplikate' },
-    { ok: !!(f.name&&f.plz&&f.ort&&f.email), label: 'Angaben' },
-    { ok: !!(f.bms&&f.schultage&&f.ferien),  label: 'Optionen' },
-    { ok: !!f.selfie,          label: 'Selfie' },
-  ];
+  let selfieHtml='';
+  if(f.selfie){selfieHtml=`<img src="${f.selfie}" class="selfie-preview" style="margin-bottom:8px"/><button onclick="resetSelfie()" style="font-size:12px;font-weight:600;color:#6366f1;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px">${camSvg(13)} Neues Selfie aufnehmen</button>`;}
+  else if(state.selfieStreaming){selfieHtml=`<video id="selfie-video" autoplay muted playsinline style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:12px;background:#000;margin-bottom:8px"></video>${!state.selfieReady?`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;color:#6b7280;font-size:13px"><div class="spinner" style="width:20px;height:20px;border-width:2px"></div>Kamera wird gestartet…</div>`:''}<div style="display:flex;gap:8px"><button onclick="captureSelfie()" ${state.selfieReady?'':'disabled'} class="btn btn-primary btn-sm" style="flex:1;${state.selfieReady?'':'opacity:.5;cursor:not-allowed'}">${camSvg(16)} ${state.selfieReady?'Aufnehmen':'Warte…'}</button><button onclick="switchCamera()" class="btn btn-outline btn-sm">🔄</button><button onclick="stopCamera()" class="btn btn-outline btn-sm">✕</button></div>`;}
+  else{selfieHtml=`<div class="selfie-wrap" onclick="startCamera()">${camSvg(32)}<p style="font-size:13px;font-weight:600;color:#6366f1;margin-top:8px">Kamera öffnen & Selfie aufnehmen</p></div>`;}
 
-  const hiddenCos  = state.setup.companies.filter(c=>f.hidden.includes(c.id));
-
-  // Companies HTML (via shared helper)
-  const cosHtml = buildCosHtml(cv, f);
-
-  // Hidden companies
-  let hiddenHtml = '';
-  hiddenCos.forEach(co => {
-    hiddenHtml += `<div class="drawer-item"><a href="${co.url}" target="_blank" style="font-size:13px;color:#9ca3af;text-decoration:line-through;display:flex;align-items:center;gap:4px">${co.name} ${linkSvg(9)}</a><button onclick="showCompany(${co.id})" style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:#6366f1;background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:6px">${eyeOnSvg(13)} Einblenden</button></div>`;
-  });
-
-  // Selfie section
-  let selfieHtml = '';
-  if (f.selfie) {
-    selfieHtml = `<img src="${f.selfie}" class="selfie-preview" style="margin-bottom:8px"/><button onclick="resetSelfie()" style="font-size:12px;font-weight:600;color:#6366f1;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px">${camSvg(13)} Neues Selfie aufnehmen</button>`;
-  } else if (state.selfieStreaming) {
-    selfieHtml = `<video id="selfie-video" autoplay muted playsinline style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:12px;background:#000;margin-bottom:8px"></video>
-    ${!state.selfieReady?`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;color:#6b7280;font-size:13px"><div class="spinner" style="width:20px;height:20px;border-width:2px"></div>Kamera wird gestartet…</div>`:''}
-    <div style="display:flex;gap:8px">
-      <button onclick="captureSelfie()" ${state.selfieReady?'':'disabled'} class="btn btn-primary btn-sm" style="flex:1;${state.selfieReady?'':'opacity:.5;cursor:not-allowed'}">${camSvg(16)} ${state.selfieReady?'Aufnehmen':'Warte…'}</button>
-      <button onclick="switchCamera()" class="btn btn-outline btn-sm">🔄</button>
-      <button onclick="stopCamera()" class="btn btn-outline btn-sm">✕</button>
-    </div>`;
+  // Name-Feld: kein oninput-Re-Render → Tastatur bleibt offen
+  let nameField='';
+  if(state.setup.students.length>0){
+    nameField=`<select onchange="setFormField('name',this.value)" style="width:100%;padding:8px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:16px;background:#fff"><option value="">-- Name auswählen --</option>${state.setup.students.map(s=>`<option value="${s}" ${f.name===s?'selected':''}>${s}</option>`).join('')}</select>`;
   } else {
-    selfieHtml = `<div class="selfie-wrap" onclick="startCamera()">${camSvg(32)}<p style="font-size:13px;font-weight:600;color:#6366f1;margin-top:8px">Kamera öffnen & Selfie aufnehmen</p></div>`;
+    nameField=`<input type="text" value="${f.name}" placeholder="Vorname Nachname" oninput="liveField('name',this.value)" onblur="commitField()" autocomplete="name"/>`;
   }
 
-  // Name field (dropdown or text)
-  let nameField = '';
-  if (state.setup.students.length > 0) {
-    nameField = `<select onchange="setFormField('name',this.value)" style="width:100%;padding:8px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;background:#fff"><option value="">-- Name auswählen --</option>${state.setup.students.map(s=>`<option value="${s}" ${f.name===s?'selected':''}>${s}</option>`).join('')}</select>`;
-  } else {
-    nameField = `<input type="text" value="${f.name}" placeholder="Vorname Nachname" oninput="setFormField('name',this.value)"/>`;
-  }
-
-  app.innerHTML = `
-  <!-- Sticky Banner -->
+  appEl.innerHTML=`
   <div class="sticky-bar ${bannerClass}">
-    <div class="sticky-top">
-      <span class="lbl">Punkte übrig</span>
-      <span class="big">${cv.remaining}</span>
-    </div>
+    <div class="sticky-top"><span class="pts-label">Punkte: ${cv.total}/100</span></div>
     <div class="pills">
-      ${pills.map(p=>`<div class="pill ${p.ok?'ok':'ng'}">${p.ok?checkSvg(10):warnSvg(10)} ${p.label}</div>`).join('')}
+      <div class="pill ${cv.withPoints===8?'ok':'ng'}">${cv.withPoints===8?checkSvg(10):warnSvg(10)} ${cv.withPoints}/8 Firmen</div>
+      <div class="pill ${!cv.nonZeroDup?'ok':'ng'}">${!cv.nonZeroDup?checkSvg(10):warnSvg(10)} Keine Duplikate</div>
     </div>
   </div>
-
   <div class="main-wrap">
-    <!-- Header -->
-    <div class="card" style="margin-top:0">
-      <div class="card-body">
-        <h1 style="font-size:17px;font-weight:800;color:#1f2937;margin-bottom:4px">Wunschliste Versetzungsfirmen</h1>
-        <p style="font-size:13px;color:#6b7280;margin-bottom:10px">Erstelle deine persönliche Wunschliste indem du 100 Punkte auf 8 Firmen verteilst.</p>
-        <div class="info-box">
-          <div>• Genau 8 Firmen müssen mindestens 1 Punkt erhalten</div>
-          <div>• Keine Firmen dürfen gleich viele Punkte erhalten</div>
-        </div>
-        ${deadline?`<p style="font-size:12px;color:#ea580c;font-weight:600;margin-top:8px">📅 Eingabe möglich bis: ${new Date(deadline).toLocaleString('de-DE')}</p>`:''}
-      </div>
-    </div>
+    <div class="card" style="margin-top:0"><div class="card-body">
+      <h1 style="font-size:17px;font-weight:800;color:#1f2937;margin-bottom:4px">Wunschliste Versetzungsfirmen</h1>
+      <p style="font-size:13px;color:#6b7280;margin-bottom:10px">Erstelle deine persönliche Wunschliste indem du 100 Punkte auf 8 Firmen verteilst.</p>
+      <div class="info-box"><div>• Genau 8 Firmen müssen mindestens 1 Punkt erhalten</div><div>• Keine Firmen dürfen gleich viele Punkte erhalten</div></div>
+      ${deadline?`<p style="font-size:12px;color:#ea580c;font-weight:600;margin-top:8px">📅 Eingabe möglich bis: ${new Date(deadline).toLocaleString('de-DE')}</p>`:''}
+    </div></div>
 
-    <!-- Personal Info -->
-    <div class="card">
-      <div class="card-body">
-        <p class="section-title">Persönliche Angaben</p>
-        <div style="margin-bottom:10px">
-          <label class="lbl">Name *</label>
-          ${nameField}
-        </div>
-        <div class="grid2">
-          <div><label class="lbl">PLZ *</label><input type="text" value="${f.plz}" placeholder="8400" oninput="setFormField('plz',this.value)"/></div>
-          <div><label class="lbl">Ort *</label><input type="text" value="${f.ort}" placeholder="Winterthur" oninput="setFormField('ort',this.value)"/></div>
-          <div class="col2"><label class="lbl">E-Mail *</label><input type="email" value="${f.email}" placeholder="max@mail.ch" oninput="setFormField('email',this.value)"/></div>
-        </div>
-        <div style="margin-top:12px;display:flex;flex-direction:column;gap:12px">
-          <div>
-            <p class="lbl">BMS *</p>
-            <div class="radio-group">
-              <label><input type="radio" name="bms" ${f.bms==='Ja'?'checked':''} onchange="setFormField('bms','Ja')"/> Ja</label>
-              <label><input type="radio" name="bms" ${f.bms==='Nein'?'checked':''} onchange="setFormField('bms','Nein')"/> Nein</label>
-            </div>
-          </div>
-          <div>
-            <p class="lbl">Schultage *</p>
-            <div class="radio-group">
-              <label><input type="radio" name="schultage" ${f.schultage==='Mo/Di'?'checked':''} onchange="setFormField('schultage','Mo/Di')"/> Montag / Dienstag</label>
-              <label><input type="radio" name="schultage" ${f.schultage==='Do/Fr'?'checked':''} onchange="setFormField('schultage','Do/Fr')"/> Donnerstag / Freitag</label>
-            </div>
-          </div>
-          <div>
-            <p class="lbl">Frühlingsferien *</p>
-            <div class="radio-group">
-              <label><input type="radio" name="ferien" ${f.ferien==='Ja'?'checked':''} onchange="setFormField('ferien','Ja')"/> Ja</label>
-              <label><input type="radio" name="ferien" ${f.ferien==='Nein'?'checked':''} onchange="setFormField('ferien','Nein')"/> Nein</label>
-            </div>
-          </div>
-          ${f.ferien==='Ja'?`<div><label class="lbl">Zeitraum Frühlingsferien *</label><input type="text" value="${f.ferienText}" placeholder="z.B. 14.04. – 25.04.2025" oninput="setFormField('ferienText',this.value)"/></div>`:''}
-        </div>
-        <div style="margin-top:14px">
-          <p class="lbl">Selfie (direkt mit Kamera aufnehmen) *</p>
-          ${selfieHtml}
-        </div>
+    <div class="card"><div class="card-body">
+      <p class="section-title">Persönliche Angaben</p>
+      <div style="margin-bottom:10px"><label class="lbl">Name *</label>${nameField}</div>
+      <div class="grid2">
+        <div><label class="lbl">PLZ *</label><input type="text" value="${f.plz}" placeholder="8400" oninput="liveField('plz',this.value)" onblur="commitField()" inputmode="numeric"/></div>
+        <div><label class="lbl">Ort *</label><input type="text" value="${f.ort}" placeholder="Winterthur" oninput="liveField('ort',this.value)" onblur="commitField()"/></div>
+        <div class="col2"><label class="lbl">E-Mail *</label><input type="email" value="${f.email}" placeholder="max@mail.ch" oninput="liveField('email',this.value)" onblur="commitField()" autocomplete="email"/></div>
       </div>
-    </div>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:12px">
+        <div><p class="lbl">BMS *</p><div class="radio-group">
+          <label><input type="radio" name="bms" ${f.bms==='Ja'?'checked':''} onchange="setFormField('bms','Ja')"/> Ja</label>
+          <label><input type="radio" name="bms" ${f.bms==='Nein'?'checked':''} onchange="setFormField('bms','Nein')"/> Nein</label>
+        </div></div>
+        <div><p class="lbl">Schultage *</p><div class="radio-group">
+          <label><input type="radio" name="schultage" ${f.schultage==='Mo/Di'?'checked':''} onchange="setFormField('schultage','Mo/Di')"/> Montag / Dienstag</label>
+          <label><input type="radio" name="schultage" ${f.schultage==='Do/Fr'?'checked':''} onchange="setFormField('schultage','Do/Fr')"/> Donnerstag / Freitag</label>
+        </div></div>
+        <div><p class="lbl">Frühlingsferien *</p><div class="radio-group">
+          <label><input type="radio" name="ferien" ${f.ferien==='Ja'?'checked':''} onchange="setFormField('ferien','Ja')"/> Ja</label>
+          <label><input type="radio" name="ferien" ${f.ferien==='Nein'?'checked':''} onchange="setFormField('ferien','Nein')"/> Nein</label>
+        </div></div>
+        ${f.ferien==='Ja'?`<div><label class="lbl">Zeitraum Frühlingsferien *</label><input type="text" value="${f.ferienText}" placeholder="z.B. 14.04. – 25.04.2025" oninput="liveField('ferienText',this.value)" onblur="commitField()"/></div>`:''}
+      </div>
+      <div style="margin-top:14px"><p class="lbl">Selfie (direkt mit Kamera aufnehmen) *</p>${selfieHtml}</div>
+    </div></div>
 
-    <!-- Validation -->
-    <div class="card">
-      <div class="card-body" style="padding:12px 16px">
-        ${[
-          { ok: cv.total===100,    label:`100 Punkte verteilt (${cv.total}/100)` },
-          { ok: cv.withPoints===8, label:`Genau 8 Firmen bewertet (${cv.withPoints}/8)${cv.withPoints>8?' – zu viele!':''}` },
-          { ok: !cv.nonZeroDup,    label:'Keine doppelten Punktzahlen' },
-          { ok: !!(f.name&&f.plz&&f.ort&&f.email), label:'Alle Pflichtfelder ausgefüllt' },
-          { ok: !!(f.bms&&f.schultage&&f.ferien),  label:'BMS / Schultage / Ferien ausgefüllt' },
-          { ok: !!f.selfie,        label:'Selfie aufgenommen' },
-        ].map(v=>`<div class="validation-row ${v.ok?'ok':'ng'}">${v.ok?checkSvg(13):warnSvg(13)} ${v.label}</div>`).join('')}
-      </div>
-    </div>
+    <div class="card"><div class="card-body" style="padding:12px 16px">
+      ${[
+        {ok:cv.total===100,label:`100 Punkte verteilt (${cv.total}/100)`},
+        {ok:cv.withPoints===8,label:`Genau 8 Firmen bewertet (${cv.withPoints}/8)${cv.withPoints>8?' – zu viele!':''}`},
+        {ok:!cv.nonZeroDup,label:'Keine doppelten Punktzahlen'},
+        {ok:!!(f.name&&f.plz&&f.ort&&f.email),label:'Alle Pflichtfelder ausgefüllt'},
+        {ok:!!(f.bms&&f.schultage&&f.ferien),label:'BMS / Schultage / Ferien ausgefüllt'},
+        {ok:!!f.selfie,label:'Selfie aufgenommen'},
+      ].map(v=>`<div class="validation-row ${v.ok?'ok':'ng'}">${v.ok?checkSvg(13):warnSvg(13)} ${v.label}</div>`).join('')}
+    </div></div>
 
-    <!-- Companies -->
     <div class="card">
-      <div class="company-header">
-        <p class="section-title" style="margin:0">Firmen bewerten</p>
-        <span style="font-size:12px;color:#9ca3af;font-weight:600">${cv.withPoints}/8 bewertet</span>
-      </div>
+      <div class="company-header"><p class="section-title" style="margin:0">Firmen bewerten</p><span style="font-size:12px;color:#9ca3af;font-weight:600">${cv.withPoints}/8 bewertet</span></div>
       <div id="companies-list">${cosHtml}</div>
     </div>
 
-    <!-- Hidden drawer -->
-    ${hiddenCos.length>0?`
-    <div class="card">
-      <button class="drawer-toggle" onclick="toggleHiddenDrawer()">
-        <span>Ausgeblendete Firmen (${hiddenCos.length})</span>
-        ${state.showHidden?chevU():chevD()}
-      </button>
+    ${hiddenCos.length>0?`<div class="card">
+      <button class="drawer-toggle" onclick="toggleHiddenDrawer()"><span>Ausgeblendete Firmen (${hiddenCos.length})</span>${state.showHidden?chevU():chevD()}</button>
       ${state.showHidden?`<div class="drawer-content">${hiddenHtml}</div>`:''}
     </div>`:''}
 
-    <!-- Buttons -->
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
-      <button class="btn btn-gray" onclick="hideUnrated()">
-        ${eyeOffSvg(15)} Nicht bewertete Firmen ausblenden
-      </button>
-      <button class="btn btn-blue" onclick="doSort()">
-        ${sortSvg()} ${f.sortApplied?'✓ Nach Bewertung sortiert':'Nach Bewertung sortieren'}
-      </button>
+      <button class="btn btn-gray" onclick="hideUnrated()">${eyeOffSvg(15)} Nicht bewertete Firmen ausblenden</button>
+      <button class="btn btn-blue" onclick="doSort()">${sortSvg()} ${f.sortApplied?'✓ Nach Bewertung sortiert':'Nach Bewertung sortieren'}</button>
       <button class="btn btn-primary" onclick="handleSubmit()" ${cv.valid?'':'disabled'} style="${cv.valid?'':'opacity:.5;cursor:not-allowed'}">
         ${cv.valid?'Wunschliste einreichen ✓':'Bitte alle Anforderungen erfüllen'}
       </button>
     </div>
   </div>
 
-  <!-- Lock button -->
-  <button onclick="showLogin()" style="position:fixed;bottom:20px;right:20px;z-index:40;background:#fff;border:1px solid #e5e7eb;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.15);cursor:pointer;color:#9ca3af">
-    ${lockSvg(18)}
-  </button>
+  <button onclick="showLogin()" style="position:fixed;bottom:20px;right:20px;z-index:40;background:#fff;border:1px solid #e5e7eb;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.15);cursor:pointer;color:#9ca3af">${lockSvg(18)}</button>
+  ${state.showLoginModal?renderLoginModal():''}`;
 
-  ${state.showLoginModal ? renderLoginModal() : ''}
-  `;
-
-  // Attach selfie video stream if streaming
-  if (state.selfieStreaming) {
-    const vid = document.getElementById('selfie-video');
-    if (vid && state.selfieStream) {
-      vid.srcObject = state.selfieStream;
-      vid.play().catch(()=>{});
-    }
-  }
+  if(state.selfieStreaming){const vid=document.getElementById('selfie-video');if(vid&&state.selfieStream){vid.srcObject=state.selfieStream;vid.play().catch(()=>{});}}
 }
 
-function renderSuccess() {
-  document.getElementById('app').innerHTML = `
-  <div class="success-page">
-    <div class="success-card">
-      <div class="check-circle">${checkSvg(32)}</div>
-      <h2 style="font-size:20px;font-weight:800;color:#1f2937;margin-bottom:8px">Erfolgreich eingereicht!</h2>
-      <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Du erhältst eine Bestätigung an <strong>${state.form.email}</strong>.</p>
-      <button onclick="backToForm()" class="btn btn-primary" style="width:auto;padding:10px 24px;font-size:14px">
-        ← Zurück zur Wunschliste
-      </button>
-    </div>
-  </div>`;
+function renderSuccess(){
+  document.getElementById('app').innerHTML=`<div class="success-page"><div class="success-card"><div class="check-circle">${checkSvg(32)}</div><h2 style="font-size:20px;font-weight:800;color:#1f2937;margin-bottom:8px">Erfolgreich eingereicht!</h2><p style="color:#6b7280;font-size:13px;margin-bottom:20px">Du erhältst eine Bestätigung an <strong>${state.form.email}</strong>.</p><button onclick="backToForm()" class="btn btn-primary" style="width:auto;padding:10px 24px;font-size:14px">← Zurück zur Wunschliste</button></div></div>`;
 }
 
-function renderLoginModal() {
-  return `<div onclick="closeLogin(event)" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px">
-    <div onclick="event.stopPropagation()" style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:300px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <h3 style="font-weight:700;font-size:16px">Admin-Login</h3>
-        <button onclick="closeLoginModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#9ca3af">✕</button>
-      </div>
-      <input type="password" id="login-pw" value="${state.loginPw}" placeholder="Passwort"
-        oninput="state.loginPw=this.value"
-        onkeydown="if(event.key==='Enter')doLogin()"
-        style="width:100%;padding:8px 12px;border:2px solid ${state.loginErr?'#ef4444':'#e5e7eb'};border-radius:8px;font-size:14px;outline:none;margin-bottom:${state.loginErr?'4px':'12px'}"/>
-      ${state.loginErr?`<p style="color:#ef4444;font-size:12px;margin-bottom:8px">Falsches Passwort</p>`:''}
-      <button onclick="doLogin()" class="btn btn-primary" style="font-size:14px;padding:10px">Anmelden</button>
-    </div>
-  </div>`;
+function renderLoginModal(){
+  return`<div onclick="closeLogin(event)" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px"><div onclick="event.stopPropagation()" style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:300px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h3 style="font-weight:700;font-size:16px">Admin-Login</h3><button onclick="closeLoginModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#9ca3af">✕</button></div><input type="password" id="login-pw" value="${state.loginPw}" placeholder="Passwort" oninput="state.loginPw=this.value" onkeydown="if(event.key==='Enter')doLogin()" style="width:100%;padding:8px 12px;border:2px solid ${state.loginErr?'#ef4444':'#e5e7eb'};border-radius:8px;font-size:16px;outline:none;margin-bottom:${state.loginErr?'4px':'12px'}"/>${state.loginErr?`<p style="color:#ef4444;font-size:12px;margin-bottom:8px">Falsches Passwort</p>`:''}<button onclick="doLogin()" class="btn btn-primary" style="font-size:14px;padding:10px">Anmelden</button></div></div>`;
 }
 
-// ── Admin View ────────────────────────────────────────────────────────────────
-function renderAdmin() {
-  const subs = state.submissions;
-  const cos  = state.setup.companies;
-  const stus = state.setup.students;
-  const total = stus.length > 0 ? stus.length : 40;
-  const pct   = total > 0 ? Math.min(100, Math.round(subs.length/total*100)) : 0;
-
-  let content = '';
-  if (state.adminTab === 'data') {
-    let rows = subs.map((s,i) => {
-      const sum = Object.values(s.points||{}).reduce((a,b)=>a+b,0);
-      return `<tr>
-        <td>${i+1}</td>
-        <td style="font-weight:600;white-space:nowrap">${s.name||''}</td>
-        <td>${s.bms||''}</td>
-        <td style="white-space:nowrap">${s.schultage||''}</td>
-        <td>${s.ferien||''}${s.ferienText?' ('+s.ferienText+')':''}</td>
-        <td style="color:#9ca3af;white-space:nowrap;font-size:11px">${s.timestamp||''}</td>
-        <td style="text-align:center">${s.selfie?`<a href="${s.selfie}" target="_blank"><img src="${s.selfie}" style="width:28px;height:28px;border-radius:50%;object-fit:cover"/></a>`:''}</td>
-        ${cos.map(c=>`<td style="text-align:center;font-weight:600;color:${(s.points&&s.points[c.id])>0?'#6366f1':'#d1d5db'}">${(s.points&&s.points[c.id])||'–'}</td>`).join('')}
-        <td style="text-align:center;font-weight:700;color:#6366f1">${sum}</td>
-        <td><button onclick="delSub('${s._id}')" style="background:none;border:none;cursor:pointer;color:#d1d5db;padding:4px" title="Löschen">${trashSvg(14)}</button></td>
-      </tr>`;
-    }).join('');
-
-    let avgRow = cos.map(c=>{
-      const avg = subs.length ? subs.reduce((a,s)=>a+(s.points&&s.points[c.id]||0),0)/subs.length : 0;
-      return `<td style="text-align:center;font-weight:600;color:#6366f1">${avg.toFixed(1)}</td>`;
-    }).join('');
-
-    content = `
-    <div class="card">
-      <div class="card-body">
-        <p class="section-title">Fortschritt</p>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <span style="font-size:14px;font-weight:700;color:#374151">Einreichungen</span>
-          <span style="font-size:14px;font-weight:700;color:#6366f1">${subs.length} / ${total} (${pct}%)</span>
-        </div>
-        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
-        <div class="stats-grid">
-          <div><div class="stat-num" style="color:#6366f1">${subs.length}</div><div class="stat-lbl">Eingereicht</div></div>
-          <div><div class="stat-num" style="color:#f97316">${Math.max(0,total-subs.length)}</div><div class="stat-lbl">Ausstehend</div></div>
-          <div><div class="stat-num" style="color:#16a34a">${pct}%</div><div class="stat-lbl">Quote</div></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-body" style="padding:12px">
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button onclick="exportCSV()" ${subs.length?'':'disabled'} class="btn btn-green btn-sm" style="${subs.length?'':'opacity:.5;cursor:not-allowed'}">${dlSvg()} CSV exportieren</button>
-          <button onclick="clearAll()" ${subs.length?'':'disabled'} class="btn btn-red btn-sm" style="${subs.length?'':'opacity:.5;cursor:not-allowed'}">Alle löschen</button>
-        </div>
-      </div>
-    </div>
-
-    ${subs.length>0?`
-    <div class="card">
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr>
-            <th>#</th><th>Name</th><th>BMS</th><th>Schultage</th><th>Ferien</th><th>Zeit</th><th>📷</th>
-            ${cos.map(c=>`<th title="${c.name}" style="text-align:center">${c.id}</th>`).join('')}
-            <th style="text-align:center">Σ</th><th></th>
-          </tr></thead>
-          <tbody>${rows}</tbody>
-          <tfoot style="background:#eff6ff">
-            <tr><td colspan="7" style="font-weight:700;padding:7px 6px;color:#374151">⌀ Durchschnitt</td>${avgRow}<td></td><td></td></tr>
-          </tfoot>
-        </table>
-      </div>
-      <div style="padding:12px 16px;background:#f8fafc;border-top:1px solid #e5e7eb">
-        <p style="font-size:11px;font-weight:700;color:#6b7280;margin-bottom:6px">Firmen-Legende</p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px">
-          ${cos.map(c=>`<p style="font-size:11px;color:#6b7280"><span style="font-weight:700;color:#6366f1">${c.id}.</span> ${c.name}</p>`).join('')}
-        </div>
-      </div>
-    </div>`:`<div class="card"><div class="card-body" style="text-align:center;color:#9ca3af;padding:40px">Noch keine Einreichungen vorhanden.</div></div>`}`;
-
+// ── Admin ─────────────────────────────────────────────────────────────────────
+function renderAdmin(){
+  const subs=state.submissions, cos=state.setup.companies, stus=state.setup.students;
+  const total=stus.length>0?stus.length:40, pct=total>0?Math.min(100,Math.round(subs.length/total*100)):0;
+  let content='';
+  if(state.adminTab==='data'){
+    let rows=subs.map((s,i)=>{const sum=Object.values(s.points||{}).reduce((a,b)=>a+b,0);return`<tr><td>${i+1}</td><td style="font-weight:600;white-space:nowrap">${s.name||''}</td><td>${s.bms||''}</td><td style="white-space:nowrap">${s.schultage||''}</td><td>${s.ferien||''}${s.ferienText?' ('+s.ferienText+')':''}</td><td style="color:#9ca3af;white-space:nowrap;font-size:11px">${s.timestamp||''}</td><td style="text-align:center">${s.selfie?`<a href="${s.selfie}" target="_blank"><img src="${s.selfie}" style="width:28px;height:28px;border-radius:50%;object-fit:cover"/></a>`:''}</td>${cos.map(c=>`<td style="text-align:center;font-weight:600;color:${(s.points&&s.points[c.id])>0?'#6366f1':'#d1d5db'}">${(s.points&&s.points[c.id])||'–'}</td>`).join('')}<td style="text-align:center;font-weight:700;color:#6366f1">${sum}</td><td><button onclick="delSub('${s._id}')" style="background:none;border:none;cursor:pointer;color:#d1d5db;padding:4px">${trashSvg(14)}</button></td></tr>`;}).join('');
+    let avgRow=cos.map(c=>{const avg=subs.length?subs.reduce((a,s)=>a+(s.points&&s.points[c.id]||0),0)/subs.length:0;return`<td style="text-align:center;font-weight:600;color:#6366f1">${avg.toFixed(1)}</td>`;}).join('');
+    content=`<div class="card"><div class="card-body"><p class="section-title">Fortschritt</p><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:14px;font-weight:700;color:#374151">Einreichungen</span><span style="font-size:14px;font-weight:700;color:#6366f1">${subs.length} / ${total} (${pct}%)</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div><div class="stats-grid"><div><div class="stat-num" style="color:#6366f1">${subs.length}</div><div class="stat-lbl">Eingereicht</div></div><div><div class="stat-num" style="color:#f97316">${Math.max(0,total-subs.length)}</div><div class="stat-lbl">Ausstehend</div></div><div><div class="stat-num" style="color:#16a34a">${pct}%</div><div class="stat-lbl">Quote</div></div></div></div></div><div class="card"><div class="card-body" style="padding:12px"><div style="display:flex;gap:8px;flex-wrap:wrap"><button onclick="exportCSV()" ${subs.length?'':'disabled'} class="btn btn-green btn-sm" style="${subs.length?'':'opacity:.5;cursor:not-allowed'}">${dlSvg()} CSV exportieren</button><button onclick="clearAll()" ${subs.length?'':'disabled'} class="btn btn-red btn-sm" style="${subs.length?'':'opacity:.5;cursor:not-allowed'}">Alle löschen</button></div></div></div>${subs.length>0?`<div class="card"><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Name</th><th>BMS</th><th>Schultage</th><th>Ferien</th><th>Zeit</th><th>📷</th>${cos.map(c=>`<th title="${c.name}" style="text-align:center">${c.id}</th>`).join('')}<th style="text-align:center">Σ</th><th></th></tr></thead><tbody>${rows}</tbody><tfoot style="background:#eff6ff"><tr><td colspan="7" style="font-weight:700;padding:7px 6px;color:#374151">⌀ Durchschnitt</td>${avgRow}<td></td><td></td></tr></tfoot></table></div><div style="padding:12px 16px;background:#f8fafc;border-top:1px solid #e5e7eb"><p style="font-size:11px;font-weight:700;color:#6b7280;margin-bottom:6px">Firmen-Legende</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px">${cos.map(c=>`<p style="font-size:11px;color:#6b7280"><span style="font-weight:700;color:#6366f1">${c.id}.</span> ${c.name}</p>`).join('')}</div></div></div>`:`<div class="card"><div class="card-body" style="text-align:center;color:#9ca3af;padding:40px">Noch keine Einreichungen vorhanden.</div></div>`}`;
   } else {
-    // Setup tab
-    const s = state.setup;
-    content = `
-    <div class="card">
-      <div class="card-body">
-        <p class="section-title">Eingabefrist</p>
-        <label class="lbl">Umfrage offen bis (Datum & Uhrzeit)</label>
-        <input type="datetime-local" value="${s.deadline||''}" onchange="updateSetupDeadline(this.value)"/>
-        ${s.deadline?`<p style="font-size:12px;color:#ea580c;margin-top:4px">Schliesst: ${new Date(s.deadline).toLocaleString('de-DE')}</p>`:''}
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-body">
-        <p class="section-title">Lernende (${s.students.length})</p>
-        <p class="import-hint">Liste aus Excel kopieren – ein Name pro Zeile (Vorname Nachname):</p>
-        <textarea id="stu-paste" class="mono" rows="5" placeholder="Max Muster&#10;Anna Mueller&#10;Peter Schmid" style="margin-bottom:8px"></textarea>
-        <button onclick="importStudents()" class="btn btn-primary" style="font-size:13px;padding:8px;margin-bottom:12px">Liste importieren</button>
-        <div id="stu-msg" style="color:#16a34a;font-size:12px;font-weight:600;margin-bottom:4px;min-height:16px"></div>
-        <div style="max-height:160px;overflow-y:auto;border:1px solid #f3f4f6;border-radius:8px;padding:4px">
-          ${s.students.length?s.students.map((n,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;border-radius:4px"><span style="font-size:13px;color:#374151">${i+1}. ${n}</span><button onclick="removeStudent('${n.replace(/'/g,"\\'")}') " style="background:none;border:none;cursor:pointer;color:#d1d5db;padding:2px">${trashSvg(12)}</button></div>`).join(''):'<p style="font-size:12px;color:#9ca3af;font-style:italic;padding:8px">Noch keine Lernenden. Namen werden als Freitext angezeigt.</p>'}
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-body">
-        <p class="section-title">Firmen (${s.companies.length})</p>
-        <p class="import-hint">Zwei Spalten aus Excel kopieren (Spalte A = Name, Spalte B = URL, Tab-getrennt):</p>
-        <textarea id="co-paste" class="mono" rows="5" placeholder="ANDRITZ Soutec AG&#9;https://www.andritz.com&#10;Burckhardt AG&#9;https://www.burckhardtcompression.com" style="margin-bottom:8px"></textarea>
-        <button onclick="importCompanies()" class="btn btn-primary" style="font-size:13px;padding:8px;margin-bottom:12px">Firmen importieren</button>
-        <div id="co-msg" style="color:#16a34a;font-size:12px;font-weight:600;margin-bottom:6px;min-height:16px"></div>
-        <div style="max-height:280px;overflow-y:auto;border:1px solid #f3f4f6;border-radius:8px;padding:4px">
-          ${s.companies.map((co,i)=>`<div style="display:flex;gap:6px;align-items:center;padding:3px 4px"><span style="font-size:11px;color:#9ca3af;width:20px;text-align:right;flex-shrink:0">${i+1}.</span><input value="${co.name}" onchange="updateCompany(${i},'name',this.value)" style="flex:1;padding:4px 8px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;outline:none"/><input value="${co.url}" onchange="updateCompany(${i},'url',this.value)" style="flex:1;padding:4px 8px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;outline:none"/></div>`).join('')}
-        </div>
-      </div>
-    </div>
-
-    <button onclick="saveSetup()" id="save-btn" class="btn btn-primary" style="font-size:14px;margin-bottom:16px">Einstellungen speichern</button>`;
+    const s=state.setup;
+    content=`<div class="card"><div class="card-body"><p class="section-title">Eingabefrist</p><label class="lbl">Umfrage offen bis (Datum & Uhrzeit)</label><input type="datetime-local" value="${s.deadline||''}" onchange="updateSetupDeadline(this.value)"/>${s.deadline?`<p style="font-size:12px;color:#ea580c;margin-top:4px">Schliesst: ${new Date(s.deadline).toLocaleString('de-DE')}</p>`:''}</div></div><div class="card"><div class="card-body"><p class="section-title">Lernende (${s.students.length})</p><p class="import-hint">Liste aus Excel kopieren – ein Name pro Zeile:</p><textarea id="stu-paste" class="mono" rows="5" placeholder="Max Muster&#10;Anna Mueller" style="margin-bottom:8px"></textarea><button onclick="importStudents()" class="btn btn-primary" style="font-size:13px;padding:8px;margin-bottom:12px">Liste importieren</button><div id="stu-msg" style="color:#16a34a;font-size:12px;font-weight:600;margin-bottom:4px;min-height:16px"></div><div style="max-height:160px;overflow-y:auto;border:1px solid #f3f4f6;border-radius:8px;padding:4px">${s.students.length?s.students.map((n,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px"><span style="font-size:13px;color:#374151">${i+1}. ${n}</span><button onclick="removeStudent('${n.replace(/'/g,"\\'")}') " style="background:none;border:none;cursor:pointer;color:#d1d5db;padding:2px">${trashSvg(12)}</button></div>`).join(''):'<p style="font-size:12px;color:#9ca3af;font-style:italic;padding:8px">Noch keine Lernenden.</p>'}</div></div></div><div class="card"><div class="card-body"><p class="section-title">Firmen (${s.companies.length})</p><p class="import-hint">Zwei Spalten aus Excel (Name TAB URL):</p><textarea id="co-paste" class="mono" rows="5" placeholder="ANDRITZ Soutec AG&#9;https://www.andritz.com" style="margin-bottom:8px"></textarea><button onclick="importCompanies()" class="btn btn-primary" style="font-size:13px;padding:8px;margin-bottom:12px">Firmen importieren</button><div id="co-msg" style="color:#16a34a;font-size:12px;font-weight:600;margin-bottom:6px;min-height:16px"></div><div style="max-height:280px;overflow-y:auto;border:1px solid #f3f4f6;border-radius:8px;padding:4px">${s.companies.map((co,i)=>`<div style="display:flex;gap:6px;align-items:center;padding:3px 4px"><span style="font-size:11px;color:#9ca3af;width:20px;text-align:right;flex-shrink:0">${i+1}.</span><input value="${co.name}" onchange="updateCompany(${i},'name',this.value)" style="flex:1;padding:4px 8px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;outline:none"/><input value="${co.url}" onchange="updateCompany(${i},'url',this.value)" style="flex:1;padding:4px 8px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;outline:none"/></div>`).join('')}</div></div></div><button onclick="saveSetup()" id="save-btn" class="btn btn-primary" style="font-size:14px;margin-bottom:16px">Einstellungen speichern</button>`;
   }
-
-  document.getElementById('app').innerHTML = `
-  <div style="min-height:100vh;background:linear-gradient(135deg,#f5f3ff,#eff6ff);padding:16px">
-    <div style="max-width:900px;margin:0 auto">
-      <div class="card">
-        <div class="card-body" style="display:flex;justify-content:space-between;align-items:center">
-          <div><h1 style="font-size:18px;font-weight:800;color:#1f2937">Admin-Bereich</h1><p style="font-size:12px;color:#9ca3af">Wunschliste Versetzungsfirmen</p></div>
-          <button onclick="logout()" class="btn btn-red btn-sm">Abmelden</button>
-        </div>
-      </div>
-      <div class="admin-tabs">
-        <button onclick="setAdminTab('data')" class="tab-btn ${state.adminTab==='data'?'active':'inactive'}">📊 Daten</button>
-        <button onclick="setAdminTab('setup')" class="tab-btn ${state.adminTab==='setup'?'active':'inactive'}">⚙️ Einstellungen</button>
-      </div>
-      ${content}
-    </div>
-  </div>`;
+  document.getElementById('app').innerHTML=`<div style="min-height:100vh;background:linear-gradient(135deg,#f5f3ff,#eff6ff);padding:16px"><div style="max-width:900px;margin:0 auto"><div class="card"><div class="card-body" style="display:flex;justify-content:space-between;align-items:center"><div><h1 style="font-size:18px;font-weight:800;color:#1f2937">Admin-Bereich</h1><p style="font-size:12px;color:#9ca3af">Wunschliste Versetzungsfirmen</p></div><button onclick="logout()" class="btn btn-red btn-sm">Abmelden</button></div></div><div class="admin-tabs"><button onclick="setAdminTab('data')" class="tab-btn ${state.adminTab==='data'?'active':'inactive'}">📊 Daten</button><button onclick="setAdminTab('setup')" class="tab-btn ${state.adminTab==='setup'?'active':'inactive'}">⚙️ Einstellungen</button></div>${content}</div></div>`;
 }
 
 // ── Actions ───────────────────────────────────────────────────────────────────
+
+// Texteingaben: nur state aktualisieren, KEIN Re-Render (Tastatur bleibt offen)
+window.liveField = (k,v) => { state.form[k]=v; };
+// Bei Fokusverlust einmal rendern für Validierung
+window.commitField = () => { render(); };
+// Radio/Select: sofort rendern
 window.setFormField = (k,v) => { state.form[k]=v; render(); };
 
-// Debounce-Timer für verzögerten Full-Render
-let _renderTimer = null;
-function scheduleRender() {
-  clearTimeout(_renderTimer);
-  _renderTimer = setTimeout(() => render(), 80);
-}
+// Slider
+window.setPointSlider = (id,v) => { applyPointUpdate(id, Math.max(0,Math.min(50,parseInt(v)||0))); };
+window.setPointDirect = (id,v) => { applyPointUpdate(id, Math.max(0,Math.min(50,parseInt(v)||0))); };
+window.stepPoint = (id,delta) => { applyPointUpdate(id, Math.max(0,Math.min(50,(state.form.points[id]||0)+delta))); };
 
-window.setPoint = (id, v) => {
-  const n = Math.max(0, Math.min(50, parseInt(v) || 0));
-  state.form.points[id] = n;
-
-  // Schnelles, gezieltes DOM-Update OHNE volles Re-Render
-  // Alle Inputs/Slider dieser Firma synchronisieren
-  document.querySelectorAll(`[data-cid="${id}"]`).forEach(el => {
-    if (el !== document.activeElement) el.value = n;
-  });
-
-  // Duplikat-Markierung für alle Firmen aktualisieren
-  const pts = state.form.points;
-  const hidden = state.form.hidden;
-  state.setup.companies.forEach(co => {
-    const cid = co.id;
-    const val = pts[cid] || 0;
-    const isDup = val > 0 && Object.entries(pts).some(([oid, ov]) =>
-      Number(oid) !== cid && ov === val && !hidden.includes(Number(oid))
-    );
-    const numIn = document.querySelector(`.num-input[data-cid="${cid}"]`);
-    if (numIn) {
-      numIn.classList.toggle('dup', isDup);
-    }
-    const row = document.querySelector(`.company-row[data-id="${cid}"] .dup-label`);
-    if (isDup && !row) {
-      const top = document.querySelector(`.company-row[data-id="${cid}"] .company-top`);
-      if (top && numIn) {
-        const span = document.createElement('span');
-        span.className = 'dup-label';
-        span.textContent = 'Duplikat!';
-        top.insertBefore(span, numIn);
-      }
-    } else if (!isDup && row) {
-      row.remove();
-    }
-  });
-
-  // Sticky-Banner sofort aktualisieren
-  updateBannerFast();
-
-  // Vollständigen Re-Render verzögert nachziehen (Validierung etc.)
-  scheduleRender();
-};
-
-function updateBannerFast() {
-  const pts = state.form.points;
-  const hidden = state.form.hidden;
-  const total = Object.values(pts).reduce((a, b) => a + b, 0);
-  const remaining = 100 - total;
-  const withPoints = Object.values(pts).filter(v => v > 0).length;
-  const vals = Object.entries(pts)
-    .filter(([id, v]) => v > 0 && !hidden.includes(Number(id)))
-    .map(([, v]) => v);
-  const nonZeroDup = vals.length !== new Set(vals).size;
-
-  // Banner-Farbe
-  const bar = document.querySelector('.sticky-bar');
-  if (bar) {
-    bar.className = 'sticky-bar ' + (remaining === 0 ? 'ok' : remaining < 0 ? 'over' : 'pending');
-  }
-  // Zahl aktualisieren
-  const big = document.querySelector('.sticky-top .big');
-  if (big) big.textContent = remaining;
-
-  // Pills aktualisieren
-  const pills = document.querySelectorAll('.pill');
-  if (pills.length >= 3) {
-    const setP = (el, ok, label) => {
-      el.className = 'pill ' + (ok ? 'ok' : 'ng');
-      const checkSvgS = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>`;
-      const warnSvgS = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
-      el.innerHTML = (ok ? checkSvgS : warnSvgS) + ' ' + label;
-    };
-    setP(pills[0], total === 100, `${total}/100 Pts`);
-    setP(pills[1], withPoints === 8, `${withPoints}/8 Firmen`);
-    setP(pills[2], !nonZeroDup, 'Keine Duplikate');
-  }
-
-  // Rang-Badges aktualisieren
-  const rankMap = {};
-  Object.entries(pts).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]).slice(0, 8)
-    .forEach(([id], i) => { rankMap[Number(id)] = i + 1; });
-  document.querySelectorAll('.company-row').forEach(row => {
-    const cid = Number(row.dataset.id);
-    const badge = row.querySelector('.rank-badge');
-    if (badge) {
-      const rank = rankMap[cid];
-      badge.className = 'rank-badge ' + (rank ? 'active' : 'empty');
-      badge.textContent = rank || '';
-    }
-  });
-};
-window.hideCompany = (id) => {
+// Firma ausblenden: State erst vollständig aktualisieren, dann rendern → kein falsches Rot
+window.hideCompanyNow = (id) => {
   state.form.points[id]=0;
-  state.form.hidden.push(id);
-  state.form.orderedIds = state.form.orderedIds.filter(x=>x!==id);
+  state.form.hidden=[...state.form.hidden,id];
+  state.form.orderedIds=state.form.orderedIds.filter(x=>x!==id);
   render();
 };
-window.showCompany = (id) => {
-  state.form.hidden = state.form.hidden.filter(x=>x!==id);
-  state.form.orderedIds.push(id);
-  render();
-};
+window.showCompany = (id) => { state.form.hidden=state.form.hidden.filter(x=>x!==id); state.form.orderedIds.push(id); render(); };
 window.hideUnrated = () => {
-  const toHide = state.form.orderedIds.filter(id=>(state.form.points[id]||0)===0);
-  toHide.forEach(id=>{ state.form.hidden.push(id); });
-  state.form.orderedIds = state.form.orderedIds.filter(id=>(state.form.points[id]||0)>0);
+  const toHide=state.form.orderedIds.filter(id=>(state.form.points[id]||0)===0);
+  toHide.forEach(id=>{state.form.hidden.push(id);});
+  state.form.orderedIds=state.form.orderedIds.filter(id=>(state.form.points[id]||0)>0);
   render();
 };
 window.toggleHiddenDrawer = () => { state.showHidden=!state.showHidden; render(); };
 window.doSort = () => {
-  state.form.orderedIds.sort((a,b)=>{
-    const pa=state.form.points[a]||0, pb=state.form.points[b]||0;
-    if(pa===0&&pb===0) return a-b;
-    if(pa===0) return 1; if(pb===0) return -1;
-    return pb-pa;
-  });
+  state.form.orderedIds.sort((a,b)=>{const pa=state.form.points[a]||0,pb=state.form.points[b]||0;if(pa===0&&pb===0)return a-b;if(pa===0)return 1;if(pb===0)return -1;return pb-pa;});
   state.form.sortApplied=true; render();
 };
+
 window.handleSubmit = async () => {
-  const cv = computed();
-  if (!cv.valid) return;
-  const f = state.form;
-  const existing = state.submissions.find(s=>s.name===f.name);
-  const sub = {
-    name:f.name, plz:f.plz, ort:f.ort, email:f.email,
-    bms:f.bms, schultage:f.schultage, ferien:f.ferien,
-    ferienText:f.ferien==='Ja'?f.ferienText:'',
-    selfie:f.selfie, timestamp:new Date().toLocaleString('de-DE'),
-    points:{...f.points}
-  };
+  const cv=computed(); if(!cv.valid)return;
+  const f=state.form;
+  const existing=state.submissions.find(s=>s.name===f.name);
+  const sub={name:f.name,plz:f.plz,ort:f.ort,email:f.email,bms:f.bms,schultage:f.schultage,ferien:f.ferien,ferienText:f.ferien==='Ja'?f.ferienText:'',selfie:f.selfie,timestamp:new Date().toLocaleString('de-DE'),points:{...f.points}};
   await FB.save(sub);
+  const cos=state.setup.companies;
+  const ranked=[...cos].filter(c=>f.points[c.id]>0).sort((a,b)=>f.points[b.id]-f.points[a.id]);
 
-  // Confirmation email
-  const cos = state.setup.companies;
-  const ranked = [...cos].filter(c=>f.points[c.id]>0).sort((a,b)=>f.points[b.id]-f.points[a.id]);
-  let body = `Hallo ${f.name},\n\nhier ist deine eingereichte Wunschliste:\n\n`;
-  ranked.forEach((c,i)=>{ body+=`${i+1}. ${c.name}: ${f.points[c.id]} Punkte\n`; });
-  body+=`\nTotal: ${cv.total} Punkte\n\nDies ist eine automatische Bestätigung.`;
-  window.location.href=`mailto:${f.email}?subject=${encodeURIComponent('Wunschliste Versetzungsfirmen – Bestätigung')}&body=${encodeURIComponent(body)}`;
-
-  if (existing) {
-    setTimeout(()=>{
-      let cb=`${f.name} hat seine Wunschliste aktualisiert.\n\nÄNDERUNGEN:\n`;
-      cos.forEach(c=>{ const o=existing.points[c.id]||0,n=f.points[c.id]||0; if(o!==n) cb+=`>>> ${c.name}: ${o} → ${n}\n`; });
-      window.open(`mailto:?subject=${encodeURIComponent('Aktualisierung: '+f.name)}&body=${encodeURIComponent(cb)}`);
-    },600);
+  if(existing){
+    // Aktualisierungs-Mail mit Änderungen
+    let changes='';
+    cos.forEach(c=>{const o=existing.points[c.id]||0,n=f.points[c.id]||0;if(o!==n)changes+=`${c.name}: ${o} → ${n} Punkte\n`;});
+    let body=`Hallo ${f.name},\n\nDeine Wunschliste wurde aktualisiert.\n\nAKTUELLE BEWERTUNG:\n`;
+    ranked.forEach((c,i)=>{body+=`${i+1}. ${c.name}: ${f.points[c.id]} Punkte\n`;});
+    body+=`\nTotal: ${cv.total} Punkte\n\nÄNDERUNGEN ZUR VORHERIGEN EINGABE:\n${changes||'Keine Änderungen.'}\nDies ist eine automatische Bestätigung.`;
+    window.location.href=`mailto:${f.email}?subject=${encodeURIComponent('Wunschliste aktualisiert – Bestätigung')}&body=${encodeURIComponent(body)}`;
+  } else {
+    // Erstmalige Bestätigungs-Mail
+    let body=`Hallo ${f.name},\n\nhier ist deine eingereichte Wunschliste:\n\n`;
+    ranked.forEach((c,i)=>{body+=`${i+1}. ${c.name}: ${f.points[c.id]} Punkte\n`;});
+    body+=`\nTotal: ${cv.total} Punkte\n\nDies ist eine automatische Bestätigung.`;
+    window.location.href=`mailto:${f.email}?subject=${encodeURIComponent('Wunschliste Versetzungsfirmen – Bestätigung')}&body=${encodeURIComponent(body)}`;
   }
   state.view='success'; render();
 };
 window.backToForm = () => { state.view='form'; render(); };
 
 // Selfie
-let facingMode = 'user';
+let facingMode='user';
 window.startCamera = async () => {
   state.selfieReady=false; state.selfieStreaming=true; render();
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({video:{facingMode,width:{ideal:640},height:{ideal:640}},audio:false});
+    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode,width:{ideal:640},height:{ideal:640}},audio:false});
     state.selfieStream=stream;
     const vid=document.getElementById('selfie-video');
-    if(vid){ vid.srcObject=stream; vid.muted=true; vid.onloadedmetadata=()=>{ vid.play().then(()=>{ const t=setInterval(()=>{ if(vid.readyState>=2&&vid.videoWidth>0){state.selfieReady=true;clearInterval(t);render();} },200); }); }; }
-  } catch(e) { state.selfieStreaming=false; alert('Kamera: '+e.message); render(); }
+    if(vid){vid.srcObject=stream;vid.muted=true;vid.onloadedmetadata=()=>{vid.play().then(()=>{const t=setInterval(()=>{if(vid.readyState>=2&&vid.videoWidth>0){state.selfieReady=true;clearInterval(t);render();}},200);});};}
+  } catch(e){state.selfieStreaming=false;alert('Kamera: '+e.message);render();}
 };
 window.captureSelfie = () => {
   const vid=document.getElementById('selfie-video');
   const sz=Math.min(vid.videoWidth,vid.videoHeight);
   const canvas=document.createElement('canvas'); canvas.width=sz; canvas.height=sz;
-  const ox=(vid.videoWidth-sz)/2, oy=(vid.videoHeight-sz)/2;
-  canvas.getContext('2d').drawImage(vid,ox,oy,sz,sz,0,0,sz,sz);
+  canvas.getContext('2d').drawImage(vid,(vid.videoWidth-sz)/2,(vid.videoHeight-sz)/2,sz,sz,0,0,sz,sz);
   state.form.selfie=canvas.toDataURL('image/jpeg',.8);
   stopCamera(); render();
 };
@@ -820,73 +497,37 @@ window.stopCamera = () => { if(state.selfieStream){state.selfieStream.getTracks(
 window.resetSelfie = () => { state.form.selfie=''; startCamera(); };
 
 // Login
-window.showLogin=()=>{ state.showLoginModal=true; state.loginPw=''; state.loginErr=false; render(); };
-window.closeLoginModal=()=>{ state.showLoginModal=false; render(); };
-window.closeLogin=(e)=>{ if(e.target===e.currentTarget){state.showLoginModal=false;render();} };
-window.doLogin=()=>{ if(state.loginPw===ADMIN_PW){state.view='admin';state.showLoginModal=false;render();}else{state.loginErr=true;render();setTimeout(()=>{state.loginErr=false;render();},2000);} };
-window.logout=()=>{ state.view='form'; render(); };
-window.setAdminTab=(t)=>{ state.adminTab=t; render(); };
+window.showLogin=()=>{state.showLoginModal=true;state.loginPw='';state.loginErr=false;render();};
+window.closeLoginModal=()=>{state.showLoginModal=false;render();};
+window.closeLogin=(e)=>{if(e.target===e.currentTarget){state.showLoginModal=false;render();}};
+window.doLogin=()=>{if(state.loginPw===ADMIN_PW){state.view='admin';state.showLoginModal=false;render();}else{state.loginErr=true;render();setTimeout(()=>{state.loginErr=false;render();},2000);}};
+window.logout=()=>{state.view='form';render();};
+window.setAdminTab=(t)=>{state.adminTab=t;render();};
 
-// Admin data
-window.delSub = async (id) => { if(window.confirm('Eintrag löschen?')) await FB.del(id); };
-window.clearAll = async () => { if(window.confirm('Wirklich alle Daten löschen?')) await FB.delAll(); };
-window.exportCSV = () => {
-  const subs=state.submissions; const cos=state.setup.companies;
-  if(!subs.length) return;
+// Admin
+window.delSub=async(id)=>{if(window.confirm('Eintrag löschen?'))await FB.del(id);};
+window.clearAll=async()=>{if(window.confirm('Wirklich alle Daten löschen?'))await FB.delAll();};
+window.exportCSV=()=>{
+  const subs=state.submissions,cos=state.setup.companies; if(!subs.length)return;
   const hdrs=['Name','PLZ','Ort','BMS','Schultage','Ferien','Ferienzeit','E-Mail','Zeit',...cos.map(c=>c.name),'Summe'];
   const rows=subs.map(s=>[s.name,s.plz,s.ort,s.bms,s.schultage,s.ferien,s.ferienText,s.email,s.timestamp,...cos.map(c=>s.points&&s.points[c.id]||0),Object.values(s.points||{}).reduce((a,b)=>a+b,0)]);
   const csv=[hdrs.join(';'),...rows.map(r=>r.join(';'))].join('\n');
-  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}));
-  a.download=`wunschliste_${new Date().toISOString().split('T')[0]}.csv`; a.click();
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}));a.download=`wunschliste_${new Date().toISOString().split('T')[0]}.csv`;a.click();
 };
-
-// Setup
-window.updateSetupDeadline = (v) => { state.setup.deadline=v; };
-window.importStudents = () => {
-  const ta=document.getElementById('stu-paste'); if(!ta) return;
-  const lines=ta.value.split(/\n/).map(l=>l.trim()).filter(Boolean);
-  state.setup.students=[...new Set(lines)].sort();
-  ta.value='';
-  const msg=document.getElementById('stu-msg'); if(msg) { msg.textContent=`✓ ${state.setup.students.length} Lernende importiert`; setTimeout(()=>{if(msg)msg.textContent='';},3000); }
-  render();
-};
-window.removeStudent = (n) => { state.setup.students=state.setup.students.filter(x=>x!==n); render(); };
-window.importCompanies = () => {
-  const ta=document.getElementById('co-paste'); if(!ta) return;
-  const lines=ta.value.split(/\n/).map(l=>l.trim()).filter(Boolean);
-  state.setup.companies=lines.map((line,i)=>{ const p=line.split(/\t/); return {id:i+1,name:p[0]||'',url:p[1]||''}; });
-  ta.value='';
-  const msg=document.getElementById('co-msg'); if(msg){msg.textContent=`✓ ${state.setup.companies.length} Firmen importiert`;setTimeout(()=>{if(msg)msg.textContent='';},3000);}
-  render();
-};
-window.updateCompany = (i,field,val) => { state.setup.companies[i][field]=val; };
-window.saveSetup = async () => {
-  const btn=document.getElementById('save-btn');
-  if(btn){btn.textContent='Speichern…';btn.disabled=true;}
-  await FB.saveSetup(state.setup);
-  if(btn){btn.textContent='✓ Gespeichert!';btn.style.background='#16a34a';setTimeout(()=>{if(btn){btn.textContent='Einstellungen speichern';btn.style.background='';btn.disabled=false;}},2000);}
-};
+window.updateSetupDeadline=(v)=>{state.setup.deadline=v;};
+window.importStudents=()=>{const ta=document.getElementById('stu-paste');if(!ta)return;const lines=ta.value.split(/\n/).map(l=>l.trim()).filter(Boolean);state.setup.students=[...new Set(lines)].sort();ta.value='';const msg=document.getElementById('stu-msg');if(msg){msg.textContent=`✓ ${state.setup.students.length} Lernende importiert`;setTimeout(()=>{if(msg)msg.textContent='';},3000);}render();};
+window.removeStudent=(n)=>{state.setup.students=state.setup.students.filter(x=>x!==n);render();};
+window.importCompanies=()=>{const ta=document.getElementById('co-paste');if(!ta)return;const lines=ta.value.split(/\n/).map(l=>l.trim()).filter(Boolean);state.setup.companies=lines.map((line,i)=>{const p=line.split(/\t/);return{id:i+1,name:p[0]||'',url:p[1]||''};});ta.value='';const msg=document.getElementById('co-msg');if(msg){msg.textContent=`✓ ${state.setup.companies.length} Firmen importiert`;setTimeout(()=>{if(msg)msg.textContent='';},3000);}render();};
+window.updateCompany=(i,field,val)=>{state.setup.companies[i][field]=val;};
+window.saveSetup=async()=>{const btn=document.getElementById('save-btn');if(btn){btn.textContent='Speichern…';btn.disabled=true;}await FB.saveSetup(state.setup);if(btn){btn.textContent='✓ Gespeichert!';btn.style.background='#16a34a';setTimeout(()=>{if(btn){btn.textContent='Einstellungen speichern';btn.style.background='';btn.disabled=false;}},2000);}};
 
 // ── Init ──────────────────────────────────────────────────────────────────────
-async function init() {
-  // Load setup from Firebase
-  const cfg = await FB.loadSetup();
-  if (cfg) {
-    state.setup = cfg;
-    state.form.points = emptyPoints(cfg.companies);
-    state.form.orderedIds = cfg.companies.map(c=>c.id);
-  } else {
-    state.form.points = emptyPoints(DEFAULT_COMPANIES);
-  }
-
-  // Subscribe to submissions
-  FB.subscribe(subs => {
-    state.submissions = subs;
-    state.loading = false;
-    render();
-  });
+async function init(){
+  const cfg=await FB.loadSetup();
+  if(cfg){state.setup=cfg;state.form.points=emptyPoints(cfg.companies);state.form.orderedIds=cfg.companies.map(c=>c.id);}
+  else{state.form.points=emptyPoints(DEFAULT_COMPANIES);}
+  FB.subscribe(subs=>{state.submissions=subs;state.loading=false;render();});
 }
-
 init();
 </script>
 </body>
