@@ -132,7 +132,7 @@ const FB = {
   saveSetup: (cfg) => setDoc(doc(db,'config','setup'),cfg),
 };
 
-const ADMIN_PW = 'Azw2025';
+const ADMIN_PW = 'Azw_zuteilung';
 const DEFAULT_COMPANIES = [
   {id:1,name:'ANDRITZ Soutec AG',url:'https://www.andritz.com'},
   {id:2,name:'Burckhardt Compression AG',url:'https://www.burckhardtcompression.com'},
@@ -237,14 +237,17 @@ function updateBannerFast(){
   const lbl=document.querySelector('.pts-num');
   if(lbl)lbl.textContent=`${total}/100`;
   const pills=document.querySelectorAll('.pill');
-  if(pills.length>=2){
+  if(pills.length>=3){
     const setP=(el,ok,label)=>{
       el.className='pill '+(ok?'ok':'ng');
       const icon=ok?`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>`:`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
       el.innerHTML=icon+' '+label;
     };
+    const f=state.form;
+    const angaben=!!(f.name&&f.plz&&f.ort&&f.email&&f.bms&&f.schultage&&f.ferien&&(f.ferien!=='Ja'||f.ferienText)&&f.selfie);
     setP(pills[0],withPoints===8,`${withPoints}/8 Firmen`);
     setP(pills[1],!nonZeroDup,'Keine Duplikate');
+    setP(pills[2],angaben,'Angaben vollständig');
   }
   const rankMap={};
   Object.entries(pts).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,8).forEach(([id],i)=>{rankMap[Number(id)]=i+1;});
@@ -319,6 +322,7 @@ function renderForm(){
     <div class="pills">
       <div class="pill ${cv.withPoints===8?'ok':'ng'}">${cv.withPoints===8?checkSvg(10):warnSvg(10)} ${cv.withPoints}/8 Firmen</div>
       <div class="pill ${!cv.nonZeroDup?'ok':'ng'}">${!cv.nonZeroDup?checkSvg(10):warnSvg(10)} Keine Duplikate</div>
+      <div class="pill ${!!(f.name&&f.plz&&f.ort&&f.email&&f.bms&&f.schultage&&f.ferien&&(f.ferien!=='Ja'||f.ferienText)&&f.selfie)?'ok':'ng'}">${!!(f.name&&f.plz&&f.ort&&f.email&&f.bms&&f.schultage&&f.ferien&&(f.ferien!=='Ja'||f.ferienText)&&f.selfie)?checkSvg(10):warnSvg(10)} Angaben vollständig</div>
     </div>
   </div>
   <div class="main-wrap">
@@ -427,7 +431,6 @@ function renderSuccess(){
 window.saveSnapshot = async () => {
   try {
     const node = document.getElementById('success-snapshot');
-    // html2canvas über CDN laden
     if (!window.html2canvas) {
       await new Promise((res,rej)=>{
         const s=document.createElement('script');
@@ -436,12 +439,31 @@ window.saveSnapshot = async () => {
       });
     }
     const canvas = await html2canvas(node, {scale:2, useCORS:true, backgroundColor:'#fff'});
-    const link = document.createElement('a');
-    link.download = `wunschliste_${state.form.name.replace(/\s+/g,'_')}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+    const filename = `wunschliste_${state.form.name.replace(/\s+/g,'_')}.png`;
+
+    // Versuche Web Share API (speichert direkt in Galerie auf iOS/Android)
+    if (navigator.canShare) {
+      canvas.toBlob(async (blob) => {
+        const file = new File([blob], filename, {type:'image/png'});
+        if (navigator.canShare({files:[file]})) {
+          try {
+            await navigator.share({files:[file], title:'Meine Wunschliste'});
+            return;
+          } catch(e) {
+            if (e.name === 'AbortError') return; // Nutzer hat abgebrochen
+          }
+        }
+        // Fallback: Download
+        const link=document.createElement('a'); link.download=filename;
+        link.href=URL.createObjectURL(blob); link.click();
+      }, 'image/png');
+    } else {
+      // Desktop: normaler Download
+      const link=document.createElement('a'); link.download=filename;
+      link.href=canvas.toDataURL('image/png'); link.click();
+    }
   } catch(e) {
-    alert('Screenshot konnte nicht erstellt werden: '+e.message);
+    alert('Foto konnte nicht erstellt werden: '+e.message);
   }
 };
 
