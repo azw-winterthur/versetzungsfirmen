@@ -158,7 +158,7 @@ const DEFAULT_COMPANIES = [
 let state = {
   view:'form', adminTab:'data', submissions:[],
   setup:{companies:DEFAULT_COMPANIES,students:[],deadline:''},
-  form:{name:'',plz:'',ort:'',email:'',bms:'',schultage:'',ferien:'',ferienText:'',selfie:'',
+  form:{name:'',plz:'',ort:'',email:'',bms:'',schultage:'',ferien:'',ferienText:'',selfie:'',datenschutz:false,
         points:{},hidden:[],orderedIds:DEFAULT_COMPANIES.map(c=>c.id),sortApplied:false},
   selfieStreaming:false,selfieReady:false,selfieStream:null,
   showHidden:false,showLoginModal:false,loginPw:'',loginErr:false,loading:true,
@@ -189,7 +189,7 @@ function computed() {
   const rankMap={};
   Object.entries(pts).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,8).forEach(([id],i)=>{rankMap[Number(id)]=i+1;});
   const deadlinePassed=state.setup.deadline&&new Date()>new Date(state.setup.deadline);
-  const valid=total===100&&!nonZeroDup()&&withPoints===8&&f.name&&f.plz&&f.ort&&f.email&&f.bms&&f.schultage&&f.ferien&&(f.ferien==='Nein'||(f.ferien==='Ja'&&f.ferienText))&&f.selfie&&!deadlinePassed;
+  const valid=total===100&&!nonZeroDup()&&withPoints===8&&f.name&&f.plz&&f.ort&&f.email&&f.bms&&f.schultage&&f.ferien&&(f.ferien==='Nein'||(f.ferien==='Ja'&&f.ferienText))&&f.selfie&&f.datenschutz&&!deadlinePassed;
   return{total,remaining:100-total,withPoints,nonZeroDup:nonZeroDup(),rankMap,valid,deadlinePassed};
 }
 
@@ -210,9 +210,11 @@ function applyPointUpdate(id,n){
   document.querySelectorAll(`[data-cid="${id}"]`).forEach(el=>{if(el!==document.activeElement)el.value=n;});
   // Duplikate für alle Firmen aktualisieren
   const pts=state.form.points, hidden=state.form.hidden;
+  // nonZeroDup für Banner: nur sichtbare Firmen
   state.setup.companies.forEach(co=>{
     const cid=co.id, val=pts[cid]||0;
-    const isDup=val>0&&Object.entries(pts).some(([oid,ov])=>Number(oid)!==cid&&ov===val&&!hidden.includes(Number(oid)));
+    // Duplikat nur unter sichtbaren Firmen prüfen
+    const isDup=val>0&&!hidden.includes(cid)&&Object.entries(pts).some(([oid,ov])=>Number(oid)!==cid&&ov===val&&!hidden.includes(Number(oid)));
     const numIn=document.querySelector(`.num-input[data-cid="${cid}"]`);
     if(numIn)numIn.classList.toggle('dup',isDup);
     const existDup=document.querySelector(`.company-row[data-id="${cid}"] .dup-label`);
@@ -301,9 +303,9 @@ function renderForm(){
   hiddenCos.forEach(co=>{hiddenHtml+=`<div class="drawer-item"><a href="${co.url}" target="_blank" style="font-size:13px;color:#9ca3af;text-decoration:line-through;display:flex;align-items:center;gap:4px">${co.name} ${linkSvg(9)}</a><button onclick="showCompany(${co.id})" style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:#6366f1;background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:6px">${eyeOnSvg(13)} Einblenden</button></div>`;});
 
   let selfieHtml='';
-  if(f.selfie){selfieHtml=`<img src="${f.selfie}" class="selfie-preview" style="margin-bottom:8px"/><button onclick="resetSelfie()" style="font-size:12px;font-weight:600;color:#6366f1;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px">${camSvg(13)} Neues Selfie aufnehmen</button>`;}
+  if(f.selfie){selfieHtml=`<img src="${f.selfie}" class="selfie-preview" style="margin-bottom:8px"/><button onclick="resetSelfie()" style="font-size:12px;font-weight:600;color:#6366f1;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px">${camSvg(13)} Neues Verifizierungsfoto aufnehmen</button>`;}
   else if(state.selfieStreaming){selfieHtml=`<video id="selfie-video" autoplay muted playsinline style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:12px;background:#000;margin-bottom:8px"></video>${!state.selfieReady?`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;color:#6b7280;font-size:13px"><div class="spinner" style="width:20px;height:20px;border-width:2px"></div>Kamera wird gestartet…</div>`:''}<div style="display:flex;gap:8px"><button onclick="captureSelfie()" ${state.selfieReady?'':'disabled'} class="btn btn-primary btn-sm" style="flex:1;${state.selfieReady?'':'opacity:.5;cursor:not-allowed'}">${camSvg(16)} ${state.selfieReady?'Aufnehmen':'Warte…'}</button><button onclick="stopCamera()" class="btn btn-outline btn-sm">✕</button></div>`;}
-  else{selfieHtml=`<div class="selfie-wrap" onclick="startCamera()">${camSvg(32)}<p style="font-size:13px;font-weight:600;color:#6366f1;margin-top:8px">Selfie aufnehmen (Frontkamera)</p></div>`;}
+  else{selfieHtml=`<div class="selfie-wrap" onclick="startCamera()">${camSvg(32)}<p style="font-size:13px;font-weight:600;color:#6366f1;margin-top:8px">Verifizierungsfoto aufnehmen (Frontkamera)</p></div>`;}
 
   // Name-Feld: kein oninput-Re-Render → Tastatur bleibt offen
   let nameField='';
@@ -356,7 +358,7 @@ function renderForm(){
         </div></div>
         ${f.ferien==='Ja'?`<div><label class="lbl">Zeitraum Frühlingsferien *</label><input type="text" value="${f.ferienText}" placeholder="z.B. 14.04. – 25.04.2025" oninput="liveField('ferienText',this.value)" onblur="commitField()"/></div>`:''}
       </div>
-      <div style="margin-top:14px"><p class="lbl">Selfie (direkt mit Kamera aufnehmen) *</p>${selfieHtml}</div>
+      <div style="margin-top:14px"><p class="lbl">Verifizierungsfoto (direkt mit Frontkamera aufnehmen) *</p>${selfieHtml}</div>
     </div></div>
 
     <div class="card"><div class="card-body" style="padding:12px 16px">
@@ -383,6 +385,24 @@ function renderForm(){
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
       <button class="btn btn-gray" onclick="hideUnrated()">${eyeOffSvg(15)} Nicht bewertete Firmen ausblenden</button>
       <button class="btn btn-blue" onclick="doSort()">${sortSvg()} ${f.sortApplied?'✓ Nach Bewertung sortiert':'Nach Bewertung sortieren'}</button>
+
+      ${(()=>{
+        const pts=f.points, pts100=Object.values(pts).reduce((a,b)=>a+b,0)===100;
+        const wp=Object.values(pts).filter(v=>v>0).length===8;
+        const noDup=!Object.entries(pts).filter(([id,v])=>v>0&&!f.hidden.includes(Number(id))).reduce((dup,_,__,arr)=>{const vals=arr.map(([,v])=>v);return dup||vals.length!==new Set(vals).size;},false);
+        const provisional=pts100&&wp&&f.name;
+        return `<button class="btn btn-green" onclick="saveProvisional()" ${provisional?'':'disabled'} style="${provisional?'':'opacity:.4;cursor:not-allowed'}">
+          📸 Wunschliste provisorisch speichern
+        </button>`;
+      })()}
+
+      <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:12px 14px;display:flex;align-items:flex-start;gap:10px">
+        <input type="checkbox" id="datenschutz-cb" ${f.datenschutz?'checked':''} onchange="setFormField('datenschutz',this.checked)" style="margin-top:3px;width:18px;height:18px;flex-shrink:0;accent-color:#6366f1;cursor:pointer"/>
+        <label for="datenschutz-cb" style="font-size:12px;color:#374151;line-height:1.5;cursor:pointer">
+          Hiermit stimme ich zu, dass meine Daten bis zur definitiven Zuteilung der Firmen gespeichert werden dürfen. Die Daten, insbesondere das Verifizierungsfoto werden vertraulich behandelt.
+        </label>
+      </div>
+
       <button class="btn btn-primary" onclick="handleSubmit()" ${cv.valid?'':'disabled'} style="${cv.valid?'':'opacity:.5;cursor:not-allowed'}">
         ${cv.valid?'Wunschliste einreichen ✓':'Bitte alle Anforderungen erfüllen'}
       </button>
@@ -499,6 +519,7 @@ window.setFormField = (k,v) => { state.form[k]=v; render(); };
 // Slider
 window.setPointSlider = (id,v) => { applyPointUpdate(id, Math.max(0,Math.min(50,parseInt(v)||0))); };
 window.setPointDirect = (id,v) => { applyPointUpdate(id, Math.max(0,Math.min(50,parseInt(v)||0))); };
+// +/- Buttons: ebenfalls applyPointUpdate → sofortige Banner/Duplikat-Aktualisierung
 window.stepPoint = (id,delta) => { applyPointUpdate(id, Math.max(0,Math.min(50,(state.form.points[id]||0)+delta))); };
 
 // Firma ausblenden: State erst vollständig aktualisieren, dann rendern → kein falsches Rot
@@ -524,30 +545,56 @@ window.doSort = () => {
 window.handleSubmit = async () => {
   const cv=computed(); if(!cv.valid)return;
   const f=state.form;
-  const existing=state.submissions.find(s=>s.name===f.name);
   const sub={name:f.name,plz:f.plz,ort:f.ort,email:f.email,bms:f.bms,schultage:f.schultage,ferien:f.ferien,ferienText:f.ferien==='Ja'?f.ferienText:'',selfie:f.selfie,timestamp:new Date().toLocaleString('de-DE'),points:{...f.points}};
   await FB.save(sub);
-  const cos=state.setup.companies;
-  const ranked=[...cos].filter(c=>f.points[c.id]>0).sort((a,b)=>f.points[b.id]-f.points[a.id]);
-
-  if(existing){
-    // Aktualisierungs-Mail mit Änderungen
-    let changes='';
-    cos.forEach(c=>{const o=existing.points[c.id]||0,n=f.points[c.id]||0;if(o!==n)changes+=`${c.name}: ${o} → ${n} Punkte\n`;});
-    let body=`Hallo ${f.name},\n\nDeine Wunschliste wurde aktualisiert.\n\nAKTUELLE BEWERTUNG:\n`;
-    ranked.forEach((c,i)=>{body+=`${i+1}. ${c.name}: ${f.points[c.id]} Punkte\n`;});
-    body+=`\nTotal: ${cv.total} Punkte\n\nÄNDERUNGEN ZUR VORHERIGEN EINGABE:\n${changes||'Keine Änderungen.'}\nDies ist eine automatische Bestätigung.`;
-    window.location.href=`mailto:${f.email}?subject=${encodeURIComponent('Wunschliste aktualisiert – Bestätigung')}&body=${encodeURIComponent(body)}`;
-  } else {
-    // Erstmalige Bestätigungs-Mail
-    let body=`Hallo ${f.name},\n\nhier ist deine eingereichte Wunschliste:\n\n`;
-    ranked.forEach((c,i)=>{body+=`${i+1}. ${c.name}: ${f.points[c.id]} Punkte\n`;});
-    body+=`\nTotal: ${cv.total} Punkte\n\nDies ist eine automatische Bestätigung.`;
-    window.location.href=`mailto:${f.email}?subject=${encodeURIComponent('Wunschliste Versetzungsfirmen – Bestätigung')}&body=${encodeURIComponent(body)}`;
-  }
+  // E-Mail-Versand deaktiviert
   state.view='success'; render();
 };
 window.backToForm = () => { state.view='form'; render(); };
+
+// Provisorisches Speichern der Wunschliste als Bild
+window.saveProvisional = async () => {
+  try {
+    const f=state.form, cos=state.setup.companies;
+    const pts=f.points, total=Object.values(pts).reduce((a,b)=>a+b,0);
+    const ranked=[...cos].filter(c=>pts[c.id]>0).sort((a,b)=>pts[b.id]-pts[a.id]);
+    // Temporäre Karte erstellen
+    const wrap=document.createElement('div');
+    wrap.style.cssText='position:fixed;left:-9999px;top:0;background:#fff;border-radius:16px;padding:24px;width:340px;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;box-shadow:0 4px 24px rgba(0,0,0,.1)';
+    wrap.innerHTML=`
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="width:48px;height:48px;background:#ede9fe;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:24px">📋</div>
+        <h2 style="font-size:17px;font-weight:800;color:#1f2937;margin-bottom:2px">Meine Wunschliste</h2>
+        <p style="font-size:12px;color:#6b7280">${f.name} · Provisorisch</p>
+      </div>
+      ${ranked.map((c,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f3f4f6">
+        <div style="width:24px;height:24px;border-radius:50%;background:#6366f1;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0">${i+1}</div>
+        <span style="flex:1;font-size:13px;font-weight:600;color:#1f2937">${c.name}</span>
+        <span style="font-size:14px;font-weight:800;color:#6366f1">${pts[c.id]} Pts</span>
+      </div>`).join('')}
+      <div style="background:#f9fafb;border-radius:8px;padding:8px 12px;margin-top:10px;display:flex;justify-content:space-between">
+        <span style="font-size:13px;font-weight:600;color:#6b7280">Total</span>
+        <span style="font-size:15px;font-weight:900;color:#6366f1">${total} / 100 Pts</span>
+      </div>
+      <p style="font-size:10px;color:#9ca3af;text-align:center;margin-top:10px">Provisorisch · Noch nicht eingereicht</p>`;
+    document.body.appendChild(wrap);
+    if(!window.html2canvas){
+      await new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s.onload=res;s.onerror=rej;document.head.appendChild(s);});
+    }
+    const canvas=await html2canvas(wrap,{scale:2,useCORS:true,backgroundColor:'#fff'});
+    document.body.removeChild(wrap);
+    const filename=`wunschliste_provisorisch_${f.name.replace(/\s+/g,'_')}.png`;
+    if(navigator.canShare){
+      canvas.toBlob(async(blob)=>{
+        const file=new File([blob],filename,{type:'image/png'});
+        if(navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:'Meine Wunschliste (provisorisch)'});return;}catch(e){if(e.name==='AbortError')return;}}
+        const link=document.createElement('a');link.download=filename;link.href=URL.createObjectURL(blob);link.click();
+      },'image/png');
+    } else {
+      const link=document.createElement('a');link.download=filename;link.href=canvas.toDataURL('image/png');link.click();
+    }
+  } catch(e){alert('Fehler: '+e.message);}
+};
 
 // Selfie – immer Frontkamera
 window.startCamera = async () => {
