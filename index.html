@@ -226,15 +226,48 @@ function computed() {
 function render() {
   const app = document.getElementById('app');
   if (state.loading) {
-    app.innerHTML = `<div style="min-height:100vh;display:flex;align-items:center;justify-content:center"><div style="text-align:center"><div class="spinner" style="margin-bottom:12px"></div><p style="color:#6b7280;font-size:14px">Verbindung wird hergestellt…</p></div></div>`;
+    app.innerHTML = `<div style="min-height:100vh;display:flex;align-items:center;justify-content:center"><div style="text-align:center"><div class="spinner" style="margin-bottom:12px"></div><p style="color:#6b7280;font-size:14px">Verbindung wird hergestellt...</p></div></div>`;
     return;
   }
   if (state.view === 'admin') { renderAdmin(); return; }
   if (state.view === 'success') { renderSuccess(); return; }
+  const active = document.activeElement;
+  const focusCid = active && active.dataset && active.dataset.cid ? active.dataset.cid : null;
+  const focusType = active ? active.type : null;
   renderForm();
+  if (focusCid) {
+    const sel = focusType === 'range' ? `input[type=range][data-cid="${focusCid}"]` : `.num-input[data-cid="${focusCid}"]`;
+    const el = document.querySelector(sel);
+    if (el) el.focus();
+  }
 }
 
 // ── Form View ─────────────────────────────────────────────────────────────────
+function buildCosHtml(cv, f) {
+  const visibleIds = f.orderedIds.filter(id=>!f.hidden.includes(id));
+  let cosHtml = '';
+  visibleIds.forEach(id => {
+    const co = state.setup.companies.find(c=>c.id===id);
+    if (!co) return;
+    const val = f.points[id]||0;
+    const rank = cv.rankMap[id];
+    const isDup = val>0 && Object.entries(f.points).some(([oid,ov])=>Number(oid)!==id&&ov===val);
+    cosHtml += `
+    <div class="company-row" data-id="${id}">
+      <div class="company-top">
+        <div class="rank-badge ${rank?'active':'empty'}">${rank||''}</div>
+        <a href="${co.url}" target="_blank" class="company-name">${co.name}</a>
+        <span class="link-ico">${linkSvg(9)}</span>
+        ${isDup?`<span class="dup-label">Duplikat!</span>`:''}
+        <input class="num-input${isDup?' dup':''}" type="number" min="0" max="50" value="${val}" data-cid="${id}" onchange="setPoint(${id},this.value)" oninput="setPoint(${id},this.value)"/>
+        <button class="eye-btn" onclick="hideCompany(${id})" title="Ausblenden">${eyeOffSvg(14)}</button>
+      </div>
+      <input type="range" min="0" max="50" value="${val}" class="slider" data-cid="${id}" oninput="setPoint(${id},this.value)" onchange="setPoint(${id},this.value)"/>
+    </div>`;
+  });
+  return cosHtml;
+}
+
 function renderForm() {
   const app = document.getElementById('app');
   const cv = computed();
@@ -259,30 +292,10 @@ function renderForm() {
     { ok: !!f.selfie,          label: 'Selfie' },
   ];
 
-  const visibleIds = f.orderedIds.filter(id=>!f.hidden.includes(id));
   const hiddenCos  = state.setup.companies.filter(c=>f.hidden.includes(c.id));
 
-  // Companies HTML
-  let cosHtml = '';
-  visibleIds.forEach(id => {
-    const co = state.setup.companies.find(c=>c.id===id);
-    if (!co) return;
-    const val = f.points[id]||0;
-    const rank = cv.rankMap[id];
-    const isDup = val>0 && Object.entries(f.points).some(([oid,ov])=>Number(oid)!==id&&ov===val);
-    cosHtml += `
-    <div class="company-row" data-id="${id}">
-      <div class="company-top">
-        <div class="rank-badge ${rank?'active':'empty'}">${rank||''}</div>
-        <a href="${co.url}" target="_blank" class="company-name">${co.name}</a>
-        <span class="link-ico">${linkSvg(9)}</span>
-        ${isDup?`<span class="dup-label">Duplikat!</span>`:''}
-        <input class="num-input${isDup?' dup':''}" type="number" min="0" max="50" value="${val}" data-cid="${id}" onchange="setPoint(${id},this.value)" oninput="setPoint(${id},this.value)"/>
-        <button class="eye-btn" onclick="hideCompany(${id})" title="Ausblenden">${eyeOffSvg(14)}</button>
-      </div>
-      <input type="range" min="0" max="50" value="${val}" class="slider" data-cid="${id}" oninput="setPoint(${id},this.value)"/>
-    </div>`;
-  });
+  // Companies HTML (via shared helper)
+  const cosHtml = buildCosHtml(cv, f);
 
   // Hidden companies
   let hiddenHtml = '';
@@ -622,9 +635,105 @@ function renderAdmin() {
 
 // ── Actions ───────────────────────────────────────────────────────────────────
 window.setFormField = (k,v) => { state.form[k]=v; render(); };
-window.setPoint = (id,v) => {
-  const n = Math.max(0,Math.min(50,parseInt(v)||0));
-  state.form.points[id]=n; render();
+
+// Debounce-Timer für verzögerten Full-Render
+let _renderTimer = null;
+function scheduleRender() {
+  clearTimeout(_renderTimer);
+  _renderTimer = setTimeout(() => render(), 80);
+}
+
+window.setPoint = (id, v) => {
+  const n = Math.max(0, Math.min(50, parseInt(v) || 0));
+  state.form.points[id] = n;
+
+  // Schnelles, gezieltes DOM-Update OHNE volles Re-Render
+  // Alle Inputs/Slider dieser Firma synchronisieren
+  document.querySelectorAll(`[data-cid="${id}"]`).forEach(el => {
+    if (el !== document.activeElement) el.value = n;
+  });
+
+  // Duplikat-Markierung für alle Firmen aktualisieren
+  const pts = state.form.points;
+  const hidden = state.form.hidden;
+  state.setup.companies.forEach(co => {
+    const cid = co.id;
+    const val = pts[cid] || 0;
+    const isDup = val > 0 && Object.entries(pts).some(([oid, ov]) =>
+      Number(oid) !== cid && ov === val && !hidden.includes(Number(oid))
+    );
+    const numIn = document.querySelector(`.num-input[data-cid="${cid}"]`);
+    if (numIn) {
+      numIn.classList.toggle('dup', isDup);
+    }
+    const row = document.querySelector(`.company-row[data-id="${cid}"] .dup-label`);
+    if (isDup && !row) {
+      const top = document.querySelector(`.company-row[data-id="${cid}"] .company-top`);
+      if (top && numIn) {
+        const span = document.createElement('span');
+        span.className = 'dup-label';
+        span.textContent = 'Duplikat!';
+        top.insertBefore(span, numIn);
+      }
+    } else if (!isDup && row) {
+      row.remove();
+    }
+  });
+
+  // Sticky-Banner sofort aktualisieren
+  updateBannerFast();
+
+  // Vollständigen Re-Render verzögert nachziehen (Validierung etc.)
+  scheduleRender();
+};
+
+function updateBannerFast() {
+  const pts = state.form.points;
+  const hidden = state.form.hidden;
+  const total = Object.values(pts).reduce((a, b) => a + b, 0);
+  const remaining = 100 - total;
+  const withPoints = Object.values(pts).filter(v => v > 0).length;
+  const vals = Object.entries(pts)
+    .filter(([id, v]) => v > 0 && !hidden.includes(Number(id)))
+    .map(([, v]) => v);
+  const nonZeroDup = vals.length !== new Set(vals).size;
+
+  // Banner-Farbe
+  const bar = document.querySelector('.sticky-bar');
+  if (bar) {
+    bar.className = 'sticky-bar ' + (remaining === 0 ? 'ok' : remaining < 0 ? 'over' : 'pending');
+  }
+  // Zahl aktualisieren
+  const big = document.querySelector('.sticky-top .big');
+  if (big) big.textContent = remaining;
+
+  // Pills aktualisieren
+  const pills = document.querySelectorAll('.pill');
+  if (pills.length >= 3) {
+    const setP = (el, ok, label) => {
+      el.className = 'pill ' + (ok ? 'ok' : 'ng');
+      const checkSvgS = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>`;
+      const warnSvgS = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+      el.innerHTML = (ok ? checkSvgS : warnSvgS) + ' ' + label;
+    };
+    setP(pills[0], total === 100, `${total}/100 Pts`);
+    setP(pills[1], withPoints === 8, `${withPoints}/8 Firmen`);
+    setP(pills[2], !nonZeroDup, 'Keine Duplikate');
+  }
+
+  // Rang-Badges aktualisieren
+  const rankMap = {};
+  Object.entries(pts).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]).slice(0, 8)
+    .forEach(([id], i) => { rankMap[Number(id)] = i + 1; });
+  document.querySelectorAll('.company-row').forEach(row => {
+    const cid = Number(row.dataset.id);
+    const badge = row.querySelector('.rank-badge');
+    if (badge) {
+      const rank = rankMap[cid];
+      badge.className = 'rank-badge ' + (rank ? 'active' : 'empty');
+      badge.textContent = rank || '';
+    }
+  });
 };
 window.hideCompany = (id) => {
   state.form.points[id]=0;
