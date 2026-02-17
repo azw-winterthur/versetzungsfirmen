@@ -132,7 +132,7 @@ const FB = {
   saveSetup: (cfg) => setDoc(doc(db,'config','setup'),cfg),
 };
 
-const ADMIN_PW = 'Azw_zuteilung';
+const ADMIN_PW_HASH = '1ac6aaaa80a6eddcffc50b4f7579b329ae1966dc3fb417647971cdd17ca9eb57';
 const DEFAULT_COMPANIES = [
   {id:1,name:'ANDRITZ Soutec AG',url:'https://www.andritz.com'},
   {id:2,name:'Burckhardt Compression AG',url:'https://www.burckhardtcompression.com'},
@@ -622,10 +622,13 @@ window.showLogin=()=>{state.showLoginModal=true;state.loginPw='';state.loginErr=
 window.closeLoginModal=()=>{state.showLoginModal=false;render();};
 window.closeLogin=(e)=>{if(e.target===e.currentTarget){state.showLoginModal=false;render();}};
 window.setLoginPw=(v)=>{state.loginPw=v;};
-window.doLogin=()=>{
+window.doLogin= async ()=>{
   const inp=document.getElementById('login-pw');
   const pw=inp?inp.value:state.loginPw;
-  if(pw===ADMIN_PW){state.view='admin';state.showLoginModal=false;render();}
+  // SHA-256 Hash des eingegebenen Passworts berechnen
+  const buf=await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
+  const hash=Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  if(hash===ADMIN_PW_HASH){state.view='admin';state.showLoginModal=false;render();}
   else{state.loginErr=true;render();setTimeout(()=>{state.loginErr=false;render();},2000);}
 };
 window.logout=()=>{state.view='form';render();};
