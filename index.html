@@ -8,16 +8,18 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f3f4f6;min-height:100vh}
 .sticky-bar{position:sticky;top:0;z-index:50;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.2);transition:background .3s}
-.sticky-bar.ok{background:#16a34a}
-.sticky-bar.over{background:#dc2626}
-.sticky-bar.pending{background:#1e293b}
-.sticky-top{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 16px 2px}
-.sticky-top .pts-num{font-size:3rem;font-weight:900;line-height:1}
-.sticky-top .pts-sub{font-size:11px;font-weight:600;opacity:.8;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+.sticky-bar.ok{background:#16a34a}.sticky-bar.over{background:#dc2626}.sticky-bar.pending{background:#1e293b}
+.sticky-top{display:flex;flex-direction:column;align-items:center;padding:8px 16px 2px}
+.pts-num{font-size:3rem;font-weight:900;line-height:1}
+.pts-sub{font-size:11px;font-weight:600;opacity:.8;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
 .pills{display:flex;gap:6px;padding:4px 12px 8px;overflow-x:auto;-webkit-overflow-scrolling:touch;justify-content:center}
 .pill{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
-.pill.ok{background:#22c55e;color:#fff}
-.pill.ng{background:#f97316;color:#fff}
+.pill.ok{background:#22c55e;color:#fff}.pill.ng{background:#f97316;color:#fff}
+/* Form Tabs */
+.form-tabs{display:flex;background:#fff;border-bottom:2px solid #e5e7eb;position:sticky;top:0;z-index:40}
+.form-tab{flex:1;padding:12px 8px;border:none;background:none;font-size:14px;font-weight:700;color:#6b7280;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s}
+.form-tab.active{color:#6366f1;border-bottom-color:#6366f1}
+.form-tab.locked{color:#9ca3af;cursor:default}
 .card{background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:12px}
 .card-body{padding:16px}
 .section-title{font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
@@ -29,12 +31,19 @@ input:focus,select:focus,textarea:focus{border-color:#6366f1}
 .radio-group{display:flex;gap:16px;flex-wrap:wrap}
 .radio-group label{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:500;color:#374151;cursor:pointer}
 input[type=radio]{accent-color:#6366f1;width:16px;height:16px}
+/* Besuche Checkboxen */
+.visit-row{padding:10px 14px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:12px}
+.visit-row:last-child{border-bottom:none}
+.visit-cb{width:20px;height:20px;accent-color:#6366f1;cursor:pointer;flex-shrink:0}
+.visit-name{font-size:13px;font-weight:600;color:#1f2937;flex:1}
+.visit-name.checked{color:#6366f1}
+.visit-count{font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;background:#ede9fe;color:#6366f1}
+/* Versetzung Regler */
 .company-row{padding:8px 12px;border-bottom:1px solid #f3f4f6}
 .company-row:last-child{border-bottom:none}
 .company-top{display:flex;align-items:center;gap:6px;margin-bottom:4px}
 .rank-badge{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0}
-.rank-badge.active{background:#6366f1;color:#fff}
-.rank-badge.empty{background:#f3f4f6;color:#9ca3af}
+.rank-badge.active{background:#6366f1;color:#fff}.rank-badge.empty{background:#f3f4f6;color:#9ca3af}
 .company-name{font-size:13px;font-weight:600;color:#1f2937;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none}
 .company-name:hover{color:#6366f1}
 .link-ico{opacity:.3;flex-shrink:0}
@@ -43,8 +52,7 @@ input[type=radio]{accent-color:#6366f1;width:16px;height:16px}
 .step-btn{width:28px;height:28px;border-radius:7px;border:2px solid #e5e7eb;background:#fff;font-size:17px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#6366f1;line-height:1;flex-shrink:0;touch-action:manipulation;-webkit-user-select:none;user-select:none}
 .step-btn:active{background:#ede9fe;border-color:#6366f1}
 .num-input{width:46px;padding:3px 2px;text-align:center;font-size:14px;font-weight:700;border:2px solid #e5e7eb;border-radius:8px;outline:none}
-.num-input:focus{border-color:#6366f1}
-.num-input.dup{border-color:#ef4444;background:#fef2f2}
+.num-input:focus{border-color:#6366f1}.num-input.dup{border-color:#ef4444;background:#fef2f2}
 .eye-btn{background:none;border:none;cursor:pointer;color:#d1d5db;padding:2px;flex-shrink:0;touch-action:manipulation}
 .eye-btn:hover{color:#ef4444}
 .slider-row{padding:2px 0 4px 28px}
@@ -52,13 +60,13 @@ input[type=radio]{accent-color:#6366f1;width:16px;height:16px}
 .slider::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;background:#6366f1;border-radius:50%;cursor:pointer;border:3px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.25)}
 .slider::-moz-range-thumb{width:24px;height:24px;background:#6366f1;border-radius:50%;border:3px solid #fff;cursor:pointer;box-shadow:0 1px 5px rgba(0,0,0,.25)}
 .btn{width:100%;padding:12px;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
-.btn-primary{background:#6366f1;color:#fff}
-.btn-primary:hover{background:#4f46e5}
+.btn-primary{background:#6366f1;color:#fff}.btn-primary:hover{background:#4f46e5}
 .btn-primary:disabled{background:#e5e7eb;color:#9ca3af;cursor:not-allowed}
 .btn-blue{background:#3b82f6;color:#fff}.btn-blue:hover{background:#2563eb}
 .btn-gray{background:#6b7280;color:#fff}.btn-gray:hover{background:#4b5563}
 .btn-green{background:#16a34a;color:#fff}.btn-green:hover{background:#15803d}
 .btn-red{background:#ef4444;color:#fff}.btn-red:hover{background:#dc2626}
+.btn-teal{background:#0d9488;color:#fff}.btn-teal:hover{background:#0f766e}
 .btn-sm{padding:7px 14px;font-size:13px;border-radius:8px;width:auto}
 .btn-outline{background:#fff;border:2px solid #e5e7eb;color:#6b7280}.btn-outline:hover{background:#f9fafb}
 .validation-row{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:2px 0}
@@ -78,7 +86,7 @@ video#selfie-video{width:100%;border-radius:12px;background:#000;max-height:220p
 .progress-bar-fill{height:100%;background:#6366f1;border-radius:999px;transition:width .5s}
 .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center;margin-top:12px}
 .stat-num{font-size:1.8rem;font-weight:900}.stat-lbl{font-size:11px;color:#9ca3af;margin-top:2px}
-.admin-tabs{display:flex;gap:8px;margin-bottom:12px}
+.admin-tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
 .tab-btn{padding:8px 16px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
 .tab-btn.active{background:#6366f1;color:#fff}
 .tab-btn.inactive{background:#fff;color:#6b7280;box-shadow:0 1px 3px rgba(0,0,0,.1)}
@@ -88,26 +96,24 @@ td{padding:7px 6px;border-bottom:1px solid #f3f4f6;color:#374151}
 tr:hover td{background:#f9fafb}
 .tbl-wrap{overflow-x:auto}
 .info-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;font-size:12px;color:#1d4ed8;line-height:1.6}
+.info-box-amber{background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:12px;font-size:12px;color:#92400e;line-height:1.6}
 .success-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
-.success-card{background:#fff;border-radius:20px;padding:32px;max-width:360px;width:100%;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.1)}
+.success-card{background:#fff;border-radius:20px;padding:32px;max-width:400px;width:100%;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.1)}
 .check-circle{width:64px;height:64px;background:#dcfce7;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
 .main-wrap{max-width:600px;margin:0 auto;padding:12px}
 .company-header{padding:10px 16px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between}
 .deadlined{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
 .import-hint{font-size:11px;color:#9ca3af;margin-bottom:6px;line-height:1.5}
 textarea.mono{font-family:monospace;font-size:12px}
+.locked-banner{background:#f1f5f9;border:2px solid #cbd5e1;border-radius:12px;padding:20px;text-align:center;margin-bottom:12px}
 </style>
 </head>
 <body>
 <div id="app">
   <div style="min-height:100vh;display:flex;align-items:center;justify-content:center">
-    <div style="text-align:center">
-      <div class="spinner" style="margin-bottom:12px"></div>
-      <p style="color:#6b7280;font-size:14px">Verbindung wird hergestellt…</p>
-    </div>
+    <div style="text-align:center"><div class="spinner" style="margin-bottom:12px"></div><p style="color:#6b7280;font-size:14px">Verbindung wird hergestellt…</p></div>
   </div>
 </div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, doc, getDocs, setDoc, deleteDoc, onSnapshot, getDoc }
@@ -124,15 +130,23 @@ const fireApp = initializeApp({
 const db = getFirestore(fireApp);
 
 const FB = {
-  subscribe: (cb) => onSnapshot(collection(db,'submissions'), snap => cb(snap.docs.map(d=>({_id:d.id,...d.data()})))),
-  save: (sub) => { const id=sub.name.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'').toLowerCase()||'entry_'+Date.now(); return setDoc(doc(db,'submissions',id),sub); },
-  del:    (id)  => deleteDoc(doc(db,'submissions',id)),
-  delAll: async () => { const s=await getDocs(collection(db,'submissions')); return Promise.all(s.docs.map(d=>deleteDoc(d.ref))); },
+  // Besuche
+  subscribeBes: (cb) => onSnapshot(collection(db,'besuche'), snap => cb(snap.docs.map(d=>({_id:d.id,...d.data()})))),
+  saveBes: (sub) => { const id=sub.name.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'').toLowerCase()+'_bes'; return setDoc(doc(db,'besuche',id),sub); },
+  delBes: (id) => deleteDoc(doc(db,'besuche',id)),
+  delAllBes: async () => { const s=await getDocs(collection(db,'besuche')); return Promise.all(s.docs.map(d=>deleteDoc(d.ref))); },
+  // Versetzung
+  subscribeVer: (cb) => onSnapshot(collection(db,'submissions'), snap => cb(snap.docs.map(d=>({_id:d.id,...d.data()})))),
+  saveVer: (sub) => { const id=sub.name.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'').toLowerCase(); return setDoc(doc(db,'submissions',id),sub); },
+  delVer: (id) => deleteDoc(doc(db,'submissions',id)),
+  delAllVer: async () => { const s=await getDocs(collection(db,'submissions')); return Promise.all(s.docs.map(d=>deleteDoc(d.ref))); },
+  // Config
   loadSetup: async () => { const d=await getDoc(doc(db,'config','setup')); return d.exists()?d.data():null; },
   saveSetup: (cfg) => setDoc(doc(db,'config','setup'),cfg),
 };
 
 const ADMIN_PW_HASH = '1ac6aaaa80a6eddcffc50b4f7579b329ae1966dc3fb417647971cdd17ca9eb57';
+
 const DEFAULT_COMPANIES = [
   {id:1,name:'ANDRITZ Soutec AG',url:'https://www.andritz.com'},
   {id:2,name:'Burckhardt Compression AG',url:'https://www.burckhardtcompression.com'},
@@ -147,26 +161,44 @@ const DEFAULT_COMPANIES = [
   {id:11,name:'Linde Kryotechnik AG',url:'https://www.linde-kryotechnik.ch'},
   {id:12,name:'Nobel Biocare Services AG',url:'https://www.nobelbiocare.com'},
   {id:13,name:'Stadler Winterthur AG',url:'https://www.stadlerrail.com'},
-  {id:14,name:'Sulzer Chemtech AG',url:'https://www.sulzer.com'},
-  {id:15,name:'Sulzer Management AG',url:'https://www.sulzer.com'},
+  {id:14,name:'Sulzer Chemtech AG',url:'https://www.sulzer.com/en/shared/about-us/chemtech'},
+  {id:15,name:'Sulzer Management AG',url:'https://www.sulzer.com/de-ch/products/pumps'},
   {id:16,name:'TEDAG Dichtungstechnik AG',url:'https://www.tedag.ch'},
   {id:17,name:'WinGD Ltd.',url:'https://www.wingd.com'},
   {id:18,name:'ZHAW School of Engineering',url:'https://www.zhaw.ch'},
   {id:19,name:'Zimmer Biomet GmbH',url:'https://www.zimmerbiomet.ch'},
 ];
 
+const DEFAULT_SETUP = {
+  companies: DEFAULT_COMPANIES,
+  students: [],
+  // Besuche
+  besDeadline: '',
+  // Versetzung
+  verFreischalt: '',   // ab wann sichtbar
+  verDeadline: '',     // späteste Eingabe
+};
+
 let state = {
-  view:'form', adminTab:'data', submissions:[],
-  setup:{companies:DEFAULT_COMPANIES,students:[],deadline:''},
-  form:{name:'',plz:'',ort:'',email:'',bms:'',schultage:'',ferien:'',ferienText:'',selfie:'',datenschutz:false,
-        points:{},hidden:[],orderedIds:DEFAULT_COMPANIES.map(c=>c.id),sortApplied:false},
-  selfieStreaming:false,selfieReady:false,selfieStream:null,
-  showHidden:false,showLoginModal:false,loginPw:'',loginErr:false,loading:true,
+  view: 'form',         // form | success_bes | success_ver | admin
+  formTab: 'besuche',   // besuche | versetzung
+  adminTab: 'besuche',  // besuche | versetzung | setup
+  subsBes: [],
+  subsVer: [],
+  setup: { ...DEFAULT_SETUP },
+  // Gemeinsame Angaben
+  personal: { name:'', plz:'', ort:'', email:'', bms:'', schultage:'', ferien:'', ferienText:'', selfie:'', datenschutz:false },
+  // Besuche
+  besuche: { selected:[] },   // Array von IDs
+  // Versetzung
+  versetzung: { points:{}, hidden:[], orderedIds:DEFAULT_COMPANIES.map(c=>c.id), sortApplied:false },
+  selfieStreaming:false, selfieReady:false, selfieStream:null,
+  showHidden:false, showLoginModal:false, loginPw:'', loginErr:false, loading:true,
 };
 
 const emptyPoints = (cos) => cos.reduce((a,c)=>({...a,[c.id]:0}),{});
 
-// SVG Icons
+// ── SVG Icons ─────────────────────────────────────────────────────────────────
 const checkSvg=(s=14)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>`;
 const warnSvg=(s=14)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
 const eyeOffSvg=(s=14)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
@@ -180,17 +212,43 @@ const chevU=(s=14)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="n
 const linkSvg=(s=10)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
 const dlSvg=(s=16)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
 
-// ── Computed ──────────────────────────────────────────────────────────────────
-function computed() {
-  const f=state.form, pts=f.points;
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function verIsVisible() {
+  const fs = state.setup.verFreischalt;
+  if (!fs) return true; // kein Datum gesetzt = immer sichtbar
+  return new Date() >= new Date(fs);
+}
+function besDeadlinePassed() {
+  const d = state.setup.besDeadline;
+  return d && new Date() > new Date(d);
+}
+function verDeadlinePassed() {
+  const d = state.setup.verDeadline;
+  return d && new Date() > new Date(d);
+}
+
+// ── Computed Versetzung ───────────────────────────────────────────────────────
+function computedVer() {
+  const v=state.versetzung, pts=v.points, p=state.personal;
   const total=Object.values(pts).reduce((a,b)=>a+b,0);
   const withPoints=Object.values(pts).filter(v=>v>0).length;
-  const nonZeroDup=()=>{const vals=Object.entries(pts).filter(([id,v])=>v>0&&!f.hidden.includes(Number(id))).map(([,v])=>v);return vals.length!==new Set(vals).size;};
+  const nonZeroDup=()=>{const vals=Object.entries(pts).filter(([id,vv])=>vv>0&&!v.hidden.includes(Number(id))).map(([,vv])=>vv);return vals.length!==new Set(vals).size;};
   const rankMap={};
-  Object.entries(pts).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,8).forEach(([id],i)=>{rankMap[Number(id)]=i+1;});
-  const deadlinePassed=state.setup.deadline&&new Date()>new Date(state.setup.deadline);
-  const valid=total===100&&!nonZeroDup()&&withPoints===8&&f.name&&f.plz&&f.ort&&f.email&&f.bms&&f.schultage&&f.ferien&&(f.ferien==='Nein'||(f.ferien==='Ja'&&f.ferienText))&&f.selfie&&f.datenschutz&&!deadlinePassed;
-  return{total,remaining:100-total,withPoints,nonZeroDup:nonZeroDup(),rankMap,valid,deadlinePassed};
+  Object.entries(pts).filter(([,vv])=>vv>0).sort((a,b)=>b[1]-a[1]).slice(0,8).forEach(([id],i)=>{rankMap[Number(id)]=i+1;});
+  const deadlinePassed=verDeadlinePassed();
+  const angaben=!!(p.name&&p.plz&&p.ort&&p.email&&p.bms&&p.schultage&&p.ferien&&(p.ferien!=='Ja'||p.ferienText)&&p.selfie);
+  const valid=total===100&&!nonZeroDup()&&withPoints===8&&angaben&&p.datenschutz&&!deadlinePassed;
+  return{total,remaining:100-total,withPoints,nonZeroDup:nonZeroDup(),rankMap,valid,deadlinePassed,angaben};
+}
+
+// ── Computed Besuche ──────────────────────────────────────────────────────────
+function computedBes() {
+  const sel=state.besuche.selected, p=state.personal;
+  const count=sel.length;
+  const angaben=!!(p.name&&p.plz&&p.ort&&p.email&&p.bms&&p.schultage&&p.ferien&&(p.ferien!=='Ja'||p.ferienText)&&p.selfie);
+  const deadlinePassed=besDeadlinePassed();
+  const valid=count===8&&angaben&&p.datenschutz&&!deadlinePassed;
+  return{count,valid,deadlinePassed,angaben};
 }
 
 // ── Render ────────────────────────────────────────────────────────────────────
@@ -198,55 +256,45 @@ function render() {
   const appEl=document.getElementById('app');
   if(state.loading){appEl.innerHTML=`<div style="min-height:100vh;display:flex;align-items:center;justify-content:center"><div style="text-align:center"><div class="spinner" style="margin-bottom:12px"></div><p style="color:#6b7280;font-size:14px">Verbindung wird hergestellt…</p></div></div>`;return;}
   if(state.view==='admin'){renderAdmin();return;}
-  if(state.view==='success'){renderSuccess();return;}
+  if(state.view==='success_bes'){renderSuccessBes();return;}
+  if(state.view==='success_ver'){renderSuccessVer();return;}
   renderForm();
 }
 
-// ── Schnelle DOM-Updates für Slider (kein Re-Render) ─────────────────────────
+// ── Schnelle Banner-Updates (kein Re-Render beim Slider) ──────────────────────
 let _sliderTimer=null;
 function applyPointUpdate(id,n){
-  state.form.points[id]=n;
-  // Slider + Zahl synchronisieren ohne aktives Element zu überschreiben
+  state.versetzung.points[id]=n;
   document.querySelectorAll(`[data-cid="${id}"]`).forEach(el=>{if(el!==document.activeElement)el.value=n;});
-  // Duplikate für alle Firmen aktualisieren
-  const pts=state.form.points, hidden=state.form.hidden;
-  // nonZeroDup für Banner: nur sichtbare Firmen
+  const pts=state.versetzung.points, hidden=state.versetzung.hidden;
   state.setup.companies.forEach(co=>{
     const cid=co.id, val=pts[cid]||0;
-    // Duplikat nur unter sichtbaren Firmen prüfen
     const isDup=val>0&&!hidden.includes(cid)&&Object.entries(pts).some(([oid,ov])=>Number(oid)!==cid&&ov===val&&!hidden.includes(Number(oid)));
     const numIn=document.querySelector(`.num-input[data-cid="${cid}"]`);
     if(numIn)numIn.classList.toggle('dup',isDup);
     const existDup=document.querySelector(`.company-row[data-id="${cid}"] .dup-label`);
-    if(isDup&&!existDup){
-      const top=document.querySelector(`.company-row[data-id="${cid}"] .company-top`);
-      if(top&&numIn){const sp=document.createElement('span');sp.className='dup-label';sp.textContent='Duplikat!';top.insertBefore(sp,numIn);}
-    } else if(!isDup&&existDup){existDup.remove();}
+    if(isDup&&!existDup){const top=document.querySelector(`.company-row[data-id="${cid}"] .company-top`);if(top&&numIn){const sp=document.createElement('span');sp.className='dup-label';sp.textContent='Duplikat!';top.insertBefore(sp,numIn);}}
+    else if(!isDup&&existDup){existDup.remove();}
   });
-  updateBannerFast();
+  updateVerBannerFast();
   clearTimeout(_sliderTimer);
   _sliderTimer=setTimeout(()=>render(),150);
 }
 
-function updateBannerFast(){
-  const pts=state.form.points, hidden=state.form.hidden;
+function updateVerBannerFast(){
+  const pts=state.versetzung.points, hidden=state.versetzung.hidden;
   const total=Object.values(pts).reduce((a,b)=>a+b,0);
   const withPoints=Object.values(pts).filter(v=>v>0).length;
   const vals=Object.entries(pts).filter(([id,v])=>v>0&&!hidden.includes(Number(id))).map(([,v])=>v);
   const nonZeroDup=vals.length!==new Set(vals).size;
+  const p=state.personal;
+  const angaben=!!(p.name&&p.plz&&p.ort&&p.email&&p.bms&&p.schultage&&p.ferien&&(p.ferien!=='Ja'||p.ferienText)&&p.selfie);
   const bar=document.querySelector('.sticky-bar');
   if(bar)bar.className='sticky-bar '+(total===100?'ok':total>100?'over':'pending');
-  const lbl=document.querySelector('.pts-num');
-  if(lbl)lbl.textContent=`${total}/100`;
+  const pn=document.querySelector('.pts-num');if(pn)pn.textContent=`${total}/100`;
   const pills=document.querySelectorAll('.pill');
   if(pills.length>=3){
-    const setP=(el,ok,label)=>{
-      el.className='pill '+(ok?'ok':'ng');
-      const icon=ok?`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>`:`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
-      el.innerHTML=icon+' '+label;
-    };
-    const f=state.form;
-    const angaben=!!(f.name&&f.plz&&f.ort&&f.email&&f.bms&&f.schultage&&f.ferien&&(f.ferien!=='Ja'||f.ferienText)&&f.selfie);
+    const setP=(el,ok,label)=>{el.className='pill '+(ok?'ok':'ng');const icon=ok?`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>`:`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;el.innerHTML=icon+' '+label;};
     setP(pills[0],withPoints===8,`${withPoints}/8 Firmen`);
     setP(pills[1],!nonZeroDup,'Keine Duplikate');
     setP(pills[2],angaben,'Angaben vollständig');
@@ -259,15 +307,160 @@ function updateBannerFast(){
   });
 }
 
-// ── Companies HTML ────────────────────────────────────────────────────────────
-function buildCosHtml(cv,f){
-  const visibleIds=f.orderedIds.filter(id=>!f.hidden.includes(id));
-  let html='';
+// ── Selfie HTML ───────────────────────────────────────────────────────────────
+function buildSelfieHtml(p){
+  if(p.selfie)return`<img src="${p.selfie}" class="selfie-preview" style="margin-bottom:8px"/><button onclick="resetSelfie()" style="font-size:12px;font-weight:600;color:#6366f1;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px">${camSvg(13)} Neues Verifizierungsfoto aufnehmen</button>`;
+  if(state.selfieStreaming)return`<video id="selfie-video" autoplay muted playsinline style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:12px;background:#000;margin-bottom:8px"></video>${!state.selfieReady?`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;color:#6b7280;font-size:13px"><div class="spinner" style="width:20px;height:20px;border-width:2px"></div>Kamera wird gestartet…</div>`:''}<div style="display:flex;gap:8px"><button onclick="captureSelfie()" ${state.selfieReady?'':'disabled'} class="btn btn-primary btn-sm" style="flex:1;${state.selfieReady?'':'opacity:.5;cursor:not-allowed'}">${camSvg(16)} ${state.selfieReady?'Aufnehmen':'Warte…'}</button><button onclick="stopCamera()" class="btn btn-outline btn-sm">✕</button></div>`;
+  return`<div class="selfie-wrap" onclick="startCamera()">${camSvg(32)}<p style="font-size:13px;font-weight:600;color:#6366f1;margin-top:8px">Verifizierungsfoto aufnehmen (Frontkamera)</p></div>`;
+}
+
+// ── Persönliche Angaben HTML ──────────────────────────────────────────────────
+function buildPersonalHtml(p){
+  let nameField='';
+  if(state.setup.students&&state.setup.students.length>0){
+    nameField=`<select onchange="setPersonal('name',this.value)" style="width:100%;padding:8px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:16px;background:#fff"><option value="">-- Name auswählen --</option>${state.setup.students.map(s=>`<option value="${s}" ${p.name===s?'selected':''}>${s}</option>`).join('')}</select>`;
+  } else {
+    nameField=`<input type="text" value="${p.name}" placeholder="Vorname Nachname" oninput="livePersonal('name',this.value)" onblur="commitPersonal()" autocomplete="name"/>`;
+  }
+  return`<div class="card"><div class="card-body">
+    <p class="section-title">Persönliche Angaben</p>
+    <div style="margin-bottom:10px"><label class="lbl">Name *</label>${nameField}</div>
+    <div class="grid2">
+      <div><label class="lbl">PLZ *</label><input type="text" value="${p.plz}" placeholder="8400" oninput="livePersonal('plz',this.value)" onblur="commitPersonal()" inputmode="numeric"/></div>
+      <div><label class="lbl">Ort *</label><input type="text" value="${p.ort}" placeholder="Winterthur" oninput="livePersonal('ort',this.value)" onblur="commitPersonal()"/></div>
+      <div class="col2"><label class="lbl">E-Mail *</label><input type="email" value="${p.email}" placeholder="max@mail.ch" oninput="livePersonal('email',this.value)" onblur="commitPersonal()" autocomplete="email"/></div>
+    </div>
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:12px">
+      <div><p class="lbl">BMS *</p><div class="radio-group">
+        <label><input type="radio" name="bms" ${p.bms==='Ja'?'checked':''} onchange="setPersonal('bms','Ja')"/> Ja</label>
+        <label><input type="radio" name="bms" ${p.bms==='Nein'?'checked':''} onchange="setPersonal('bms','Nein')"/> Nein</label>
+      </div></div>
+      <div><p class="lbl">Schultage *</p><div class="radio-group">
+        <label><input type="radio" name="schultage" ${p.schultage==='Mo/Di'?'checked':''} onchange="setPersonal('schultage','Mo/Di')"/> Montag / Dienstag</label>
+        <label><input type="radio" name="schultage" ${p.schultage==='Do/Fr'?'checked':''} onchange="setPersonal('schultage','Do/Fr')"/> Donnerstag / Freitag</label>
+      </div></div>
+      <div><p class="lbl">Frühlingsferien *</p><div class="radio-group">
+        <label><input type="radio" name="ferien" ${p.ferien==='Ja'?'checked':''} onchange="setPersonal('ferien','Ja')"/> Ja</label>
+        <label><input type="radio" name="ferien" ${p.ferien==='Nein'?'checked':''} onchange="setPersonal('ferien','Nein')"/> Nein</label>
+      </div></div>
+      ${p.ferien==='Ja'?`<div><label class="lbl">Zeitraum Frühlingsferien *</label><input type="text" value="${p.ferienText}" placeholder="z.B. 14.04.–25.04.2025" oninput="livePersonal('ferienText',this.value)" onblur="commitPersonal()"/></div>`:''}
+    </div>
+    <div style="margin-top:14px"><p class="lbl">Verifizierungsfoto (Frontkamera) *</p>${buildSelfieHtml(p)}</div>
+  </div></div>`;
+}
+
+// ── renderForm (Besuche + Versetzung Tabs) ────────────────────────────────────
+function renderForm(){
+  const appEl=document.getElementById('app');
+  const p=state.personal;
+  const cvB=computedBes();
+  const verVisible=verIsVisible();
+
+  // Tab-Leiste
+  const tabsHtml=`<div class="form-tabs">
+    <button class="form-tab ${state.formTab==='besuche'?'active':''}" onclick="setFormTab('besuche')">🏭 Wünsche Besuche</button>
+    <button class="form-tab ${state.formTab==='versetzung'?'active':''}${!verVisible?' locked':''}" onclick="${verVisible?"setFormTab('versetzung')":'showVerLocked()'}" ${!verVisible?'title="Noch nicht freigeschaltet"':''}>
+      📊 Wünsche Versetzung${!verVisible?' 🔒':''}
+    </button>
+  </div>`;
+
+  if(state.formTab==='besuche'){
+    renderFormBesuche(appEl, p, cvB, tabsHtml);
+  } else {
+    renderFormVersetzung(appEl, p, tabsHtml);
+  }
+  if(state.selfieStreaming){const vid=document.getElementById('selfie-video');if(vid&&state.selfieStream){vid.srcObject=state.selfieStream;vid.play().catch(()=>{});}}
+}
+
+// ── Besuche Tab ───────────────────────────────────────────────────────────────
+function renderFormBesuche(appEl, p, cv, tabsHtml){
+  const cos=state.setup.companies;
+  const sel=state.besuche.selected;
+  const {besDeadline}=state.setup;
+
+  const cosHtml=cos.map(co=>{
+    const checked=sel.includes(co.id);
+    const disabled=!checked&&sel.length>=8;
+    return`<div class="visit-row">
+      <input type="checkbox" class="visit-cb" ${checked?'checked':''} ${disabled?'disabled':''} onchange="toggleBesuche(${co.id},this.checked)" style="${disabled?'opacity:.35;cursor:not-allowed':''}"/>
+      <a href="${co.url}" target="_blank" class="visit-name ${checked?'checked':''}" style="${disabled?'color:#9ca3af':''}">${co.name}</a>
+      ${checked?`<span class="link-ico">${linkSvg(9)}</span>`:`<span class="link-ico">${linkSvg(9)}</span>`}
+    </div>`;
+  }).join('');
+
+  const provisional=cv.count===8&&p.name;
+
+  appEl.innerHTML=`
+  <div style="background:${cv.count===8?'#16a34a':'#1e293b'};position:sticky;top:0;z-index:50;color:#fff;padding:8px 16px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.2)">
+    <div style="font-size:2.8rem;font-weight:900;line-height:1">${cv.count}/8</div>
+    <div style="font-size:11px;font-weight:600;opacity:.8;text-transform:uppercase;letter-spacing:.05em;margin-top:2px">Firmen ausgewählt</div>
+    <div style="display:flex;gap:6px;justify-content:center;padding:4px 0 8px;flex-wrap:wrap">
+      <div class="pill ${cv.count===8?'ok':'ng'}">${cv.count===8?checkSvg(10):warnSvg(10)} ${cv.count}/8 Firmen</div>
+      <div class="pill ${cv.angaben?'ok':'ng'}">${cv.angaben?checkSvg(10):warnSvg(10)} Angaben vollständig</div>
+    </div>
+  </div>
+  ${tabsHtml}
+  <div class="main-wrap">
+    <div class="card" style="margin-top:0"><div class="card-body">
+      <h1 style="font-size:17px;font-weight:800;color:#1f2937;margin-bottom:4px">Wünsche Firmenbesuche</h1>
+      <p style="font-size:13px;color:#6b7280;margin-bottom:10px">Wähle genau 8 Firmen aus, die du besuchen möchtest.</p>
+      <div class="info-box"><div>• Genau 8 Firmen müssen ausgewählt werden</div></div>
+      ${besDeadline?`<p style="font-size:12px;color:#ea580c;font-weight:600;margin-top:8px">📅 Eingabe möglich bis: ${new Date(besDeadline).toLocaleString('de-DE')}</p>`:''}
+    </div></div>
+
+    ${buildPersonalHtml(p)}
+
+    <div class="card">
+      <div class="company-header">
+        <p class="section-title" style="margin:0">Firmen auswählen</p>
+        <span class="visit-count">${cv.count}/8</span>
+      </div>
+      <div>${cosHtml}</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+      <button class="btn btn-teal" onclick="saveProvisionalBes()" ${provisional?'':'disabled'} style="${provisional?'':'opacity:.4;cursor:not-allowed'}">
+        📸 Besuchsliste provisorisch speichern
+      </button>
+      <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:12px 14px;display:flex;align-items:flex-start;gap:10px">
+        <input type="checkbox" id="datenschutz-cb" ${p.datenschutz?'checked':''} onchange="setPersonal('datenschutz',this.checked)" style="margin-top:3px;width:18px;height:18px;flex-shrink:0;accent-color:#6366f1;cursor:pointer"/>
+        <label for="datenschutz-cb" style="font-size:12px;color:#374151;line-height:1.5;cursor:pointer">
+          Hiermit stimme ich zu, dass meine Daten bis zur definitiven Zuteilung der Firmen gespeichert werden dürfen. Die Daten, insbesondere das Verifizierungsfoto werden vertraulich behandelt.
+        </label>
+      </div>
+      <button class="btn btn-primary" onclick="handleSubmitBes()" ${cv.valid?'':'disabled'} style="${cv.valid?'':'opacity:.5;cursor:not-allowed'}">
+        ${cv.valid?'Besuchswünsche einreichen ✓':'Bitte alle Anforderungen erfüllen'}
+      </button>
+    </div>
+  </div>
+  <button onclick="showLogin()" style="position:fixed;bottom:20px;right:20px;z-index:40;background:#fff;border:1px solid #e5e7eb;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.15);cursor:pointer;color:#9ca3af">${lockSvg(18)}</button>
+  ${state.showLoginModal?renderLoginModal():''}`;
+}
+
+// ── Versetzung Tab ────────────────────────────────────────────────────────────
+function renderFormVersetzung(appEl, p, tabsHtml){
+  const cv=computedVer();
+  const v=state.versetzung;
+  const {verDeadline}=state.setup;
+  const cos=state.setup.companies;
+
+  if(verDeadlinePassed()){
+    appEl.innerHTML=`${tabsHtml}<div class="main-wrap"><div class="deadlined" style="min-height:unset;padding:40px 0"><div class="success-card"><div style="font-size:3rem;margin-bottom:12px">🔒</div><h2 style="font-size:18px;font-weight:700;color:#1f2937;margin-bottom:8px">Eingabefrist abgelaufen</h2><p style="color:#6b7280;font-size:13px">Die Wunschliste Versetzung konnte bis ${new Date(verDeadline).toLocaleDateString('de-DE')} eingereicht werden.</p></div></div></div>`;
+    return;
+  }
+
+  // Companies HTML
+  const hiddenCos=cos.filter(c=>v.hidden.includes(c.id));
+  let hiddenHtml='';
+  hiddenCos.forEach(co=>{hiddenHtml+=`<div class="drawer-item"><a href="${co.url}" target="_blank" style="font-size:13px;color:#9ca3af;text-decoration:line-through;display:flex;align-items:center;gap:4px">${co.name} ${linkSvg(9)}</a><button onclick="showCompany(${co.id})" style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:#6366f1;background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:6px">${eyeOnSvg(13)} Einblenden</button></div>`;});
+
+  const visibleIds=v.orderedIds.filter(id=>!v.hidden.includes(id));
+  let cosHtml='';
   visibleIds.forEach(id=>{
-    const co=state.setup.companies.find(c=>c.id===id); if(!co)return;
-    const val=f.points[id]||0, rank=cv.rankMap[id];
-    const isDup=val>0&&Object.entries(f.points).some(([oid,ov])=>Number(oid)!==id&&ov===val&&!f.hidden.includes(Number(oid)));
-    html+=`<div class="company-row" data-id="${id}">
+    const co=cos.find(c=>c.id===id); if(!co)return;
+    const val=v.points[id]||0, rank=cv.rankMap[id];
+    const isDup=val>0&&Object.entries(v.points).some(([oid,ov])=>Number(oid)!==id&&ov===val&&!v.hidden.includes(Number(oid)));
+    cosHtml+=`<div class="company-row" data-id="${id}">
       <div class="company-top">
         <div class="rank-badge ${rank?'active':'empty'}">${rank||''}</div>
         <a href="${co.url}" target="_blank" class="company-name">${co.name}</a>
@@ -275,45 +468,17 @@ function buildCosHtml(cv,f){
         ${isDup?`<span class="dup-label">Duplikat!</span>`:''}
         <div class="stepper-wrap">
           <button class="step-btn" onclick="stepPoint(${id},-1)">−</button>
-          <input class="num-input${isDup?' dup':''}" type="number" min="0" max="50" value="${val}" data-cid="${id}"
-            oninput="setPointDirect(${id},this.value)" onchange="setPointDirect(${id},this.value)"/>
+          <input class="num-input${isDup?' dup':''}" type="number" min="0" max="50" value="${val}" data-cid="${id}" oninput="setPointDirect(${id},this.value)" onchange="setPointDirect(${id},this.value)"/>
           <button class="step-btn" onclick="stepPoint(${id},1)">+</button>
         </div>
         <button class="eye-btn" onclick="hideCompanyNow(${id})" title="Ausblenden">${eyeOffSvg(14)}</button>
       </div>
-      <div class="slider-row">
-        <input type="range" min="0" max="50" value="${val}" class="slider" data-cid="${id}"
-          oninput="setPointSlider(${id},this.value)" onchange="setPointSlider(${id},this.value)"/>
-      </div>
+      <div class="slider-row"><input type="range" min="0" max="50" value="${val}" class="slider" data-cid="${id}" oninput="setPointSlider(${id},this.value)" onchange="setPointSlider(${id},this.value)"/></div>
     </div>`;
   });
-  return html;
-}
-
-// ── renderForm ────────────────────────────────────────────────────────────────
-function renderForm(){
-  const appEl=document.getElementById('app'), cv=computed(), f=state.form, {deadline}=state.setup;
-  if(cv.deadlinePassed){appEl.innerHTML=`<div class="deadlined"><div class="success-card"><div style="font-size:3rem;margin-bottom:12px">🔒</div><h2 style="font-size:18px;font-weight:700;color:#1f2937;margin-bottom:8px">Umfrage geschlossen</h2><p style="color:#6b7280;font-size:13px">Die Eingabefrist ist abgelaufen (${new Date(deadline).toLocaleDateString('de-DE')}).</p></div></div>`;return;}
 
   const bannerClass=cv.total===100?'ok':cv.total>100?'over':'pending';
-  const hiddenCos=state.setup.companies.filter(c=>f.hidden.includes(c.id));
-  const cosHtml=buildCosHtml(cv,f);
-
-  let hiddenHtml='';
-  hiddenCos.forEach(co=>{hiddenHtml+=`<div class="drawer-item"><a href="${co.url}" target="_blank" style="font-size:13px;color:#9ca3af;text-decoration:line-through;display:flex;align-items:center;gap:4px">${co.name} ${linkSvg(9)}</a><button onclick="showCompany(${co.id})" style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:#6366f1;background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:6px">${eyeOnSvg(13)} Einblenden</button></div>`;});
-
-  let selfieHtml='';
-  if(f.selfie){selfieHtml=`<img src="${f.selfie}" class="selfie-preview" style="margin-bottom:8px"/><button onclick="resetSelfie()" style="font-size:12px;font-weight:600;color:#6366f1;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px">${camSvg(13)} Neues Verifizierungsfoto aufnehmen</button>`;}
-  else if(state.selfieStreaming){selfieHtml=`<video id="selfie-video" autoplay muted playsinline style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:12px;background:#000;margin-bottom:8px"></video>${!state.selfieReady?`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;color:#6b7280;font-size:13px"><div class="spinner" style="width:20px;height:20px;border-width:2px"></div>Kamera wird gestartet…</div>`:''}<div style="display:flex;gap:8px"><button onclick="captureSelfie()" ${state.selfieReady?'':'disabled'} class="btn btn-primary btn-sm" style="flex:1;${state.selfieReady?'':'opacity:.5;cursor:not-allowed'}">${camSvg(16)} ${state.selfieReady?'Aufnehmen':'Warte…'}</button><button onclick="stopCamera()" class="btn btn-outline btn-sm">✕</button></div>`;}
-  else{selfieHtml=`<div class="selfie-wrap" onclick="startCamera()">${camSvg(32)}<p style="font-size:13px;font-weight:600;color:#6366f1;margin-top:8px">Verifizierungsfoto aufnehmen (Frontkamera)</p></div>`;}
-
-  // Name-Feld: kein oninput-Re-Render → Tastatur bleibt offen
-  let nameField='';
-  if(state.setup.students.length>0){
-    nameField=`<select onchange="setFormField('name',this.value)" style="width:100%;padding:8px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:16px;background:#fff"><option value="">-- Name auswählen --</option>${state.setup.students.map(s=>`<option value="${s}" ${f.name===s?'selected':''}>${s}</option>`).join('')}</select>`;
-  } else {
-    nameField=`<input type="text" value="${f.name}" placeholder="Vorname Nachname" oninput="liveField('name',this.value)" onblur="commitField()" autocomplete="name"/>`;
-  }
+  const provisional=cv.total===100&&cv.withPoints===8&&p.name;
 
   appEl.innerHTML=`
   <div class="sticky-bar ${bannerClass}">
@@ -324,52 +489,29 @@ function renderForm(){
     <div class="pills">
       <div class="pill ${cv.withPoints===8?'ok':'ng'}">${cv.withPoints===8?checkSvg(10):warnSvg(10)} ${cv.withPoints}/8 Firmen</div>
       <div class="pill ${!cv.nonZeroDup?'ok':'ng'}">${!cv.nonZeroDup?checkSvg(10):warnSvg(10)} Keine Duplikate</div>
-      <div class="pill ${!!(f.name&&f.plz&&f.ort&&f.email&&f.bms&&f.schultage&&f.ferien&&(f.ferien!=='Ja'||f.ferienText)&&f.selfie)?'ok':'ng'}">${!!(f.name&&f.plz&&f.ort&&f.email&&f.bms&&f.schultage&&f.ferien&&(f.ferien!=='Ja'||f.ferienText)&&f.selfie)?checkSvg(10):warnSvg(10)} Angaben vollständig</div>
+      <div class="pill ${cv.angaben?'ok':'ng'}">${cv.angaben?checkSvg(10):warnSvg(10)} Angaben vollständig</div>
     </div>
   </div>
+  ${tabsHtml}
   <div class="main-wrap">
     <div class="card" style="margin-top:0"><div class="card-body">
-      <h1 style="font-size:17px;font-weight:800;color:#1f2937;margin-bottom:4px">Wunschliste Versetzungsfirmen</h1>
-      <p style="font-size:13px;color:#6b7280;margin-bottom:10px">Erstelle deine persönliche Wunschliste indem du 100 Punkte auf 8 Firmen verteilst.</p>
-      <div class="info-box"><div>• Genau 8 Firmen müssen mindestens 1 Punkt erhalten</div><div>• Keine Firmen dürfen gleich viele Punkte erhalten</div></div>
-      ${deadline?`<p style="font-size:12px;color:#ea580c;font-weight:600;margin-top:8px">📅 Eingabe möglich bis: ${new Date(deadline).toLocaleString('de-DE')}</p>`:''}
+      <h1 style="font-size:17px;font-weight:800;color:#1f2937;margin-bottom:4px">Wünsche Versetzungsfirmen</h1>
+      <p style="font-size:13px;color:#6b7280;margin-bottom:10px">Verteile 100 Punkte auf genau 8 Firmen.</p>
+      <div class="info-box"><div>• Genau 8 Firmen müssen mindestens 1 Punkt erhalten</div><div>• Keine zwei Firmen dürfen gleich viele Punkte erhalten</div></div>
+      ${verDeadline?`<p style="font-size:12px;color:#ea580c;font-weight:600;margin-top:8px">📅 Eingabe möglich bis: ${new Date(verDeadline).toLocaleString('de-DE')}</p>`:''}
     </div></div>
 
-    <div class="card"><div class="card-body">
-      <p class="section-title">Persönliche Angaben</p>
-      <div style="margin-bottom:10px"><label class="lbl">Name *</label>${nameField}</div>
-      <div class="grid2">
-        <div><label class="lbl">PLZ *</label><input type="text" value="${f.plz}" placeholder="8400" oninput="liveField('plz',this.value)" onblur="commitField()" inputmode="numeric"/></div>
-        <div><label class="lbl">Ort *</label><input type="text" value="${f.ort}" placeholder="Winterthur" oninput="liveField('ort',this.value)" onblur="commitField()"/></div>
-        <div class="col2"><label class="lbl">E-Mail *</label><input type="email" value="${f.email}" placeholder="max@mail.ch" oninput="liveField('email',this.value)" onblur="commitField()" autocomplete="email"/></div>
-      </div>
-      <div style="margin-top:12px;display:flex;flex-direction:column;gap:12px">
-        <div><p class="lbl">BMS *</p><div class="radio-group">
-          <label><input type="radio" name="bms" ${f.bms==='Ja'?'checked':''} onchange="setFormField('bms','Ja')"/> Ja</label>
-          <label><input type="radio" name="bms" ${f.bms==='Nein'?'checked':''} onchange="setFormField('bms','Nein')"/> Nein</label>
-        </div></div>
-        <div><p class="lbl">Schultage *</p><div class="radio-group">
-          <label><input type="radio" name="schultage" ${f.schultage==='Mo/Di'?'checked':''} onchange="setFormField('schultage','Mo/Di')"/> Montag / Dienstag</label>
-          <label><input type="radio" name="schultage" ${f.schultage==='Do/Fr'?'checked':''} onchange="setFormField('schultage','Do/Fr')"/> Donnerstag / Freitag</label>
-        </div></div>
-        <div><p class="lbl">Frühlingsferien *</p><div class="radio-group">
-          <label><input type="radio" name="ferien" ${f.ferien==='Ja'?'checked':''} onchange="setFormField('ferien','Ja')"/> Ja</label>
-          <label><input type="radio" name="ferien" ${f.ferien==='Nein'?'checked':''} onchange="setFormField('ferien','Nein')"/> Nein</label>
-        </div></div>
-        ${f.ferien==='Ja'?`<div><label class="lbl">Zeitraum Frühlingsferien *</label><input type="text" value="${f.ferienText}" placeholder="z.B. 14.04. – 25.04.2025" oninput="liveField('ferienText',this.value)" onblur="commitField()"/></div>`:''}
-      </div>
-      <div style="margin-top:14px"><p class="lbl">Verifizierungsfoto (direkt mit Frontkamera aufnehmen) *</p>${selfieHtml}</div>
-    </div></div>
+    ${buildPersonalHtml(p)}
 
     <div class="card"><div class="card-body" style="padding:12px 16px">
       ${[
         {ok:cv.total===100,label:`100 Punkte verteilt (${cv.total}/100)`},
         {ok:cv.withPoints===8,label:`Genau 8 Firmen bewertet (${cv.withPoints}/8)${cv.withPoints>8?' – zu viele!':''}`},
         {ok:!cv.nonZeroDup,label:'Keine doppelten Punktzahlen'},
-        {ok:!!(f.name&&f.plz&&f.ort&&f.email),label:'Alle Pflichtfelder ausgefüllt'},
-        {ok:!!(f.bms&&f.schultage&&f.ferien),label:'BMS / Schultage / Ferien ausgefüllt'},
-        {ok:!!f.selfie,label:'Selfie aufgenommen'},
-      ].map(v=>`<div class="validation-row ${v.ok?'ok':'ng'}">${v.ok?checkSvg(13):warnSvg(13)} ${v.label}</div>`).join('')}
+        {ok:!!(p.name&&p.plz&&p.ort&&p.email),label:'Alle Pflichtfelder ausgefüllt'},
+        {ok:!!(p.bms&&p.schultage&&p.ferien),label:'BMS / Schultage / Ferien ausgefüllt'},
+        {ok:!!p.selfie,label:'Verifizierungsfoto aufgenommen'},
+      ].map(vv=>`<div class="validation-row ${vv.ok?'ok':'ng'}">${vv.ok?checkSvg(13):warnSvg(13)} ${vv.label}</div>`).join('')}
     </div></div>
 
     <div class="card">
@@ -384,249 +526,248 @@ function renderForm(){
 
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
       <button class="btn btn-gray" onclick="hideUnrated()">${eyeOffSvg(15)} Nicht bewertete Firmen ausblenden</button>
-      <button class="btn btn-blue" onclick="doSort()">${sortSvg()} ${f.sortApplied?'✓ Nach Bewertung sortiert':'Nach Bewertung sortieren'}</button>
-
-      ${(()=>{
-        const pts=f.points, pts100=Object.values(pts).reduce((a,b)=>a+b,0)===100;
-        const wp=Object.values(pts).filter(v=>v>0).length===8;
-        const noDup=!Object.entries(pts).filter(([id,v])=>v>0&&!f.hidden.includes(Number(id))).reduce((dup,_,__,arr)=>{const vals=arr.map(([,v])=>v);return dup||vals.length!==new Set(vals).size;},false);
-        const provisional=pts100&&wp&&f.name;
-        return `<button class="btn btn-green" onclick="saveProvisional()" ${provisional?'':'disabled'} style="${provisional?'':'opacity:.4;cursor:not-allowed'}">
-          📸 Wunschliste provisorisch speichern
-        </button>`;
-      })()}
-
+      <button class="btn btn-blue" onclick="doSort()">${sortSvg()} ${v.sortApplied?'✓ Nach Bewertung sortiert':'Nach Bewertung sortieren'}</button>
+      <button class="btn btn-green" onclick="saveProvisionalVer()" ${provisional?'':'disabled'} style="${provisional?'':'opacity:.4;cursor:not-allowed'}">
+        📸 Wunschliste provisorisch speichern
+      </button>
       <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:12px 14px;display:flex;align-items:flex-start;gap:10px">
-        <input type="checkbox" id="datenschutz-cb" ${f.datenschutz?'checked':''} onchange="setFormField('datenschutz',this.checked)" style="margin-top:3px;width:18px;height:18px;flex-shrink:0;accent-color:#6366f1;cursor:pointer"/>
-        <label for="datenschutz-cb" style="font-size:12px;color:#374151;line-height:1.5;cursor:pointer">
+        <input type="checkbox" id="datenschutz-cb2" ${p.datenschutz?'checked':''} onchange="setPersonal('datenschutz',this.checked)" style="margin-top:3px;width:18px;height:18px;flex-shrink:0;accent-color:#6366f1;cursor:pointer"/>
+        <label for="datenschutz-cb2" style="font-size:12px;color:#374151;line-height:1.5;cursor:pointer">
           Hiermit stimme ich zu, dass meine Daten bis zur definitiven Zuteilung der Firmen gespeichert werden dürfen. Die Daten, insbesondere das Verifizierungsfoto werden vertraulich behandelt.
         </label>
       </div>
-
-      <button class="btn btn-primary" onclick="handleSubmit()" ${cv.valid?'':'disabled'} style="${cv.valid?'':'opacity:.5;cursor:not-allowed'}">
+      <button class="btn btn-primary" onclick="handleSubmitVer()" ${cv.valid?'':'disabled'} style="${cv.valid?'':'opacity:.5;cursor:not-allowed'}">
         ${cv.valid?'Wunschliste einreichen ✓':'Bitte alle Anforderungen erfüllen'}
       </button>
     </div>
   </div>
-
   <button onclick="showLogin()" style="position:fixed;bottom:20px;right:20px;z-index:40;background:#fff;border:1px solid #e5e7eb;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.15);cursor:pointer;color:#9ca3af">${lockSvg(18)}</button>
   ${state.showLoginModal?renderLoginModal():''}`;
-
-  if(state.selfieStreaming){const vid=document.getElementById('selfie-video');if(vid&&state.selfieStream){vid.srcObject=state.selfieStream;vid.play().catch(()=>{});}}
 }
 
-function renderSuccess(){
-  const f=state.form, cos=state.setup.companies;
-  const ranked=[...cos].filter(c=>f.points[c.id]>0).sort((a,b)=>f.points[b.id]-f.points[a.id]);
-  const total=Object.values(f.points).reduce((a,b)=>a+b,0);
-  const rankRows=ranked.map((c,i)=>`
-    <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f3f4f6">
-      <div style="width:24px;height:24px;border-radius:50%;background:#6366f1;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0">${i+1}</div>
-      <span style="flex:1;font-size:13px;font-weight:600;color:#1f2937">${c.name}</span>
-      <span style="font-size:14px;font-weight:800;color:#6366f1">${f.points[c.id]} Pts</span>
-    </div>`).join('');
-  document.getElementById('app').innerHTML=`
-  <div class="success-page">
-    <div class="success-card" id="success-snapshot" style="max-width:400px">
-      <div class="check-circle">${checkSvg(32)}</div>
-      <h2 style="font-size:20px;font-weight:800;color:#1f2937;margin-bottom:4px">Eingereicht!</h2>
-      <p style="color:#6b7280;font-size:13px;margin-bottom:16px">${f.name}</p>
-      <div style="text-align:left;margin-bottom:12px">${rankRows}</div>
-      <div style="background:#f9fafb;border-radius:8px;padding:8px 12px;margin-bottom:20px;display:flex;justify-content:space-between">
-        <span style="font-size:13px;font-weight:600;color:#6b7280">Total</span>
-        <span style="font-size:15px;font-weight:900;color:#6366f1">${total} / 100 Pts</span>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <button onclick="saveSnapshot()" class="btn btn-green" style="font-size:14px;padding:10px">
-          📸 Als Foto speichern
-        </button>
-        <button onclick="backToForm()" class="btn btn-outline" style="font-size:14px;padding:10px">
-          ← Zurück zur Wunschliste
-        </button>
-      </div>
+// ── Success Besuche ───────────────────────────────────────────────────────────
+function renderSuccessBes(){
+  const p=state.personal, cos=state.setup.companies;
+  const sel=state.besuche.selected;
+  const rows=sel.map((id,i)=>{const co=cos.find(c=>c.id===id);if(!co)return'';return`<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f3f4f6"><div style="width:24px;height:24px;border-radius:50%;background:#0d9488;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0">${i+1}</div><span style="flex:1;font-size:13px;font-weight:600;color:#1f2937">${co.name}</span></div>`;}).join('');
+  document.getElementById('app').innerHTML=`<div class="success-page"><div class="success-card" id="snap-bes" style="max-width:400px">
+    <div class="check-circle" style="background:#ccfbf1">${checkSvg(32)}</div>
+    <h2 style="font-size:20px;font-weight:800;color:#1f2937;margin-bottom:4px">Besuchswünsche eingereicht!</h2>
+    <p style="color:#6b7280;font-size:13px;margin-bottom:16px">${p.name}</p>
+    <div style="text-align:left;margin-bottom:20px">${rows}</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button onclick="saveSnapshotBes()" class="btn btn-teal" style="font-size:14px;padding:10px">📸 Als Foto speichern</button>
+      <button onclick="backToForm()" class="btn btn-outline" style="font-size:14px;padding:10px">← Zurück</button>
     </div>
-  </div>`;
+  </div></div>`;
 }
 
-window.saveSnapshot = async () => {
-  try {
-    const node = document.getElementById('success-snapshot');
-    if (!window.html2canvas) {
-      await new Promise((res,rej)=>{
-        const s=document.createElement('script');
-        s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-        s.onload=res; s.onerror=rej; document.head.appendChild(s);
-      });
-    }
-    const canvas = await html2canvas(node, {scale:2, useCORS:true, backgroundColor:'#fff'});
-    const filename = `wunschliste_${state.form.name.replace(/\s+/g,'_')}.png`;
+// ── Success Versetzung ────────────────────────────────────────────────────────
+function renderSuccessVer(){
+  const p=state.personal, cos=state.setup.companies;
+  const ranked=[...cos].filter(c=>state.versetzung.points[c.id]>0).sort((a,b)=>state.versetzung.points[b.id]-state.versetzung.points[a.id]);
+  const total=Object.values(state.versetzung.points).reduce((a,b)=>a+b,0);
+  const rows=ranked.map((c,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f3f4f6"><div style="width:24px;height:24px;border-radius:50%;background:#6366f1;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0">${i+1}</div><span style="flex:1;font-size:13px;font-weight:600;color:#1f2937">${c.name}</span><span style="font-size:14px;font-weight:800;color:#6366f1">${state.versetzung.points[c.id]} Pts</span></div>`).join('');
+  document.getElementById('app').innerHTML=`<div class="success-page"><div class="success-card" id="snap-ver" style="max-width:400px">
+    <div class="check-circle">${checkSvg(32)}</div>
+    <h2 style="font-size:20px;font-weight:800;color:#1f2937;margin-bottom:4px">Wunschliste eingereicht!</h2>
+    <p style="color:#6b7280;font-size:13px;margin-bottom:16px">${p.name}</p>
+    <div style="text-align:left;margin-bottom:12px">${rows}</div>
+    <div style="background:#f9fafb;border-radius:8px;padding:8px 12px;margin-bottom:20px;display:flex;justify-content:space-between">
+      <span style="font-size:13px;font-weight:600;color:#6b7280">Total</span>
+      <span style="font-size:15px;font-weight:900;color:#6366f1">${total} / 100 Pts</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button onclick="saveSnapshotVer()" class="btn btn-green" style="font-size:14px;padding:10px">📸 Als Foto speichern</button>
+      <button onclick="backToForm()" class="btn btn-outline" style="font-size:14px;padding:10px">← Zurück</button>
+    </div>
+  </div></div>`;
+}
 
-    // Versuche Web Share API (speichert direkt in Galerie auf iOS/Android)
-    if (navigator.canShare) {
-      canvas.toBlob(async (blob) => {
-        const file = new File([blob], filename, {type:'image/png'});
-        if (navigator.canShare({files:[file]})) {
-          try {
-            await navigator.share({files:[file], title:'Meine Wunschliste'});
-            return;
-          } catch(e) {
-            if (e.name === 'AbortError') return; // Nutzer hat abgebrochen
-          }
-        }
-        // Fallback: Download
-        const link=document.createElement('a'); link.download=filename;
-        link.href=URL.createObjectURL(blob); link.click();
-      }, 'image/png');
-    } else {
-      // Desktop: normaler Download
-      const link=document.createElement('a'); link.download=filename;
-      link.href=canvas.toDataURL('image/png'); link.click();
-    }
-  } catch(e) {
-    alert('Foto konnte nicht erstellt werden: '+e.message);
-  }
-};
-
+// ── Login Modal ───────────────────────────────────────────────────────────────
 function renderLoginModal(){
-  return`<div onclick="closeLogin(event)" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px"><div onclick="event.stopPropagation()" style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:300px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h3 style="font-weight:700;font-size:16px">Admin-Login</h3><button onclick="closeLoginModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#9ca3af">✕</button></div><input type="password" id="login-pw" placeholder="Passwort" oninput="setLoginPw(this.value)" onkeydown="if(event.key==='Enter')doLogin()" style="width:100%;padding:8px 12px;border:2px solid ${state.loginErr?'#ef4444':'#e5e7eb'};border-radius:8px;font-size:16px;outline:none;margin-bottom:${state.loginErr?'4px':'12px'}"/>${state.loginErr?`<p style="color:#ef4444;font-size:12px;margin-bottom:8px">Falsches Passwort</p>`:''}<button onclick="doLogin()" class="btn btn-primary" style="font-size:14px;padding:10px">Anmelden</button></div></div>`;
+  return`<div onclick="closeLogin(event)" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px"><div onclick="event.stopPropagation()" style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:300px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h3 style="font-weight:700;font-size:16px">Admin-Login</h3><button onclick="closeLoginModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#9ca3af">✕</button></div><input type="password" id="login-pw" placeholder="Passwort" oninput="setLoginPw(this.value)" onkeydown="if(event.key==='Enter')doLogin()" style="width:100%;padding:8px 12px;border:2px solid ${state.loginErr?'#ef4444':'#e5e7eb'};border-radius:8px;font-size:16px;outline:none;margin-bottom:${state.loginErr?'4px':'12px'}"/>${state.loginErr?'<p style="color:#ef4444;font-size:12px;margin-bottom:8px">Falsches Passwort</p>':''}<button onclick="doLogin()" class="btn btn-primary" style="font-size:14px;padding:10px">Anmelden</button></div></div>`;
 }
 
 // ── Admin ─────────────────────────────────────────────────────────────────────
 function renderAdmin(){
-  const subs=state.submissions, cos=state.setup.companies, stus=state.setup.students;
-  const total=stus.length>0?stus.length:40, pct=total>0?Math.min(100,Math.round(subs.length/total*100)):0;
+  const subs_b=state.subsBes, subs_v=state.subsVer, cos=state.setup.companies, stus=state.setup.students||[];
+  const s=state.setup;
   let content='';
-  if(state.adminTab==='data'){
-    let rows=subs.map((s,i)=>{const sum=Object.values(s.points||{}).reduce((a,b)=>a+b,0);return`<tr><td>${i+1}</td><td style="font-weight:600;white-space:nowrap">${s.name||''}</td><td>${s.bms||''}</td><td style="white-space:nowrap">${s.schultage||''}</td><td>${s.ferien||''}${s.ferienText?' ('+s.ferienText+')':''}</td><td style="color:#9ca3af;white-space:nowrap;font-size:11px">${s.timestamp||''}</td><td style="text-align:center">${s.selfie?`<a href="${s.selfie}" target="_blank"><img src="${s.selfie}" style="width:28px;height:28px;border-radius:50%;object-fit:cover"/></a>`:''}</td>${cos.map(c=>`<td style="text-align:center;font-weight:600;color:${(s.points&&s.points[c.id])>0?'#6366f1':'#d1d5db'}">${(s.points&&s.points[c.id])||'–'}</td>`).join('')}<td style="text-align:center;font-weight:700;color:#6366f1">${sum}</td><td><button onclick="delSub('${s._id}')" style="background:none;border:none;cursor:pointer;color:#d1d5db;padding:4px">${trashSvg(14)}</button></td></tr>`;}).join('');
-    let avgRow=cos.map(c=>{const avg=subs.length?subs.reduce((a,s)=>a+(s.points&&s.points[c.id]||0),0)/subs.length:0;return`<td style="text-align:center;font-weight:600;color:#6366f1">${avg.toFixed(1)}</td>`;}).join('');
-    content=`<div class="card"><div class="card-body"><p class="section-title">Fortschritt</p><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:14px;font-weight:700;color:#374151">Einreichungen</span><span style="font-size:14px;font-weight:700;color:#6366f1">${subs.length} / ${total} (${pct}%)</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div><div class="stats-grid"><div><div class="stat-num" style="color:#6366f1">${subs.length}</div><div class="stat-lbl">Eingereicht</div></div><div><div class="stat-num" style="color:#f97316">${Math.max(0,total-subs.length)}</div><div class="stat-lbl">Ausstehend</div></div><div><div class="stat-num" style="color:#16a34a">${pct}%</div><div class="stat-lbl">Quote</div></div></div></div></div><div class="card"><div class="card-body" style="padding:12px"><div style="display:flex;gap:8px;flex-wrap:wrap"><button onclick="exportCSV()" ${subs.length?'':'disabled'} class="btn btn-green btn-sm" style="${subs.length?'':'opacity:.5;cursor:not-allowed'}">${dlSvg()} CSV exportieren</button><button onclick="clearAll()" ${subs.length?'':'disabled'} class="btn btn-red btn-sm" style="${subs.length?'':'opacity:.5;cursor:not-allowed'}">Alle löschen</button></div></div></div>${subs.length>0?`<div class="card"><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Name</th><th>BMS</th><th>Schultage</th><th>Ferien</th><th>Zeit</th><th>📷</th>${cos.map(c=>`<th title="${c.name}" style="text-align:center">${c.id}</th>`).join('')}<th style="text-align:center">Σ</th><th></th></tr></thead><tbody>${rows}</tbody><tfoot style="background:#eff6ff"><tr><td colspan="7" style="font-weight:700;padding:7px 6px;color:#374151">⌀ Durchschnitt</td>${avgRow}<td></td><td></td></tr></tfoot></table></div><div style="padding:12px 16px;background:#f8fafc;border-top:1px solid #e5e7eb"><p style="font-size:11px;font-weight:700;color:#6b7280;margin-bottom:6px">Firmen-Legende</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px">${cos.map(c=>`<p style="font-size:11px;color:#6b7280"><span style="font-weight:700;color:#6366f1">${c.id}.</span> ${c.name}</p>`).join('')}</div></div></div>`:`<div class="card"><div class="card-body" style="text-align:center;color:#9ca3af;padding:40px">Noch keine Einreichungen vorhanden.</div></div>`}`;
-  } else {
-    const s=state.setup;
-    content=`<div class="card"><div class="card-body"><p class="section-title">Eingabefrist</p><label class="lbl">Umfrage offen bis (Datum & Uhrzeit)</label><input type="datetime-local" value="${s.deadline||''}" onchange="updateSetupDeadline(this.value)"/>${s.deadline?`<p style="font-size:12px;color:#ea580c;margin-top:4px">Schliesst: ${new Date(s.deadline).toLocaleString('de-DE')}</p>`:''}</div></div><div class="card"><div class="card-body"><p class="section-title">Lernende (${s.students.length})</p><p class="import-hint">Liste aus Excel kopieren – ein Name pro Zeile:</p><textarea id="stu-paste" class="mono" rows="5" placeholder="Max Muster&#10;Anna Mueller" style="margin-bottom:8px"></textarea><button onclick="importStudents()" class="btn btn-primary" style="font-size:13px;padding:8px;margin-bottom:12px">Liste importieren</button><div id="stu-msg" style="color:#16a34a;font-size:12px;font-weight:600;margin-bottom:4px;min-height:16px"></div><div style="max-height:160px;overflow-y:auto;border:1px solid #f3f4f6;border-radius:8px;padding:4px">${s.students.length?s.students.map((n,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px"><span style="font-size:13px;color:#374151">${i+1}. ${n}</span><button onclick="removeStudent('${n.replace(/'/g,"\\'")}') " style="background:none;border:none;cursor:pointer;color:#d1d5db;padding:2px">${trashSvg(12)}</button></div>`).join(''):'<p style="font-size:12px;color:#9ca3af;font-style:italic;padding:8px">Noch keine Lernenden.</p>'}</div></div></div><div class="card"><div class="card-body"><p class="section-title">Firmen (${s.companies.length})</p><p class="import-hint">Zwei Spalten aus Excel (Name TAB URL):</p><textarea id="co-paste" class="mono" rows="5" placeholder="ANDRITZ Soutec AG&#9;https://www.andritz.com" style="margin-bottom:8px"></textarea><button onclick="importCompanies()" class="btn btn-primary" style="font-size:13px;padding:8px;margin-bottom:12px">Firmen importieren</button><div id="co-msg" style="color:#16a34a;font-size:12px;font-weight:600;margin-bottom:6px;min-height:16px"></div><div style="max-height:280px;overflow-y:auto;border:1px solid #f3f4f6;border-radius:8px;padding:4px">${s.companies.map((co,i)=>`<div style="display:flex;gap:6px;align-items:center;padding:3px 4px"><span style="font-size:11px;color:#9ca3af;width:20px;text-align:right;flex-shrink:0">${i+1}.</span><input value="${co.name}" onchange="updateCompany(${i},'name',this.value)" style="flex:1;padding:4px 8px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;outline:none"/><input value="${co.url}" onchange="updateCompany(${i},'url',this.value)" style="flex:1;padding:4px 8px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;outline:none"/></div>`).join('')}</div></div></div><button onclick="saveSetup()" id="save-btn" class="btn btn-primary" style="font-size:14px;margin-bottom:16px">Einstellungen speichern</button>`;
+
+  if(state.adminTab==='besuche'){
+    const total=stus.length>0?stus.length:40;
+    const pct=Math.min(100,Math.round(subs_b.length/total*100));
+    const rows=subs_b.map((sub,i)=>`<tr><td>${i+1}</td><td style="font-weight:600;white-space:nowrap">${sub.name||''}</td><td style="color:#9ca3af;font-size:11px;white-space:nowrap">${sub.timestamp||''}</td>${cos.map(c=>`<td style="text-align:center">${(sub.selected||[]).includes(c.id)?'✓':''}</td>`).join('')}<td><button onclick="delSubBes('${sub._id}')" style="background:none;border:none;cursor:pointer;color:#d1d5db;padding:4px">${trashSvg(14)}</button></td></tr>`).join('');
+    content=`<div class="card"><div class="card-body"><p class="section-title">Fortschritt Besuche</p><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:14px;font-weight:700">Einreichungen</span><span style="font-size:14px;font-weight:700;color:#0d9488">${subs_b.length} / ${total} (${pct}%)</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%;background:#0d9488"></div></div></div></div>
+    <div class="card"><div class="card-body" style="padding:12px"><div style="display:flex;gap:8px;flex-wrap:wrap"><button onclick="exportCSVBes()" ${subs_b.length?'':'disabled'} class="btn btn-green btn-sm" style="${subs_b.length?'':'opacity:.5;cursor:not-allowed'}">${dlSvg()} CSV exportieren</button><button onclick="clearAllBes()" ${subs_b.length?'':'disabled'} class="btn btn-red btn-sm" style="${subs_b.length?'':'opacity:.5;cursor:not-allowed'}">Alle löschen</button></div></div></div>
+    ${subs_b.length>0?`<div class="card"><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Name</th><th>Zeit</th>${cos.map(c=>`<th title="${c.name}" style="text-align:center">${c.id}</th>`).join('')}<th></th></tr></thead><tbody>${rows}</tbody></table></div><div style="padding:12px 16px;background:#f8fafc;border-top:1px solid #e5e7eb"><p style="font-size:11px;font-weight:700;color:#6b7280;margin-bottom:6px">Firmen-Legende</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px">${cos.map(c=>`<p style="font-size:11px;color:#6b7280"><span style="font-weight:700;color:#0d9488">${c.id}.</span> ${c.name}</p>`).join('')}</div></div></div>`:`<div class="card"><div class="card-body" style="text-align:center;color:#9ca3af;padding:40px">Noch keine Einreichungen.</div></div>`}`;
+
+  } else if(state.adminTab==='versetzung'){
+    const total=stus.length>0?stus.length:40;
+    const pct=Math.min(100,Math.round(subs_v.length/total*100));
+    const rows=subs_v.map((sub,i)=>{const sm=Object.values(sub.points||{}).reduce((a,b)=>a+b,0);return`<tr><td>${i+1}</td><td style="font-weight:600;white-space:nowrap">${sub.name||''}</td><td style="color:#9ca3af;font-size:11px;white-space:nowrap">${sub.timestamp||''}</td>${cos.map(c=>`<td style="text-align:center;font-weight:600;color:${(sub.points&&sub.points[c.id])>0?'#6366f1':'#d1d5db'}">${(sub.points&&sub.points[c.id])||'–'}</td>`).join('')}<td style="text-align:center;font-weight:700;color:#6366f1">${sm}</td><td><button onclick="delSubVer('${sub._id}')" style="background:none;border:none;cursor:pointer;color:#d1d5db;padding:4px">${trashSvg(14)}</button></td></tr>`;}).join('');
+    const avgRow=cos.map(c=>{const avg=subs_v.length?subs_v.reduce((a,sub)=>a+(sub.points&&sub.points[c.id]||0),0)/subs_v.length:0;return`<td style="text-align:center;font-weight:600;color:#6366f1">${avg.toFixed(1)}</td>`;}).join('');
+    content=`<div class="card"><div class="card-body"><p class="section-title">Fortschritt Versetzung</p><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:14px;font-weight:700">Einreichungen</span><span style="font-size:14px;font-weight:700;color:#6366f1">${subs_v.length} / ${total} (${pct}%)</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div></div></div>
+    <div class="card"><div class="card-body" style="padding:12px"><div style="display:flex;gap:8px;flex-wrap:wrap"><button onclick="exportCSVVer()" ${subs_v.length?'':'disabled'} class="btn btn-green btn-sm" style="${subs_v.length?'':'opacity:.5;cursor:not-allowed'}">${dlSvg()} CSV exportieren</button><button onclick="clearAllVer()" ${subs_v.length?'':'disabled'} class="btn btn-red btn-sm" style="${subs_v.length?'':'opacity:.5;cursor:not-allowed'}">Alle löschen</button></div></div></div>
+    ${subs_v.length>0?`<div class="card"><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Name</th><th>Zeit</th>${cos.map(c=>`<th title="${c.name}" style="text-align:center">${c.id}</th>`).join('')}<th style="text-align:center">Σ</th><th></th></tr></thead><tbody>${rows}</tbody><tfoot style="background:#eff6ff"><tr><td colspan="3" style="font-weight:700;padding:7px 6px">⌀ Durchschnitt</td>${avgRow}<td></td><td></td></tr></tfoot></table></div><div style="padding:12px 16px;background:#f8fafc;border-top:1px solid #e5e7eb"><p style="font-size:11px;font-weight:700;color:#6b7280;margin-bottom:6px">Firmen-Legende</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px">${cos.map(c=>`<p style="font-size:11px;color:#6b7280"><span style="font-weight:700;color:#6366f1">${c.id}.</span> ${c.name}</p>`).join('')}</div></div></div>`:`<div class="card"><div class="card-body" style="text-align:center;color:#9ca3af;padding:40px">Noch keine Einreichungen.</div></div>`}`;
+
+  } else { // setup
+    content=`
+    <div class="card"><div class="card-body">
+      <p class="section-title">Fristen & Freischaltung</p>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div><label class="lbl">Besuche – Eingabe möglich bis</label><input type="datetime-local" value="${s.besDeadline||''}" onchange="state.setup.besDeadline=this.value"/></div>
+        <div><label class="lbl">Versetzung – Sichtbar ab (Freischaltdatum)</label><input type="datetime-local" value="${s.verFreischalt||''}" onchange="state.setup.verFreischalt=this.value"/></div>
+        <div><label class="lbl">Versetzung – Eingabe möglich bis</label><input type="datetime-local" value="${s.verDeadline||''}" onchange="state.setup.verDeadline=this.value"/></div>
+      </div>
+    </div></div>
+    <div class="card"><div class="card-body">
+      <p class="section-title">Lernende (${stus.length})</p>
+      <p class="import-hint">Liste aus Excel – ein Name pro Zeile:</p>
+      <textarea id="stu-paste" class="mono" rows="5" placeholder="Max Muster&#10;Anna Mueller" style="margin-bottom:8px"></textarea>
+      <button onclick="importStudents()" class="btn btn-primary" style="font-size:13px;padding:8px;margin-bottom:12px">Liste importieren</button>
+      <div id="stu-msg" style="color:#16a34a;font-size:12px;font-weight:600;margin-bottom:4px;min-height:16px"></div>
+      <div style="max-height:160px;overflow-y:auto;border:1px solid #f3f4f6;border-radius:8px;padding:4px">${stus.length?stus.map((n,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px"><span style="font-size:13px;color:#374151">${i+1}. ${n}</span><button onclick="removeStudent('${n.replace(/'/g,"\\'")}') " style="background:none;border:none;cursor:pointer;color:#d1d5db;padding:2px">${trashSvg(12)}</button></div>`).join(''):'<p style="font-size:12px;color:#9ca3af;font-style:italic;padding:8px">Noch keine Lernenden.</p>'}</div>
+    </div></div>
+    <div class="card"><div class="card-body">
+      <p class="section-title">Firmen (${cos.length})</p>
+      <p class="import-hint">Zwei Spalten aus Excel (Name TAB URL):</p>
+      <textarea id="co-paste" class="mono" rows="5" placeholder="ANDRITZ Soutec AG&#9;https://www.andritz.com" style="margin-bottom:8px"></textarea>
+      <button onclick="importCompanies()" class="btn btn-primary" style="font-size:13px;padding:8px;margin-bottom:12px">Firmen importieren</button>
+      <div id="co-msg" style="color:#16a34a;font-size:12px;font-weight:600;margin-bottom:6px;min-height:16px"></div>
+      <div style="max-height:280px;overflow-y:auto;border:1px solid #f3f4f6;border-radius:8px;padding:4px">${cos.map((co,i)=>`<div style="display:flex;gap:6px;align-items:center;padding:3px 4px"><span style="font-size:11px;color:#9ca3af;width:20px;text-align:right;flex-shrink:0">${i+1}.</span><input value="${co.name}" onchange="updateCompany(${i},'name',this.value)" style="flex:1;padding:4px 8px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;outline:none"/><input value="${co.url}" onchange="updateCompany(${i},'url',this.value)" style="flex:1;padding:4px 8px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;outline:none"/></div>`).join('')}</div>
+    </div></div>
+    <button onclick="saveSetup()" id="save-btn" class="btn btn-primary" style="font-size:14px;margin-bottom:16px">Einstellungen speichern</button>`;
   }
-  document.getElementById('app').innerHTML=`<div style="min-height:100vh;background:linear-gradient(135deg,#f5f3ff,#eff6ff);padding:16px"><div style="max-width:900px;margin:0 auto"><div class="card"><div class="card-body" style="display:flex;justify-content:space-between;align-items:center"><div><h1 style="font-size:18px;font-weight:800;color:#1f2937">Admin-Bereich</h1><p style="font-size:12px;color:#9ca3af">Wunschliste Versetzungsfirmen</p></div><button onclick="logout()" class="btn btn-red btn-sm">Abmelden</button></div></div><div class="admin-tabs"><button onclick="setAdminTab('data')" class="tab-btn ${state.adminTab==='data'?'active':'inactive'}">📊 Daten</button><button onclick="setAdminTab('setup')" class="tab-btn ${state.adminTab==='setup'?'active':'inactive'}">⚙️ Einstellungen</button></div>${content}</div></div>`;
+
+  document.getElementById('app').innerHTML=`<div style="min-height:100vh;background:linear-gradient(135deg,#f5f3ff,#eff6ff);padding:16px"><div style="max-width:900px;margin:0 auto">
+    <div class="card"><div class="card-body" style="display:flex;justify-content:space-between;align-items:center"><div><h1 style="font-size:18px;font-weight:800;color:#1f2937">Admin-Bereich</h1><p style="font-size:12px;color:#9ca3af">Wunschliste Versetzungsfirmen</p></div><button onclick="logout()" class="btn btn-red btn-sm">Abmelden</button></div></div>
+    <div class="admin-tabs">
+      <button onclick="setAdminTab('besuche')" class="tab-btn ${state.adminTab==='besuche'?'active':'inactive'}">🏭 Besuche</button>
+      <button onclick="setAdminTab('versetzung')" class="tab-btn ${state.adminTab==='versetzung'?'active':'inactive'}">📊 Versetzung</button>
+      <button onclick="setAdminTab('setup')" class="tab-btn ${state.adminTab==='setup'?'active':'inactive'}">⚙️ Einstellungen</button>
+    </div>
+    ${content}
+  </div></div>`;
 }
 
 // ── Actions ───────────────────────────────────────────────────────────────────
+window.setFormTab = (t) => { state.formTab=t; render(); };
+window.showVerLocked = () => {
+  const fs=state.setup.verFreischalt;
+  alert(fs?`Die Wunschliste Versetzung wird ab ${new Date(fs).toLocaleString('de-DE')} freigeschaltet.`:'Der Bereich Versetzung ist noch nicht freigeschaltet.');
+};
 
-// Texteingaben: nur state aktualisieren, KEIN Re-Render (Tastatur bleibt offen)
-window.liveField = (k,v) => { state.form[k]=v; };
-// Bei Fokusverlust einmal rendern für Validierung
-window.commitField = () => { render(); };
-// Radio/Select: sofort rendern
-window.setFormField = (k,v) => { state.form[k]=v; render(); };
+// Persönliche Angaben
+window.livePersonal = (k,v) => { state.personal[k]=v; };
+window.commitPersonal = () => { render(); };
+window.setPersonal = (k,v) => { state.personal[k]=v; render(); };
 
-// Slider
+// Besuche
+window.toggleBesuche = (id, checked) => {
+  if(checked){ if(state.besuche.selected.length<8)state.besuche.selected.push(id); }
+  else { state.besuche.selected=state.besuche.selected.filter(x=>x!==id); }
+  render();
+};
+
+// Versetzung Slider/Stepper
 window.setPointSlider = (id,v) => { applyPointUpdate(id, Math.max(0,Math.min(50,parseInt(v)||0))); };
 window.setPointDirect = (id,v) => { applyPointUpdate(id, Math.max(0,Math.min(50,parseInt(v)||0))); };
-// +/- Buttons: ebenfalls applyPointUpdate → sofortige Banner/Duplikat-Aktualisierung
-window.stepPoint = (id,delta) => { applyPointUpdate(id, Math.max(0,Math.min(50,(state.form.points[id]||0)+delta))); };
-
-// Firma ausblenden: State erst vollständig aktualisieren, dann rendern → kein falsches Rot
-window.hideCompanyNow = (id) => {
-  state.form.points[id]=0;
-  state.form.hidden=[...state.form.hidden,id];
-  state.form.orderedIds=state.form.orderedIds.filter(x=>x!==id);
-  render();
-};
-window.showCompany = (id) => { state.form.hidden=state.form.hidden.filter(x=>x!==id); state.form.orderedIds.push(id); render(); };
-window.hideUnrated = () => {
-  const toHide=state.form.orderedIds.filter(id=>(state.form.points[id]||0)===0);
-  toHide.forEach(id=>{state.form.hidden.push(id);});
-  state.form.orderedIds=state.form.orderedIds.filter(id=>(state.form.points[id]||0)>0);
-  render();
-};
+window.stepPoint = (id,delta) => { applyPointUpdate(id, Math.max(0,Math.min(50,(state.versetzung.points[id]||0)+delta))); };
+window.hideCompanyNow = (id) => { state.versetzung.points[id]=0; state.versetzung.hidden=[...state.versetzung.hidden,id]; state.versetzung.orderedIds=state.versetzung.orderedIds.filter(x=>x!==id); render(); };
+window.showCompany = (id) => { state.versetzung.hidden=state.versetzung.hidden.filter(x=>x!==id); state.versetzung.orderedIds.push(id); render(); };
+window.hideUnrated = () => { const toHide=state.versetzung.orderedIds.filter(id=>(state.versetzung.points[id]||0)===0); toHide.forEach(id=>{state.versetzung.hidden.push(id);}); state.versetzung.orderedIds=state.versetzung.orderedIds.filter(id=>(state.versetzung.points[id]||0)>0); render(); };
 window.toggleHiddenDrawer = () => { state.showHidden=!state.showHidden; render(); };
-window.doSort = () => {
-  state.form.orderedIds.sort((a,b)=>{const pa=state.form.points[a]||0,pb=state.form.points[b]||0;if(pa===0&&pb===0)return a-b;if(pa===0)return 1;if(pb===0)return -1;return pb-pa;});
-  state.form.sortApplied=true; render();
+window.doSort = () => { state.versetzung.orderedIds.sort((a,b)=>{const pa=state.versetzung.points[a]||0,pb=state.versetzung.points[b]||0;if(pa===0&&pb===0)return a-b;if(pa===0)return 1;if(pb===0)return -1;return pb-pa;}); state.versetzung.sortApplied=true; render(); };
+
+// Einreichung Besuche
+window.handleSubmitBes = async () => {
+  const cv=computedBes(); if(!cv.valid)return;
+  const p=state.personal;
+  const sub={name:p.name,plz:p.plz,ort:p.ort,email:p.email,bms:p.bms,schultage:p.schultage,ferien:p.ferien,ferienText:p.ferien==='Ja'?p.ferienText:'',selfie:p.selfie,timestamp:new Date().toLocaleString('de-DE'),selected:[...state.besuche.selected]};
+  await FB.saveBes(sub);
+  state.view='success_bes'; render();
 };
 
-window.handleSubmit = async () => {
-  const cv=computed(); if(!cv.valid)return;
-  const f=state.form;
-  const sub={name:f.name,plz:f.plz,ort:f.ort,email:f.email,bms:f.bms,schultage:f.schultage,ferien:f.ferien,ferienText:f.ferien==='Ja'?f.ferienText:'',selfie:f.selfie,timestamp:new Date().toLocaleString('de-DE'),points:{...f.points}};
-  await FB.save(sub);
-  // E-Mail-Versand deaktiviert
-  state.view='success'; render();
+// Einreichung Versetzung (Überschreiben möglich)
+window.handleSubmitVer = async () => {
+  const cv=computedVer(); if(!cv.valid)return;
+  const p=state.personal;
+  const sub={name:p.name,plz:p.plz,ort:p.ort,email:p.email,bms:p.bms,schultage:p.schultage,ferien:p.ferien,ferienText:p.ferien==='Ja'?p.ferienText:'',selfie:p.selfie,timestamp:new Date().toLocaleString('de-DE'),points:{...state.versetzung.points}};
+  await FB.saveVer(sub); // setDoc mit gleicher ID überschreibt automatisch
+  state.view='success_ver'; render();
 };
+
 window.backToForm = () => { state.view='form'; render(); };
 
-// Provisorisches Speichern der Wunschliste als Bild
-window.saveProvisional = async () => {
-  try {
-    const f=state.form, cos=state.setup.companies;
-    const pts=f.points, total=Object.values(pts).reduce((a,b)=>a+b,0);
+// Snapshot Helper
+async function loadHtml2Canvas(){if(!window.html2canvas){await new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s.onload=res;s.onerror=rej;document.head.appendChild(s);});}}
+async function shareOrDownload(canvas,filename){
+  if(navigator.canShare){canvas.toBlob(async(blob)=>{const file=new File([blob],filename,{type:'image/png'});if(navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:'Meine Liste'});return;}catch(e){if(e.name==='AbortError')return;}}const link=document.createElement('a');link.download=filename;link.href=URL.createObjectURL(blob);link.click();},'image/png');}
+  else{const link=document.createElement('a');link.download=filename;link.href=canvas.toDataURL('image/png');link.click();}
+}
+
+window.saveSnapshotBes = async () => { try{await loadHtml2Canvas();const canvas=await html2canvas(document.getElementById('snap-bes'),{scale:2,useCORS:true,backgroundColor:'#fff'});await shareOrDownload(canvas,`besuchswuensche_${state.personal.name.replace(/\s+/g,'_')}.png`);}catch(e){alert('Fehler: '+e.message);} };
+window.saveSnapshotVer = async () => { try{await loadHtml2Canvas();const canvas=await html2canvas(document.getElementById('snap-ver'),{scale:2,useCORS:true,backgroundColor:'#fff'});await shareOrDownload(canvas,`wunschliste_${state.personal.name.replace(/\s+/g,'_')}.png`);}catch(e){alert('Fehler: '+e.message);} };
+
+async function buildProvisionalCard(title,rows,footer,color){
+  const wrap=document.createElement('div');
+  wrap.style.cssText='position:fixed;left:-9999px;top:0;background:#fff;border-radius:16px;padding:24px;width:340px;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';
+  wrap.innerHTML=`<div style="text-align:center;margin-bottom:16px"><div style="width:48px;height:48px;background:#ede9fe;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:24px">📋</div><h2 style="font-size:17px;font-weight:800;color:#1f2937;margin-bottom:2px">${title}</h2><p style="font-size:12px;color:#6b7280">${state.personal.name} · Provisorisch</p></div>${rows}${footer}<p style="font-size:10px;color:#9ca3af;text-align:center;margin-top:10px">Provisorisch · Noch nicht eingereicht</p>`;
+  document.body.appendChild(wrap);
+  await loadHtml2Canvas();
+  const canvas=await html2canvas(wrap,{scale:2,useCORS:true,backgroundColor:'#fff'});
+  document.body.removeChild(wrap);
+  return canvas;
+}
+
+window.saveProvisionalBes = async () => {
+  try{
+    const cos=state.setup.companies, sel=state.besuche.selected;
+    const rows=sel.map((id,i)=>{const co=cos.find(c=>c.id===id);if(!co)return'';return`<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f3f4f6"><div style="width:24px;height:24px;border-radius:50%;background:#0d9488;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0">${i+1}</div><span style="flex:1;font-size:13px;font-weight:600;color:#1f2937">${co.name}</span></div>`;}).join('');
+    const canvas=await buildProvisionalCard('Meine Besuchswünsche',rows,'','#0d9488');
+    await shareOrDownload(canvas,`besuchswuensche_provisorisch_${state.personal.name.replace(/\s+/g,'_')}.png`);
+  }catch(e){alert('Fehler: '+e.message);}
+};
+window.saveProvisionalVer = async () => {
+  try{
+    const cos=state.setup.companies, pts=state.versetzung.points;
     const ranked=[...cos].filter(c=>pts[c.id]>0).sort((a,b)=>pts[b.id]-pts[a.id]);
-    // Temporäre Karte erstellen
-    const wrap=document.createElement('div');
-    wrap.style.cssText='position:fixed;left:-9999px;top:0;background:#fff;border-radius:16px;padding:24px;width:340px;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;box-shadow:0 4px 24px rgba(0,0,0,.1)';
-    wrap.innerHTML=`
-      <div style="text-align:center;margin-bottom:16px">
-        <div style="width:48px;height:48px;background:#ede9fe;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:24px">📋</div>
-        <h2 style="font-size:17px;font-weight:800;color:#1f2937;margin-bottom:2px">Meine Wunschliste</h2>
-        <p style="font-size:12px;color:#6b7280">${f.name} · Provisorisch</p>
-      </div>
-      ${ranked.map((c,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f3f4f6">
-        <div style="width:24px;height:24px;border-radius:50%;background:#6366f1;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0">${i+1}</div>
-        <span style="flex:1;font-size:13px;font-weight:600;color:#1f2937">${c.name}</span>
-        <span style="font-size:14px;font-weight:800;color:#6366f1">${pts[c.id]} Pts</span>
-      </div>`).join('')}
-      <div style="background:#f9fafb;border-radius:8px;padding:8px 12px;margin-top:10px;display:flex;justify-content:space-between">
-        <span style="font-size:13px;font-weight:600;color:#6b7280">Total</span>
-        <span style="font-size:15px;font-weight:900;color:#6366f1">${total} / 100 Pts</span>
-      </div>
-      <p style="font-size:10px;color:#9ca3af;text-align:center;margin-top:10px">Provisorisch · Noch nicht eingereicht</p>`;
-    document.body.appendChild(wrap);
-    if(!window.html2canvas){
-      await new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s.onload=res;s.onerror=rej;document.head.appendChild(s);});
-    }
-    const canvas=await html2canvas(wrap,{scale:2,useCORS:true,backgroundColor:'#fff'});
-    document.body.removeChild(wrap);
-    const filename=`wunschliste_provisorisch_${f.name.replace(/\s+/g,'_')}.png`;
-    if(navigator.canShare){
-      canvas.toBlob(async(blob)=>{
-        const file=new File([blob],filename,{type:'image/png'});
-        if(navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:'Meine Wunschliste (provisorisch)'});return;}catch(e){if(e.name==='AbortError')return;}}
-        const link=document.createElement('a');link.download=filename;link.href=URL.createObjectURL(blob);link.click();
-      },'image/png');
-    } else {
-      const link=document.createElement('a');link.download=filename;link.href=canvas.toDataURL('image/png');link.click();
-    }
-  } catch(e){alert('Fehler: '+e.message);}
+    const total=Object.values(pts).reduce((a,b)=>a+b,0);
+    const rows=ranked.map((c,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f3f4f6"><div style="width:24px;height:24px;border-radius:50%;background:#6366f1;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0">${i+1}</div><span style="flex:1;font-size:13px;font-weight:600;color:#1f2937">${c.name}</span><span style="font-size:14px;font-weight:800;color:#6366f1">${pts[c.id]} Pts</span></div>`).join('');
+    const footer=`<div style="background:#f9fafb;border-radius:8px;padding:8px 12px;margin-top:10px;display:flex;justify-content:space-between"><span style="font-size:13px;font-weight:600;color:#6b7280">Total</span><span style="font-size:15px;font-weight:900;color:#6366f1">${total} / 100 Pts</span></div>`;
+    const canvas=await buildProvisionalCard('Meine Wunschliste',rows,footer,'#6366f1');
+    await shareOrDownload(canvas,`wunschliste_provisorisch_${state.personal.name.replace(/\s+/g,'_')}.png`);
+  }catch(e){alert('Fehler: '+e.message);}
 };
 
-// Selfie – immer Frontkamera
+// Kamera
 window.startCamera = async () => {
   state.selfieReady=false; state.selfieStreaming=true; render();
-  try {
-    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:640},height:{ideal:640}},audio:false});
-    state.selfieStream=stream;
-    const vid=document.getElementById('selfie-video');
-    if(vid){vid.srcObject=stream;vid.muted=true;vid.onloadedmetadata=()=>{vid.play().then(()=>{const t=setInterval(()=>{if(vid.readyState>=2&&vid.videoWidth>0){state.selfieReady=true;clearInterval(t);render();}},200);});};}
-  } catch(e){state.selfieStreaming=false;alert('Kamera: '+e.message);render();}
+  try{const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:640},height:{ideal:640}},audio:false});state.selfieStream=stream;const vid=document.getElementById('selfie-video');if(vid){vid.srcObject=stream;vid.muted=true;vid.onloadedmetadata=()=>{vid.play().then(()=>{const t=setInterval(()=>{if(vid.readyState>=2&&vid.videoWidth>0){state.selfieReady=true;clearInterval(t);render();}},200);});};}}
+  catch(e){state.selfieStreaming=false;alert('Kamera: '+e.message);render();}
 };
 window.captureSelfie = () => {
   const vid=document.getElementById('selfie-video');
   const sz=Math.min(vid.videoWidth,vid.videoHeight);
-  const canvas=document.createElement('canvas'); canvas.width=sz; canvas.height=sz;
+  const canvas=document.createElement('canvas');canvas.width=sz;canvas.height=sz;
   canvas.getContext('2d').drawImage(vid,(vid.videoWidth-sz)/2,(vid.videoHeight-sz)/2,sz,sz,0,0,sz,sz);
-  state.form.selfie=canvas.toDataURL('image/jpeg',.8);
+  state.personal.selfie=canvas.toDataURL('image/jpeg',.8);
   stopCamera(); render();
 };
 window.stopCamera = () => { if(state.selfieStream){state.selfieStream.getTracks().forEach(t=>t.stop());state.selfieStream=null;} state.selfieStreaming=false; state.selfieReady=false; };
-window.resetSelfie = () => { state.form.selfie=''; startCamera(); };
+window.resetSelfie = () => { state.personal.selfie=''; startCamera(); };
 
 // Login
 window.showLogin=()=>{state.showLoginModal=true;state.loginPw='';state.loginErr=false;render();};
 window.closeLoginModal=()=>{state.showLoginModal=false;render();};
 window.closeLogin=(e)=>{if(e.target===e.currentTarget){state.showLoginModal=false;render();}};
 window.setLoginPw=(v)=>{state.loginPw=v;};
-window.doLogin= async ()=>{
+window.doLogin=async()=>{
   const inp=document.getElementById('login-pw');
   const pw=inp?inp.value:state.loginPw;
-  // SHA-256 Hash des eingegebenen Passworts berechnen
-  const buf=await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(pw));
   const hash=Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
   if(hash===ADMIN_PW_HASH){state.view='admin';state.showLoginModal=false;render();}
   else{state.loginErr=true;render();setTimeout(()=>{state.loginErr=false;render();},2000);}
@@ -634,29 +775,50 @@ window.doLogin= async ()=>{
 window.logout=()=>{state.view='form';render();};
 window.setAdminTab=(t)=>{state.adminTab=t;render();};
 
-// Admin
-window.delSub=async(id)=>{if(window.confirm('Eintrag löschen?'))await FB.del(id);};
-window.clearAll=async()=>{if(window.confirm('Wirklich alle Daten löschen?'))await FB.delAll();};
-window.exportCSV=()=>{
-  const subs=state.submissions,cos=state.setup.companies; if(!subs.length)return;
-  const hdrs=['Name','PLZ','Ort','BMS','Schultage','Ferien','Ferienzeit','E-Mail','Zeit',...cos.map(c=>c.name),'Summe'];
-  const rows=subs.map(s=>[s.name,s.plz,s.ort,s.bms,s.schultage,s.ferien,s.ferienText,s.email,s.timestamp,...cos.map(c=>s.points&&s.points[c.id]||0),Object.values(s.points||{}).reduce((a,b)=>a+b,0)]);
+// Admin Actions
+window.delSubBes=async(id)=>{if(window.confirm('Eintrag löschen?'))await FB.delBes(id);};
+window.delSubVer=async(id)=>{if(window.confirm('Eintrag löschen?'))await FB.delVer(id);};
+window.clearAllBes=async()=>{if(window.confirm('Alle Besuche-Daten löschen?'))await FB.delAllBes();};
+window.clearAllVer=async()=>{if(window.confirm('Alle Versetzungs-Daten löschen?'))await FB.delAllVer();};
+
+window.exportCSVBes=()=>{
+  const subs=state.subsBes,cos=state.setup.companies;if(!subs.length)return;
+  const hdrs=['Name','PLZ','Ort','BMS','Schultage','Ferien','E-Mail','Zeit',...cos.map(c=>c.name)];
+  const rows=subs.map(s=>[s.name,s.plz,s.ort,s.bms,s.schultage,s.ferien,s.email,s.timestamp,...cos.map(c=>(s.selected||[]).includes(c.id)?'✓':'')]);
   const csv=[hdrs.join(';'),...rows.map(r=>r.join(';'))].join('\n');
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}));a.download=`wunschliste_${new Date().toISOString().split('T')[0]}.csv`;a.click();
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}));a.download=`besuche_${new Date().toISOString().split('T')[0]}.csv`;a.click();
 };
-window.updateSetupDeadline=(v)=>{state.setup.deadline=v;};
+window.exportCSVVer=()=>{
+  const subs=state.subsVer,cos=state.setup.companies;if(!subs.length)return;
+  const hdrs=['Name','PLZ','Ort','BMS','Schultage','Ferien','E-Mail','Zeit',...cos.map(c=>c.name),'Summe'];
+  const rows=subs.map(s=>[s.name,s.plz,s.ort,s.bms,s.schultage,s.ferien,s.email,s.timestamp,...cos.map(c=>s.points&&s.points[c.id]||0),Object.values(s.points||{}).reduce((a,b)=>a+b,0)]);
+  const csv=[hdrs.join(';'),...rows.map(r=>r.join(';'))].join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}));a.download=`versetzung_${new Date().toISOString().split('T')[0]}.csv`;a.click();
+};
+
 window.importStudents=()=>{const ta=document.getElementById('stu-paste');if(!ta)return;const lines=ta.value.split(/\n/).map(l=>l.trim()).filter(Boolean);state.setup.students=[...new Set(lines)].sort();ta.value='';const msg=document.getElementById('stu-msg');if(msg){msg.textContent=`✓ ${state.setup.students.length} Lernende importiert`;setTimeout(()=>{if(msg)msg.textContent='';},3000);}render();};
 window.removeStudent=(n)=>{state.setup.students=state.setup.students.filter(x=>x!==n);render();};
 window.importCompanies=()=>{const ta=document.getElementById('co-paste');if(!ta)return;const lines=ta.value.split(/\n/).map(l=>l.trim()).filter(Boolean);state.setup.companies=lines.map((line,i)=>{const p=line.split(/\t/);return{id:i+1,name:p[0]||'',url:p[1]||''};});ta.value='';const msg=document.getElementById('co-msg');if(msg){msg.textContent=`✓ ${state.setup.companies.length} Firmen importiert`;setTimeout(()=>{if(msg)msg.textContent='';},3000);}render();};
 window.updateCompany=(i,field,val)=>{state.setup.companies[i][field]=val;};
-window.saveSetup=async()=>{const btn=document.getElementById('save-btn');if(btn){btn.textContent='Speichern…';btn.disabled=true;}await FB.saveSetup(state.setup);if(btn){btn.textContent='✓ Gespeichert!';btn.style.background='#16a34a';setTimeout(()=>{if(btn){btn.textContent='Einstellungen speichern';btn.style.background='';btn.disabled=false;}},2000);}};
+window.saveSetup=async()=>{
+  const btn=document.getElementById('save-btn');if(btn){btn.textContent='Speichern…';btn.disabled=true;}
+  await FB.saveSetup(state.setup);
+  if(btn){btn.textContent='✓ Gespeichert!';btn.style.background='#16a34a';setTimeout(()=>{if(btn){btn.textContent='Einstellungen speichern';btn.style.background='';btn.disabled=false;}},2000);}
+};
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 async function init(){
   const cfg=await FB.loadSetup();
-  if(cfg){state.setup=cfg;state.form.points=emptyPoints(cfg.companies);state.form.orderedIds=cfg.companies.map(c=>c.id);}
-  else{state.form.points=emptyPoints(DEFAULT_COMPANIES);}
-  FB.subscribe(subs=>{state.submissions=subs;state.loading=false;render();});
+  if(cfg){
+    state.setup={...DEFAULT_SETUP,...cfg};
+    state.versetzung.points=emptyPoints(cfg.companies||DEFAULT_COMPANIES);
+    state.versetzung.orderedIds=(cfg.companies||DEFAULT_COMPANIES).map(c=>c.id);
+  } else {
+    state.versetzung.points=emptyPoints(DEFAULT_COMPANIES);
+  }
+  // Beide Collections parallel abhören
+  FB.subscribeBes(subs=>{state.subsBes=subs;state.loading=false;render();});
+  FB.subscribeVer(subs=>{state.subsVer=subs;state.loading=false;render();});
 }
 init();
 </script>
