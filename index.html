@@ -237,7 +237,7 @@ function verDeadlinePassed() {
 // ── Computed Versetzung ───────────────────────────────────────────────────────
 function computedVer() {
   const v=state.versetzung, pts=v.points, p=state.personal;
-  const total=Object.values(pts).reduce((a,b)=>a+b,0);
+  const total=Object.values(pts).reduce((a,b)=>a+Number(b||0),0);
   const withPoints=Object.values(pts).filter(v=>v>0).length;
   const nonZeroDup=()=>{const vals=Object.entries(pts).filter(([id,vv])=>vv>0&&!v.hidden.includes(Number(id))).map(([,vv])=>vv);return vals.length!==new Set(vals).size;};
   const rankMap={};
@@ -290,7 +290,7 @@ function applyPointUpdate(id,n){
 
 function updateVerBannerFast(){
   const pts=state.versetzung.points, hidden=state.versetzung.hidden;
-  const total=Object.values(pts).reduce((a,b)=>a+b,0);
+  const total=Object.values(pts).reduce((a,b)=>a+Number(b||0),0);
   const withPoints=Object.values(pts).filter(v=>v>0).length;
   const vals=Object.entries(pts).filter(([id,v])=>v>0&&!hidden.includes(Number(id))).map(([,v])=>v);
   const nonZeroDup=vals.length!==new Set(vals).size;
