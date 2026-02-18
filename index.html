@@ -7,7 +7,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f3f4f6;min-height:100vh}
-.sticky-bar{position:sticky;top:0;z-index:50;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.2);transition:background .3s}
+.sticky-bar{position:sticky;top:0;z-index:50;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.2);transition:background .3s;padding:8px 16px}
 .sticky-bar.ok{background:#16a34a}.sticky-bar.over{background:#dc2626}.sticky-bar.pending{background:#1e293b}
 .sticky-top{display:flex;flex-direction:column;align-items:center;padding:8px 16px 2px}
 .pts-num{font-size:3rem;font-weight:900;line-height:1}
@@ -303,8 +303,8 @@ function updateVerBannerFast(){
   if(pills.length>=3){
     const setP=(el,ok,label)=>{el.className='pill '+(ok?'ok':'ng');const icon=ok?`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>`:`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;el.innerHTML=icon+' '+label;};
     setP(pills[0],withPoints===8,`${withPoints}/8 Firmen`);
-    setP(pills[1],!nonZeroDup,'Keine Duplikate');
-    setP(pills[2],angaben,'Angaben vollständig');
+    setP(pills[1],!nonZeroDup,!nonZeroDup?'Keine Duplikate':'Duplikate!');
+    setP(pills[2],angaben,angaben?'Angaben vollständig':'Angaben unvollständig');
   }
   const rankMap={};
   Object.entries(pts).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,8).forEach(([id],i)=>{rankMap[Number(id)]=i+1;});
@@ -406,12 +406,12 @@ function renderFormBesuche(appEl, p, cv, tabsHtml){
   const provisional=cv.count===8&&p.name;
 
   appEl.innerHTML=`
-  <div style="background:${cv.count===8?'#16a34a':'#1e293b'};position:sticky;top:0;z-index:50;color:#fff;padding:8px 16px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.2)">
+  <div style="background:${cv.count===8?'#16a34a':'#1e293b'};position:sticky;top:0;z-index:50;color:#fff;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.2)">
     <div style="font-size:2.8rem;font-weight:900;line-height:1">${cv.count}/8</div>
     <div style="font-size:11px;font-weight:600;opacity:.8;text-transform:uppercase;letter-spacing:.05em;margin-top:2px">Firmen ausgewählt</div>
     <div style="display:flex;gap:6px;justify-content:center;padding:4px 0 8px;flex-wrap:wrap">
       <div class="pill ${cv.count===8?'ok':'ng'}">${cv.count===8?checkSvg(10):warnSvg(10)} ${cv.count}/8 Firmen</div>
-      <div class="pill ${cv.angaben?'ok':'ng'}">${cv.angaben?checkSvg(10):warnSvg(10)} Angaben vollständig</div>
+      <div class="pill ${cv.angaben?'ok':'ng'}">${cv.angaben?checkSvg(10):warnSvg(10)} ${cv.angaben?'Angaben vollständig':'Angaben unvollständig'}</div>
     </div>
   </div>
   ${tabsHtml}
@@ -504,8 +504,8 @@ function renderFormVersetzung(appEl, p, tabsHtml){
     </div>
     <div class="pills">
       <div class="pill ${cv.withPoints===8?'ok':'ng'}">${cv.withPoints===8?checkSvg(10):warnSvg(10)} ${cv.withPoints}/8 Firmen</div>
-      <div class="pill ${!cv.nonZeroDup?'ok':'ng'}">${!cv.nonZeroDup?checkSvg(10):warnSvg(10)} Keine Duplikate</div>
-      <div class="pill ${cv.angaben?'ok':'ng'}">${cv.angaben?checkSvg(10):warnSvg(10)} Angaben vollständig</div>
+      <div class="pill ${!cv.nonZeroDup?'ok':'ng'}">${!cv.nonZeroDup?checkSvg(10):warnSvg(10)} ${!cv.nonZeroDup?'Keine Duplikate':'Duplikate!'}</div>
+      <div class="pill ${cv.angaben?'ok':'ng'}">${cv.angaben?checkSvg(10):warnSvg(10)} ${cv.angaben?'Angaben vollständig':'Angaben unvollständig'}</div>
     </div>
   </div>
   ${tabsHtml}
@@ -662,22 +662,22 @@ function renderAdmin(){
     <div class="card"><div class="card-body">
       <p class="section-title">Wünsche Besuche – Sichtbarkeit</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div><label class="lbl">Sichtbar ab</label><input type="datetime-local" id="cfg-besVon" value="${s.besVon||''}"/></div>
-        <div><label class="lbl">Sichtbar bis</label><input type="datetime-local" id="cfg-besBis" value="${s.besBis||''}"/></div>
+        <div><label class="lbl">Sichtbar ab</label><input type="date" id="cfg-besVon" value="${s.besVon?s.besVon.split('T')[0]:''}"/></div>
+        <div><label class="lbl">Sichtbar bis</label><input type="date" id="cfg-besBis" value="${s.besBis?s.besBis.split('T')[0]:''}"/></div>
       </div>
     </div></div>
     <div class="card"><div class="card-body">
       <p class="section-title">Wünsche Versetzung – Sichtbarkeit</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div><label class="lbl">Sichtbar ab</label><input type="datetime-local" id="cfg-verVon" value="${s.verVon||''}"/></div>
-        <div><label class="lbl">Sichtbar bis</label><input type="datetime-local" id="cfg-verBis" value="${s.verBis||''}"/></div>
+        <div><label class="lbl">Sichtbar ab</label><input type="date" id="cfg-verVon" value="${s.verVon?s.verVon.split('T')[0]:''}"/></div>
+        <div><label class="lbl">Sichtbar bis</label><input type="date" id="cfg-verBis" value="${s.verBis?s.verBis.split('T')[0]:''}"/></div>
       </div>
     </div></div>
     <div class="card"><div class="card-body">
       <p class="section-title">Lernende (${stus.length})</p>
       <p class="import-hint">Liste aus Excel – ein Name pro Zeile:</p>
       <textarea id="stu-paste" class="mono" rows="5" placeholder="Max Muster&#10;Anna Mueller" style="margin-bottom:8px"></textarea>
-      <button onclick="importStudents()" class="btn btn-primary" style="font-size:13px;padding:8px;margin-bottom:12px">Liste importieren & sofort speichern</button>
+      <button onclick="importStudents()" class="btn btn-primary" style="font-size:13px;padding:8px;margin-bottom:12px">Liste importieren</button>
       <div id="stu-msg" style="color:#16a34a;font-size:12px;font-weight:600;margin-bottom:4px;min-height:16px"></div>
       <div style="max-height:160px;overflow-y:auto;border:1px solid #f3f4f6;border-radius:8px;padding:4px">${stus.length?stus.map((n,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px"><span style="font-size:13px;color:#374151">${i+1}. ${n}</span><button onclick="removeStudent('${n.replace(/'/g,"\\'")}') " style="background:none;border:none;cursor:pointer;color:#d1d5db;padding:2px">${trashSvg(12)}</button></div>`).join(''):'<p style="font-size:12px;color:#9ca3af;font-style:italic;padding:8px">Noch keine Lernenden.</p>'}</div>
     </div></div>
@@ -685,7 +685,7 @@ function renderAdmin(){
       <p class="section-title">Firmen (${cos.length})</p>
       <p class="import-hint">Zwei Spalten aus Excel (Name TAB URL):</p>
       <textarea id="co-paste" class="mono" rows="5" placeholder="ANDRITZ Soutec AG&#9;https://www.andritz.com" style="margin-bottom:8px"></textarea>
-      <button onclick="importCompanies()" class="btn btn-primary" style="font-size:13px;padding:8px;margin-bottom:12px">Firmen importieren & sofort speichern</button>
+      <button onclick="importCompanies()" class="btn btn-primary" style="font-size:13px;padding:8px;margin-bottom:12px">Firmen importieren</button>
       <div id="co-msg" style="color:#16a34a;font-size:12px;font-weight:600;margin-bottom:6px;min-height:16px"></div>
       <div style="max-height:280px;overflow-y:auto;border:1px solid #f3f4f6;border-radius:8px;padding:4px">${cos.map((co,i)=>`<div style="display:flex;gap:6px;align-items:center;padding:3px 4px"><span style="font-size:11px;color:#9ca3af;width:20px;text-align:right;flex-shrink:0">${i+1}.</span><input value="${co.name}" onchange="updateCompany(${i},'name',this.value)" style="flex:1;padding:4px 8px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;outline:none"/><input value="${co.url}" onchange="updateCompany(${i},'url',this.value)" style="flex:1;padding:4px 8px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;outline:none"/></div>`).join('')}</div>
     </div></div>
@@ -746,7 +746,7 @@ window.handleSubmitBes = async () => {
   const p=state.personal;
   const sub={name:p.name,plz:p.plz,ort:p.ort,email:p.email,bms:p.bms,schultage:p.schultage,ferien:p.ferien,ferienText:p.ferien==='Ja'?p.ferienText:'',selfie:p.selfie,timestamp:new Date().toLocaleString('de-DE'),selected:[...state.besuche.selected]};
   await FB.saveBes(sub);
-  state.view='success_bes'; render();
+  state.view='success_bes'; render(); window.scrollTo(0,0);
 };
 
 // Einreichung Versetzung (Überschreiben möglich)
@@ -755,7 +755,7 @@ window.handleSubmitVer = async () => {
   const p=state.personal;
   const sub={name:p.name,plz:p.plz,ort:p.ort,email:p.email,bms:p.bms,schultage:p.schultage,ferien:p.ferien,ferienText:p.ferien==='Ja'?p.ferienText:'',selfie:p.selfie,timestamp:new Date().toLocaleString('de-DE'),points:{...state.versetzung.points}};
   await FB.saveVer(sub); // setDoc mit gleicher ID überschreibt automatisch
-  state.view='success_ver'; render();
+  state.view='success_ver'; render(); window.scrollTo(0,0);
 };
 
 window.backToForm = () => { state.view='form'; render(); };
@@ -842,51 +842,58 @@ window.clearAllVer=async()=>{if(window.confirm('Alle Versetzungs-Daten löschen?
 
 window.exportCSVBes=()=>{
   const subs=state.subsBes,cos=state.setup.companies;if(!subs.length)return;
-  const hdrs=['Name','PLZ','Ort','BMS','Schultage','Ferien','E-Mail','Zeit',...cos.map(c=>c.name)];
-  const rows=subs.map(s=>[s.name,s.plz,s.ort,s.bms,s.schultage,s.ferien,s.email,s.timestamp,...cos.map(c=>(s.selected||[]).includes(c.id)?'✓':'')]);
+  const hdrs=['Nachname','Vorname','PLZ','Ort','BMS','Schultage','Ferien','Ferientext','E-Mail','Zeit',...cos.map(c=>c.name)];
+  const rows=subs.map(s=>{
+    const parts=(s.name||'').trim().split(/\s+/);
+    const vorname=parts[0]||'';
+    const nachname=parts.slice(1).join(' ')||'';
+    return[nachname,vorname,s.plz,s.ort,s.bms,s.schultage,s.ferien,s.ferienText||'',s.email,s.timestamp,...cos.map(c=>(s.selected||[]).includes(c.id)?'x':'')];
+  });
   const csv=[hdrs.join(';'),...rows.map(r=>r.join(';'))].join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}));a.download=`besuche_${new Date().toISOString().split('T')[0]}.csv`;a.click();
 };
 window.exportCSVVer=()=>{
   const subs=state.subsVer,cos=state.setup.companies;if(!subs.length)return;
-  const hdrs=['Name','PLZ','Ort','BMS','Schultage','Ferien','E-Mail','Zeit',...cos.map(c=>c.name),'Summe'];
-  const rows=subs.map(s=>[s.name,s.plz,s.ort,s.bms,s.schultage,s.ferien,s.email,s.timestamp,...cos.map(c=>s.points&&s.points[c.id]||0),Object.values(s.points||{}).reduce((a,b)=>a+b,0)]);
+  const hdrs=['Nachname','Vorname','PLZ','Ort','BMS','Schultage','Ferien','Ferientext','E-Mail','Zeit',...cos.map(c=>c.name),'Summe'];
+  const rows=subs.map(s=>{
+    const parts=(s.name||'').trim().split(/\s+/);
+    const vorname=parts[0]||'';
+    const nachname=parts.slice(1).join(' ')||'';
+    return[nachname,vorname,s.plz,s.ort,s.bms,s.schultage,s.ferien,s.ferienText||'',s.email,s.timestamp,...cos.map(c=>s.points&&s.points[c.id]||0),Object.values(s.points||{}).reduce((a,b)=>a+b,0)];
+  });
   const csv=[hdrs.join(';'),...rows.map(r=>r.join(';'))].join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}));a.download=`versetzung_${new Date().toISOString().split('T')[0]}.csv`;a.click();
 };
 
-window.importStudents=async()=>{
+window.importStudents=()=>{
   const ta=document.getElementById('stu-paste');if(!ta)return;
   const lines=ta.value.split(/\n/).map(l=>l.trim()).filter(Boolean);
   state.setup.students=[...new Set(lines)].sort();ta.value='';
-  await FB.saveSetup(state.setup); // Sofort speichern
   const msg=document.getElementById('stu-msg');
-  if(msg){msg.textContent=`✓ ${state.setup.students.length} Lernende gespeichert`;setTimeout(()=>{if(msg)msg.textContent='';},3000);}
+  if(msg){msg.textContent=`✓ ${state.setup.students.length} Lernende importiert (noch nicht gespeichert)`;setTimeout(()=>{if(msg)msg.textContent='';},3000);}
   render();
 };
-window.removeStudent=async(n)=>{
+window.removeStudent=(n)=>{
   state.setup.students=state.setup.students.filter(x=>x!==n);
-  await FB.saveSetup(state.setup); // Sofort speichern
   render();
 };
-window.importCompanies=async()=>{
+window.importCompanies=()=>{
   const ta=document.getElementById('co-paste');if(!ta)return;
   const lines=ta.value.split(/\n/).map(l=>l.trim()).filter(Boolean);
   state.setup.companies=lines.map((line,i)=>{const p=line.split(/\t/);return{id:i+1,name:p[0]||'',url:p[1]||''};});
   ta.value='';
-  await FB.saveSetup(state.setup); // Sofort speichern
   const msg=document.getElementById('co-msg');
-  if(msg){msg.textContent=`✓ ${state.setup.companies.length} Firmen gespeichert`;setTimeout(()=>{if(msg)msg.textContent='';},3000);}
+  if(msg){msg.textContent=`✓ ${state.setup.companies.length} Firmen importiert (noch nicht gespeichert)`;setTimeout(()=>{if(msg)msg.textContent='';},3000);}
   render();
 };
 window.updateCompany=(i,field,val)=>{state.setup.companies[i][field]=val;}; // Kein sofort-save (wird beim Speichern-Button übernommen)
 window.saveSetup=async()=>{
-  // Datum-Felder aus DOM lesen (onchange würde bei render() verloren gehen)
-  const rd=(id)=>{const el=document.getElementById(id);return el?el.value:'';};
-  state.setup.besVon=rd('cfg-besVon');
-  state.setup.besBis=rd('cfg-besBis');
-  state.setup.verVon=rd('cfg-verVon');
-  state.setup.verBis=rd('cfg-verBis');
+  // Datum-Felder aus DOM lesen + Uhrzeit hinzufügen (von: 00:00, bis: 23:59)
+  const rd=(id,addTime)=>{const el=document.getElementById(id);if(!el||!el.value)return '';return el.value+(addTime||'');};
+  state.setup.besVon=rd('cfg-besVon','T00:00');
+  state.setup.besBis=rd('cfg-besBis','T23:59');
+  state.setup.verVon=rd('cfg-verVon','T00:00');
+  state.setup.verBis=rd('cfg-verBis','T23:59');
   const btn=document.getElementById('save-btn');if(btn){btn.textContent='Speichern…';btn.disabled=true;}
   await FB.saveSetup(state.setup);
   if(btn){btn.textContent='✓ Gespeichert!';btn.style.background='#16a34a';setTimeout(()=>{if(btn){btn.textContent='💾 Einstellungen speichern';btn.style.background='';btn.disabled=false;}},2000);}
