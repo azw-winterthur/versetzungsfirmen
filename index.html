@@ -95,7 +95,7 @@ th{padding:8px 6px;background:#f9fafb;border-bottom:2px solid #e5e7eb;text-align
 td{padding:7px 6px;border-bottom:1px solid #f3f4f6;color:#374151}
 tr:hover td{background:#f9fafb}
 .tbl-wrap{overflow-x:auto}
-.info-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;font-size:12px;color:#1d4ed8;line-height:1.6}
+.info-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;font-size:12px;color:#1d4ed8;line-height:1.6;min-height:56px;display:flex;flex-direction:column;justify-content:center}
 .info-box-amber{background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:12px;font-size:12px;color:#92400e;line-height:1.6}
 .success-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
 .success-card{background:#fff;border-radius:20px;padding:32px;max-width:400px;width:100%;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.1)}
@@ -243,7 +243,7 @@ function computedVer() {
   const rankMap={};
   Object.entries(pts).filter(([,vv])=>vv>0).sort((a,b)=>b[1]-a[1]).slice(0,8).forEach(([id],i)=>{rankMap[Number(id)]=i+1;});
   const deadlinePassed=verDeadlinePassed();
-  const angaben=!!(p.name&&p.plz&&p.ort&&p.email&&p.bms&&p.schultage&&p.ferien&&(p.ferien!=='Ja'||p.ferienText)&&p.selfie);
+  const angaben=!!(p.name&&p.plz&&/^[0-9]{4}$/.test(p.plz)&&p.ort&&p.email&&p.bms&&p.schultage&&p.ferien&&(p.ferien!=='Ja'||p.ferienText)&&p.selfie);
   const valid=total===100&&!nonZeroDup()&&withPoints===8&&angaben&&p.datenschutz&&!deadlinePassed;
   return{total,remaining:100-total,withPoints,nonZeroDup:nonZeroDup(),rankMap,valid,deadlinePassed,angaben};
 }
@@ -252,7 +252,7 @@ function computedVer() {
 function computedBes() {
   const sel=state.besuche.selected, p=state.personal;
   const count=sel.length;
-  const angaben=!!(p.name&&p.plz&&p.ort&&p.email&&p.bms&&p.schultage&&p.ferien&&(p.ferien!=='Ja'||p.ferienText)&&p.selfie);
+  const angaben=!!(p.name&&p.plz&&/^[0-9]{4}$/.test(p.plz)&&p.ort&&p.email&&p.bms&&p.schultage&&p.ferien&&(p.ferien!=='Ja'||p.ferienText)&&p.selfie);
   const deadlinePassed=besDeadlinePassed();
   const valid=count===8&&angaben&&p.datenschutz&&!deadlinePassed;
   return{count,valid,deadlinePassed,angaben};
@@ -295,7 +295,7 @@ function updateVerBannerFast(){
   const vals=Object.entries(pts).filter(([id,v])=>v>0&&!hidden.includes(Number(id))).map(([,v])=>v);
   const nonZeroDup=vals.length!==new Set(vals).size;
   const p=state.personal;
-  const angaben=!!(p.name&&p.plz&&p.ort&&p.email&&p.bms&&p.schultage&&p.ferien&&(p.ferien!=='Ja'||p.ferienText)&&p.selfie);
+  const angaben=!!(p.name&&p.plz&&/^[0-9]{4}$/.test(p.plz)&&p.ort&&p.email&&p.bms&&p.schultage&&p.ferien&&(p.ferien!=='Ja'||p.ferienText)&&p.selfie);
   const bar=document.querySelector('.sticky-bar');
   if(bar)bar.className='sticky-bar '+(total===100?'ok':total>100?'over':'pending');
   const pn=document.querySelector('.pts-num');if(pn)pn.textContent=`${total}/100`;
@@ -333,7 +333,7 @@ function buildPersonalHtml(p){
     <p class="section-title">Persönliche Angaben</p>
     <div style="margin-bottom:10px"><label class="lbl">Name *</label>${nameField}</div>
     <div class="grid2">
-      <div><label class="lbl">PLZ *</label><input tabindex="1" type="text" value="${p.plz}" placeholder="8400" oninput="livePersonal('plz',this.value)" onblur="commitPersonal()" inputmode="numeric"/></div>
+      <div><label class="lbl">PLZ *</label><input tabindex="1" type="text" value="${p.plz}" placeholder="8400" maxlength="4" oninput="livePersonal('plz',this.value)" onblur="commitPersonal()" inputmode="numeric" style="border-color:${p.plz&&!/^[0-9]{4}$/.test(p.plz)?'#ef4444':''}"/></div>
       <div><label class="lbl">Ort *</label><input tabindex="2" type="text" value="${p.ort}" placeholder="Winterthur" oninput="livePersonal('ort',this.value)" onblur="commitPersonal()"/></div>
       <div class="col2"><label class="lbl">E-Mail *</label><input tabindex="3" type="email" value="${p.email}" placeholder="max@mail.ch" oninput="livePersonal('email',this.value)" onblur="commitPersonal()" autocomplete="email"/></div>
     </div>
@@ -406,10 +406,12 @@ function renderFormBesuche(appEl, p, cv, tabsHtml){
   const provisional=cv.count===8&&p.name;
 
   appEl.innerHTML=`
-  <div style="background:${cv.count===8?'#16a34a':'#1e293b'};position:sticky;top:0;z-index:50;color:#fff;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.2)">
-    <div style="font-size:2.8rem;font-weight:900;line-height:1">${cv.count}/8</div>
-    <div style="font-size:11px;font-weight:600;opacity:.8;text-transform:uppercase;letter-spacing:.05em;margin-top:2px">Firmen ausgewählt</div>
-    <div style="display:flex;gap:6px;justify-content:center;padding:4px 0 8px;flex-wrap:wrap">
+  <div class="sticky-bar ${cv.count===8?'ok':'pending'}">
+    <div class="sticky-top">
+      <span class="pts-num">${cv.count}/8</span>
+      <span class="pts-sub">Firmen ausgewählt</span>
+    </div>
+    <div class="pills">
       <div class="pill ${cv.count===8?'ok':'ng'}">${cv.count===8?checkSvg(10):warnSvg(10)} ${cv.count}/8 Firmen</div>
       <div class="pill ${cv.angaben?'ok':'ng'}">${cv.angaben?checkSvg(10):warnSvg(10)} ${cv.angaben?'Angaben vollständig':'Angaben unvollständig'}</div>
     </div>
@@ -419,9 +421,9 @@ function renderFormBesuche(appEl, p, cv, tabsHtml){
     <div class="card" style="margin-top:0"><div class="card-body">
       <h1 style="font-size:17px;font-weight:800;color:#1f2937;margin-bottom:4px">Wünsche Firmenbesuche</h1>
       <p style="font-size:13px;color:#6b7280;margin-bottom:10px">Wähle genau 8 Firmen aus, die du besuchen möchtest.</p>
-      <div class="info-box"><div>• Genau 8 Firmen müssen ausgewählt werden</div></div>
-      ${s.besVon?`<p style="font-size:12px;color:#6b7280;font-weight:600;margin-top:6px">📅 Sichtbar ab: ${new Date(s.besVon).toLocaleString('de-DE')}</p>`:''}
-      ${s.besBis?`<p style="font-size:12px;color:#ea580c;font-weight:600;margin-top:4px">⏰ Eingabe möglich bis: ${new Date(s.besBis).toLocaleString('de-DE')}</p>`:''}
+      <div class="info-box"><div>• Genau 8 Firmen müssen ausgewählt werden</div><div style="opacity:0;height:0;overflow:hidden">• Platzhalter</div></div>
+      ${s.besVon?`<p style="font-size:12px;color:#6b7280;font-weight:600;margin-top:6px">📅 Sichtbar ab: ${new Date(s.besVon).toLocaleDateString('de-DE')}</p>`:''}
+      ${s.besBis?`<p style="font-size:12px;color:#ea580c;font-weight:600;margin-top:4px">⏰ Eingabe möglich bis: ${new Date(s.besBis).toLocaleDateString('de-DE')}</p>`:''}
     </div></div>
 
     ${buildPersonalHtml(p)}
@@ -514,8 +516,8 @@ function renderFormVersetzung(appEl, p, tabsHtml){
       <h1 style="font-size:17px;font-weight:800;color:#1f2937;margin-bottom:4px">Wünsche Versetzungsfirmen</h1>
       <p style="font-size:13px;color:#6b7280;margin-bottom:10px">Verteile 100 Punkte auf genau 8 Firmen.</p>
       <div class="info-box"><div>• Genau 8 Firmen müssen mindestens 1 Punkt erhalten</div><div>• Keine zwei Firmen dürfen gleich viele Punkte erhalten</div></div>
-      ${state.setup.verVon?`<p style="font-size:12px;color:#6b7280;font-weight:600;margin-top:6px">📅 Sichtbar ab: ${new Date(state.setup.verVon).toLocaleString('de-DE')}</p>`:''}
-      ${state.setup.verBis?`<p style="font-size:12px;color:#ea580c;font-weight:600;margin-top:4px">⏰ Eingabe möglich bis: ${new Date(state.setup.verBis).toLocaleString('de-DE')}</p>`:''}
+      ${state.setup.verVon?`<p style="font-size:12px;color:#6b7280;font-weight:600;margin-top:6px">📅 Sichtbar ab: ${new Date(state.setup.verVon).toLocaleDateString('de-DE')}</p>`:''}
+      ${state.setup.verBis?`<p style="font-size:12px;color:#ea580c;font-weight:600;margin-top:4px">⏰ Eingabe möglich bis: ${new Date(state.setup.verBis).toLocaleDateString('de-DE')}</p>`:''}
     </div></div>
 
     ${buildPersonalHtml(p)}
@@ -525,7 +527,7 @@ function renderFormVersetzung(appEl, p, tabsHtml){
         {ok:cv.total===100,label:`100 Punkte verteilt (${cv.total}/100)`},
         {ok:cv.withPoints===8,label:`Genau 8 Firmen bewertet (${cv.withPoints}/8)${cv.withPoints>8?' – zu viele!':''}`},
         {ok:!cv.nonZeroDup,label:'Keine doppelten Punktzahlen'},
-        {ok:!!(p.name&&p.plz&&p.ort&&p.email),label:'Alle Pflichtfelder ausgefüllt'},
+        {ok:!!(p.name&&p.plz&&/^[0-9]{4}$/.test(p.plz)&&p.ort&&p.email),label:'Alle Pflichtfelder ausgefüllt (PLZ: 4 Ziffern)'},
         {ok:!!(p.bms&&p.schultage&&p.ferien),label:'BMS / Schultage / Ferien ausgefüllt'},
         {ok:!!p.selfie,label:'Verifizierungsfoto aufgenommen'},
       ].map(vv=>`<div class="validation-row ${vv.ok?'ok':'ng'}">${vv.ok?checkSvg(13):warnSvg(13)} ${vv.label}</div>`).join('')}
@@ -924,4 +926,3 @@ init();
 </script>
 </body>
 </html>
-
