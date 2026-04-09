@@ -190,7 +190,7 @@ let state = {
   // Besuche
   besuche: { selected:[] },   // Array von IDs
   // Versetzung
-  versetzung: { points:{}, hidden:[], orderedIds:DEFAULT_COMPANIES.map(c=>c.id), sortApplied:false },
+  versetzung: { points:{}, hidden:[], orderedIds:DEFAULT_COMPANIES.map(c=>c.id), sortApplied:false, bemerkungen:'' },
   selfieStreaming:false, selfieReady:false, selfieStream:null,
   showHidden:false, showLoginModal:false, loginPw:'', loginErr:false, loading:true,
 };
@@ -243,7 +243,7 @@ function computedVer() {
   const rankMap={};
   Object.entries(pts).filter(([,vv])=>vv>0).sort((a,b)=>b[1]-a[1]).slice(0,8).forEach(([id],i)=>{rankMap[Number(id)]=i+1;});
   const deadlinePassed=verDeadlinePassed();
-  const angaben=!!(p.name&&p.plz&&/^[0-9]{4}$/.test(p.plz)&&p.ort&&p.email&&p.bms&&p.schultage&&p.ferien&&(p.ferien!=='Ja'||p.ferienText)&&p.selfie);
+  const angaben=!!(p.name&&p.plz&&/^[0-9]{4}$/.test(p.plz)&&p.ort&&p.email&&p.bms&&p.schultage&&p.selfie);
   const valid=total===100&&!nonZeroDup()&&withPoints===8&&angaben&&p.datenschutz&&!deadlinePassed;
   return{total,remaining:100-total,withPoints,nonZeroDup:nonZeroDup(),rankMap,valid,deadlinePassed,angaben};
 }
@@ -322,7 +322,7 @@ function buildSelfieHtml(p){
 }
 
 // ── Persönliche Angaben HTML ──────────────────────────────────────────────────
-function buildPersonalHtml(p){
+function buildPersonalHtml(p, showFerien=true){
   let nameField='';
   if(state.setup.students&&state.setup.students.length>0){
     nameField=`<select onchange="setPersonal('name',this.value)" style="width:100%;padding:8px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:16px;background:#fff"><option value="">-- Name auswählen --</option>${state.setup.students.map(s=>`<option value="${s}" ${p.name===s?'selected':''}>${s}</option>`).join('')}</select>`;
@@ -346,11 +346,11 @@ function buildPersonalHtml(p){
         <label><input tabindex="6" type="radio" name="schultage" ${p.schultage==='Mo/Di'?'checked':''} onchange="setPersonal('schultage','Mo/Di')"/> Montag / Dienstag</label>
         <label><input tabindex="7" type="radio" name="schultage" ${p.schultage==='Do/Fr'?'checked':''} onchange="setPersonal('schultage','Do/Fr')"/> Donnerstag / Freitag</label>
       </div></div>
-      <div><p class="lbl">Frühlingsferien *</p><div class="radio-group">
+      ${showFerien?`<div><p class="lbl">Frühlingsferien *</p><div class="radio-group">
         <label><input tabindex="8" type="radio" name="ferien" ${p.ferien==='Ja'?'checked':''} onchange="setPersonal('ferien','Ja')"/> Ja</label>
         <label><input tabindex="9" type="radio" name="ferien" ${p.ferien==='Nein'?'checked':''} onchange="setPersonal('ferien','Nein')"/> Nein</label>
-      </div></div>
-      ${p.ferien==='Ja'?`<div><label class="lbl">Zeitraum Frühlingsferien *</label><input tabindex="10" type="text" value="${p.ferienText}" placeholder="z.B. 14.04.–25.04.2025" oninput="livePersonal('ferienText',this.value)" onblur="commitPersonal()"/></div>`:''}
+      </div></div>`:''}
+      ${showFerien&&p.ferien==='Ja'?`<div><label class="lbl">Zeitraum Frühlingsferien *</label><input tabindex="10" type="text" value="${p.ferienText}" placeholder="z.B. 14.04.–25.04.2025" oninput="livePersonal('ferienText',this.value)" onblur="commitPersonal()"/></div>`:''}
     </div>
     <div style="margin-top:14px"><p class="lbl">Verifizierungsfoto (Frontkamera) *</p>${buildSelfieHtml(p)}</div>
   </div></div>`;
@@ -532,7 +532,7 @@ function renderFormVersetzung(appEl, p, tabsHtml){
       ${state.setup.verBis?`<p style="font-size:12px;color:#ea580c;font-weight:600;margin-top:4px">⏰ Eingabe möglich bis: ${new Date(state.setup.verBis).toLocaleDateString('de-DE')}</p>`:''}
     </div></div>
 
-    ${buildPersonalHtml(p)}
+    ${buildPersonalHtml(p, false)}
 
     <div class="card"><div class="card-body" style="padding:12px 16px">
       ${[
@@ -540,7 +540,7 @@ function renderFormVersetzung(appEl, p, tabsHtml){
         {ok:cv.withPoints===8,label:`Genau 8 Firmen bewertet (${cv.withPoints}/8)${cv.withPoints>8?' – zu viele!':''}`},
         {ok:!cv.nonZeroDup,label:'Keine doppelten Punktzahlen'},
         {ok:!!(p.name&&p.plz&&/^[0-9]{4}$/.test(p.plz)&&p.ort&&p.email),label:'Alle Pflichtfelder ausgefüllt (PLZ: 4 Ziffern)'},
-        {ok:!!(p.bms&&p.schultage&&p.ferien),label:'BMS / Schultage / Ferien ausgefüllt'},
+        {ok:!!(p.bms&&p.schultage),label:'BMS / Schultage ausgefüllt'},
         {ok:!!p.selfie,label:'Verifizierungsfoto aufgenommen'},
       ].map(vv=>`<div class="validation-row ${vv.ok?'ok':'ng'}">${vv.ok?checkSvg(13):warnSvg(13)} ${vv.label}</div>`).join('')}
     </div></div>
@@ -561,6 +561,13 @@ function renderFormVersetzung(appEl, p, tabsHtml){
       <button class="btn btn-green" onclick="saveProvisionalVer()" ${provisional?'':'disabled'} style="${provisional?'':'opacity:.4;cursor:not-allowed'}">
         📸 Wunschliste provisorisch speichern
       </button>
+      
+      <div class="card"><div class="card-body">
+        <label class="lbl">Bemerkungen (optional, max. 200 Zeichen)</label>
+        <textarea maxlength="200" rows="3" placeholder="Ergänzende Hinweise zu deiner Wunschliste..." oninput="state.versetzung.bemerkungen=this.value" onblur="render()" style="width:100%;padding:8px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;font-family:inherit;background:#fff;resize:vertical">${v.bemerkungen||''}</textarea>
+        <p style="font-size:11px;color:#9ca3af;margin-top:4px;text-align:right">${(v.bemerkungen||'').length}/200 Zeichen</p>
+      </div></div>
+
       <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:12px 14px;display:flex;align-items:flex-start;gap:10px">
         <input type="checkbox" id="datenschutz-cb2" ${p.datenschutz?'checked':''} onchange="setPersonal('datenschutz',this.checked)" style="margin-top:3px;width:18px;height:18px;flex-shrink:0;accent-color:#6366f1;cursor:pointer"/>
         <label for="datenschutz-cb2" style="font-size:12px;color:#374151;line-height:1.5;cursor:pointer">
@@ -758,7 +765,8 @@ window.doSort = () => { state.versetzung.orderedIds.sort((a,b)=>{const pa=state.
 window.handleSubmitBes = async () => {
   const cv=computedBes(); if(!cv.valid)return;
   const p=state.personal;
-  const sub={name:p.name,plz:p.plz,ort:p.ort,email:p.email,bms:p.bms,schultage:p.schultage,ferien:p.ferien,ferienText:p.ferien==='Ja'?p.ferienText:'',selfie:p.selfie,timestamp:new Date().toLocaleString('de-DE'),selected:[...state.besuche.selected]};
+  const firstName = (p.name||'').trim().split(/\s+/)[0]||'';
+  const sub={name:firstName,plz:p.plz,ort:p.ort,email:p.email,bms:p.bms,schultage:p.schultage,ferien:p.ferien,ferienText:p.ferien==='Ja'?p.ferienText:'',selfie:p.selfie,timestamp:new Date().toLocaleString('de-DE'),selected:[...state.besuche.selected]};
   await FB.saveBes(sub);
   state.view='success_bes'; render(); window.scrollTo(0,0);
 };
@@ -767,7 +775,8 @@ window.handleSubmitBes = async () => {
 window.handleSubmitVer = async () => {
   const cv=computedVer(); if(!cv.valid)return;
   const p=state.personal;
-  const sub={name:p.name,plz:p.plz,ort:p.ort,email:p.email,bms:p.bms,schultage:p.schultage,ferien:p.ferien,ferienText:p.ferien==='Ja'?p.ferienText:'',selfie:p.selfie,timestamp:new Date().toLocaleString('de-DE'),points:{...state.versetzung.points}};
+  const firstName = (p.name||'').trim().split(/\s+/)[0]||'';
+  const sub={name:firstName,plz:p.plz,ort:p.ort,email:p.email,bms:p.bms,schultage:p.schultage,selfie:p.selfie,timestamp:new Date().toLocaleString('de-DE'),points:{...state.versetzung.points},bemerkungen:state.versetzung.bemerkungen||''};
   await FB.saveVer(sub); // setDoc mit gleicher ID überschreibt automatisch
   state.view='success_ver'; render(); window.scrollTo(0,0);
 };
@@ -863,8 +872,8 @@ window.exportCSVBes=()=>{
 };
 window.exportCSVVer=()=>{
   const subs=state.subsVer,cos=state.setup.companies;if(!subs.length)return;
-  const hdrs=['Name','PLZ','Ort','BMS','Schultage','Ferien','Ferientext','E-Mail','Zeit',...cos.map(c=>c.name),'Summe'];
-  const rows=subs.map(s=>[s.name,s.plz,s.ort,s.bms,s.schultage,s.ferien,s.ferienText||'',s.email,s.timestamp,...cos.map(c=>s.points&&s.points[c.id]||0),Object.values(s.points||{}).reduce((a,b)=>a+b,0)]);
+  const hdrs=['Name','PLZ','Ort','BMS','Schultage','E-Mail','Zeit',...cos.map(c=>c.name),'Summe','Bemerkungen'];
+  const rows=subs.map(s=>[s.name,s.plz,s.ort,s.bms,s.schultage,s.email,s.timestamp,...cos.map(c=>s.points&&s.points[c.id]||0),Object.values(s.points||{}).reduce((a,b)=>a+b,0),s.bemerkungen||'']);
   const csv=[hdrs.join(';'),...rows.map(r=>r.join(';'))].join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}));a.download=`versetzung_${new Date().toISOString().split('T')[0]}.csv`;a.click();
 };
