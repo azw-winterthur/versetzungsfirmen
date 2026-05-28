@@ -213,6 +213,7 @@ let state = {
   versetzung: { selected:[], bemerkungen:'' },
   selfieStreaming:false, selfieReady:false, selfieStream:null,
   showHidden:false, showLoginModal:false, loginPw:'', loginErr:false, loading:true,
+  setupUndo:[], setupRedo:[], setupSaving:false, setupSaved:false,
 };
 
 // ── SVG Icons ─────────────────────────────────────────────────────────────────
@@ -294,7 +295,7 @@ function buildSelfieHtml(p){
 function buildPersonalHtml(p, showFerien=true, showEnglisch=false){
   let nameField='';
   if(state.setup.students&&state.setup.students.length>0){
-    const firstNames=[...new Set(state.setup.students.map(s=>(s||'').trim().split(/\s+/)[0]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'de'));
+    const firstNames=[...new Set(state.setup.students.map(s=>{const t=(s||'').trim().split(/\s+/);return t[t.length-1];}).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'de'));
     nameField=`<select onchange="setPersonal('name',this.value)" style="width:100%;padding:8px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:16px;background:#fff"><option value="">-- Vorname auswählen --</option>${firstNames.map(fn=>`<option value="${fn}" ${p.name===fn?'selected':''}>${fn}</option>`).join('')}</select>`;
   } else {
     nameField=`<input type="text" value="${p.name}" placeholder="Vorname" oninput="livePersonal('name',this.value)" onblur="commitPersonal()" autocomplete="given-name"/>`;
@@ -338,6 +339,10 @@ function renderForm(){
   const cvB=computedBes();
   const besVisible=besIsVisible();
   const verVisible=verIsVisible();
+
+  // Aktiver Reiter gesperrt, der andere offen → automatisch zum offenen wechseln
+  if(state.formTab==='besuche' && !besVisible && verVisible) state.formTab='versetzung';
+  else if(state.formTab==='versetzung' && !verVisible && besVisible) state.formTab='besuche';
 
   const tabsHtml=`<div class="form-tabs">
     <button class="form-tab ${state.formTab==='besuche'?'active':''}${!besVisible?' locked':''}" onclick="${besVisible?"setFormTab('besuche')":'showBesLocked()'}" ${!besVisible?'title="Noch nicht freigeschaltet"':''}>
@@ -644,39 +649,47 @@ function renderAdmin(){
     ${subs_v.length>0?`<div class="card"><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Name</th><th>Zeit</th><th>Foto</th><th style="text-align:center">Engl.</th>${cos.map(c=>`<th title="${c.name}" style="text-align:center">${c.id}</th>`).join('')}<th></th></tr></thead><tbody>${rows}</tbody><tfoot style="background:#eff6ff"><tr><td colspan="5" style="font-weight:700;padding:7px 6px">⌀ Prio (Ø der Nennungen)</td>${avgRow}<td></td></tr></tfoot></table></div><div style="padding:12px 16px;background:#f8fafc;border-top:1px solid #e5e7eb"><p style="font-size:11px;font-weight:700;color:#6b7280;margin-bottom:6px">Zellen = Prio (1 = höchster Wunsch). Firmen-Legende:</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px">${cos.map(c=>`<p style="font-size:11px;color:#6b7280"><span style="font-weight:700;color:#6366f1">${c.id}.</span> ${c.name}</p>`).join('')}</div></div></div>`:`<div class="card"><div class="card-body" style="text-align:center;color:#9ca3af;padding:40px">Noch keine Einreichungen.</div></div>`}`;
 
   } else { // setup
-    // Lokale Kopie für Einstellungen – wird erst beim Speichern übernommen
     content=`
+    <div class="card"><div class="card-body" style="padding:10px 12px;display:flex;align-items:center;gap:8px">
+      <span style="font-size:11px;font-weight:700;color:#6b7280;flex:1">Änderungen (rückgängig bis zum letzten Speichern)</span>
+      <button id="undo-btn" onclick="undoSetup()" class="btn btn-outline btn-sm" ${state.setupUndo.length?'':'disabled'} style="${state.setupUndo.length?'':'opacity:.45;cursor:not-allowed'}">↩ Rückgängig</button>
+      <button id="redo-btn" onclick="redoSetup()" class="btn btn-outline btn-sm" ${state.setupRedo.length?'':'disabled'} style="${state.setupRedo.length?'':'opacity:.45;cursor:not-allowed'}">↪ Wiederholen</button>
+    </div></div>
     <div class="card"><div class="card-body">
       <p class="section-title">Wünsche Besuche – Sichtbarkeit</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div><label class="lbl">Sichtbar ab</label><input type="date" id="cfg-besVon" value="${s.besVon?s.besVon.split('T')[0]:''}"/></div>
-        <div><label class="lbl">Sichtbar bis</label><input type="date" id="cfg-besBis" value="${s.besBis?s.besBis.split('T')[0]:''}"/></div>
+        <div><label class="lbl">Sichtbar ab</label><input type="date" id="cfg-besVon" value="${s.besVon?s.besVon.split('T')[0]:''}" onchange="setSetupDate('besVon',this.value)"/></div>
+        <div><label class="lbl">Sichtbar bis</label><input type="date" id="cfg-besBis" value="${s.besBis?s.besBis.split('T')[0]:''}" onchange="setSetupDate('besBis',this.value)"/></div>
       </div>
     </div></div>
     <div class="card"><div class="card-body">
       <p class="section-title">Wünsche Versetzung – Sichtbarkeit</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div><label class="lbl">Sichtbar ab</label><input type="date" id="cfg-verVon" value="${s.verVon?s.verVon.split('T')[0]:''}"/></div>
-        <div><label class="lbl">Sichtbar bis</label><input type="date" id="cfg-verBis" value="${s.verBis?s.verBis.split('T')[0]:''}"/></div>
+        <div><label class="lbl">Sichtbar ab</label><input type="date" id="cfg-verVon" value="${s.verVon?s.verVon.split('T')[0]:''}" onchange="setSetupDate('verVon',this.value)"/></div>
+        <div><label class="lbl">Sichtbar bis</label><input type="date" id="cfg-verBis" value="${s.verBis?s.verBis.split('T')[0]:''}" onchange="setSetupDate('verBis',this.value)"/></div>
       </div>
     </div></div>
     <div class="card"><div class="card-body">
-      <p class="section-title">Lernende (${stus.length})</p>
-      <p class="import-hint">Liste aus Excel – ein Name pro Zeile:</p>
-      <textarea id="stu-paste" class="mono" rows="5" placeholder="Max Muster&#10;Anna Mueller" style="margin-bottom:8px"></textarea>
-      <button onclick="importStudents()" class="btn btn-primary" style="font-size:13px;padding:8px;margin-bottom:12px">Liste importieren</button>
-      <div id="stu-msg" style="color:#16a34a;font-size:12px;font-weight:600;margin-bottom:4px;min-height:16px"></div>
-      <div style="max-height:160px;overflow-y:auto;border:1px solid #f3f4f6;border-radius:8px;padding:4px">${stus.length?stus.map((n,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px"><span style="font-size:13px;color:#374151">${i+1}. ${n}</span><button onclick="removeStudent('${n.replace(/'/g,"\\'")}') " style="background:none;border:none;cursor:pointer;color:#d1d5db;padding:2px">${trashSvg(12)}</button></div>`).join(''):'<p style="font-size:12px;color:#9ca3af;font-style:italic;padding:8px">Noch keine Lernenden.</p>'}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <p class="section-title" style="margin:0">Lernende (${stus.length})</p>
+        <button onclick="addStudent()" class="btn btn-primary btn-sm" style="padding:5px 12px;font-size:13px">+ Vorname</button>
+      </div>
+      <p class="import-hint">Komplette Liste einfügen (ein Vorname pro Zeile) – <b>ersetzt</b> die bestehende Liste:</p>
+      <textarea id="stu-paste" class="mono" rows="4" placeholder="Anna&#10;Leon&#10;Mia" style="margin-bottom:8px"></textarea>
+      <button onclick="importStudents()" class="btn btn-outline btn-sm" style="font-size:13px;margin-bottom:10px">Liste importieren (ersetzen)</button>
+      <div style="max-height:220px;overflow-y:auto;border:1px solid #f3f4f6;border-radius:8px;padding:6px;display:flex;flex-direction:column;gap:5px">${stus.length?stus.map((n,i)=>`<div style="display:flex;gap:6px;align-items:center"><span style="font-size:11px;color:#9ca3af;width:22px;text-align:right;flex-shrink:0">${i+1}.</span><input class="stu-input" value="${(n||'').replace(/"/g,'&quot;')}" placeholder="Vorname" onchange="updateStudent(${i},this.value)" style="flex:1;min-width:0;padding:6px 8px;border:1px solid #e5e7eb;border-radius:6px;font-size:13px;outline:none"/><button onclick="removeStudent(${i})" title="Löschen" style="background:none;border:none;cursor:pointer;color:#d1d5db;padding:4px;flex-shrink:0">${trashSvg(13)}</button></div>`).join(''):'<p style="font-size:12px;color:#9ca3af;font-style:italic;padding:8px">Noch keine Lernenden – Liste einfügen oder „+ Vorname".</p>'}</div>
     </div></div>
     <div class="card"><div class="card-body">
-      <p class="section-title">Firmen (${cos.length})</p>
-      <p class="import-hint">Zwei Spalten aus Excel (Name TAB URL):</p>
-      <textarea id="co-paste" class="mono" rows="5" placeholder="ANDRITZ Soutec AG&#9;https://www.andritz.com" style="margin-bottom:8px"></textarea>
-      <button onclick="importCompanies()" class="btn btn-primary" style="font-size:13px;padding:8px;margin-bottom:12px">Firmen importieren</button>
-      <div id="co-msg" style="color:#16a34a;font-size:12px;font-weight:600;margin-bottom:6px;min-height:16px"></div>
-      <div style="max-height:280px;overflow-y:auto;border:1px solid #f3f4f6;border-radius:8px;padding:4px">${cos.map((co,i)=>`<div style="display:flex;gap:6px;align-items:center;padding:3px 4px"><span style="font-size:11px;color:#9ca3af;width:20px;text-align:right;flex-shrink:0">${i+1}.</span><input value="${co.name}" onchange="updateCompany(${i},'name',this.value)" style="flex:1;padding:4px 8px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;outline:none"/><input value="${co.url}" onchange="updateCompany(${i},'url',this.value)" style="flex:1;padding:4px 8px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;outline:none"/></div>`).join('')}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <p class="section-title" style="margin:0">Firmen (${cos.length})</p>
+        <button onclick="addCompany()" class="btn btn-primary btn-sm" style="padding:5px 12px;font-size:13px">+ Firma</button>
+      </div>
+      <p class="import-hint">Komplette Tabelle einfügen (Name [Tab] URL pro Zeile) – <b>ersetzt</b> die bestehende Liste:</p>
+      <textarea id="co-paste" class="mono" rows="4" placeholder="ANDRITZ Soutec AG&#9;https://www.andritz.com" style="margin-bottom:8px"></textarea>
+      <button onclick="importCompanies()" class="btn btn-outline btn-sm" style="font-size:13px;margin-bottom:10px">Tabelle importieren (ersetzen)</button>
+      <div style="max-height:300px;overflow-y:auto;border:1px solid #f3f4f6;border-radius:8px;padding:6px;display:flex;flex-direction:column;gap:5px">${cos.length?cos.map((co,i)=>`<div style="display:flex;gap:6px;align-items:center"><span style="font-size:11px;color:#9ca3af;width:22px;text-align:right;flex-shrink:0">${i+1}.</span><input class="co-name" value="${(co.name||'').replace(/"/g,'&quot;')}" placeholder="Firma" onchange="updateCompany(${i},'name',this.value)" style="flex:2;min-width:0;padding:6px 8px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;outline:none"/><input value="${(co.url||'').replace(/"/g,'&quot;')}" placeholder="https://..." onchange="updateCompany(${i},'url',this.value)" style="flex:2;min-width:0;padding:6px 8px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;outline:none"/><button onclick="removeCompany(${i})" title="Löschen" style="background:none;border:none;cursor:pointer;color:#d1d5db;padding:4px;flex-shrink:0">${trashSvg(13)}</button></div>`).join(''):'<p style="font-size:12px;color:#9ca3af;font-style:italic;padding:8px">Noch keine Firmen – Tabelle einfügen oder „+ Firma".</p>'}</div>
     </div></div>
-    <button onclick="saveSetup()" id="save-btn" class="btn btn-primary" style="font-size:14px;margin-bottom:16px">💾 Einstellungen speichern</button>`;
+    <button onclick="saveSetup()" id="save-btn" class="btn ${state.setupSaved?'btn-green':'btn-primary'}" ${state.setupSaving?'disabled':''} style="font-size:14px;margin-bottom:16px">${state.setupSaving?'Speichern…':state.setupSaved?'✓ Gespeichert!':'💾 Einstellungen speichern'}</button>`;
   }
 
   document.getElementById('app').innerHTML=`<div style="min-height:100vh;background:linear-gradient(135deg,#f5f3ff,#eff6ff);padding:16px"><div style="max-width:900px;margin:0 auto">
@@ -916,38 +929,77 @@ window.exportCSVVer=()=>{
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}));a.download=`versetzung_${new Date().toISOString().split('T')[0]}.csv`;a.click();
 };
 
+// ── Setup: Undo/Redo-History (nur bis zum letzten Speichern) ──────────────────
+const snapSetup = () => ({
+  students: [...state.setup.students],
+  companies: state.setup.companies.map(c=>({...c})),
+  besVon: state.setup.besVon, besBis: state.setup.besBis, verVon: state.setup.verVon, verBis: state.setup.verBis,
+});
+function restoreSetup(s){
+  state.setup.students = [...s.students];
+  state.setup.companies = s.companies.map(c=>({...c}));
+  state.setup.besVon=s.besVon; state.setup.besBis=s.besBis; state.setup.verVon=s.verVon; state.setup.verBis=s.verBis;
+}
+function pushHistory(){ state.setupUndo.push(snapSetup()); if(state.setupUndo.length>60) state.setupUndo.shift(); state.setupRedo=[]; }
+function refreshHistBtns(){ const u=document.getElementById('undo-btn'),r=document.getElementById('redo-btn'); if(u){u.disabled=!state.setupUndo.length;u.style.opacity=state.setupUndo.length?'':'.45';u.style.cursor=state.setupUndo.length?'':'not-allowed';} if(r){r.disabled=!state.setupRedo.length;r.style.opacity=state.setupRedo.length?'':'.45';r.style.cursor=state.setupRedo.length?'':'not-allowed';} }
+function sortStudents(){ state.setup.students.sort((a,b)=>{const A=(a||'').trim(),B=(b||'').trim();if(!A&&!B)return 0;if(!A)return 1;if(!B)return -1;return A.localeCompare(B,'de');}); }
+window.undoSetup = () => { if(!state.setupUndo.length)return; state.setupRedo.push(snapSetup()); restoreSetup(state.setupUndo.pop()); render(); };
+window.redoSetup = () => { if(!state.setupRedo.length)return; state.setupUndo.push(snapSetup()); restoreSetup(state.setupRedo.pop()); render(); };
+
+window.setSetupDate = (field,val) => { pushHistory(); state.setup[field]=val; refreshHistBtns(); };
+
+// Lernende
 window.importStudents=()=>{
   const ta=document.getElementById('stu-paste');if(!ta)return;
   const lines=ta.value.split(/\n/).map(l=>l.trim()).filter(Boolean);
-  state.setup.students=[...new Set(lines)].sort();ta.value='';
-  const msg=document.getElementById('stu-msg');
-  if(msg){msg.textContent=`✓ ${state.setup.students.length} Lernende importiert (noch nicht gespeichert)`;setTimeout(()=>{if(msg)msg.textContent='';},3000);}
-  render();
+  if(!lines.length)return;
+  pushHistory();
+  state.setup.students=[...new Set(lines)];
+  sortStudents();
+  ta.value=''; render();
 };
-window.removeStudent=(n)=>{
-  state.setup.students=state.setup.students.filter(x=>x!==n);
-  render();
+window.addStudent=()=>{ pushHistory(); state.setup.students.push(''); render(); const els=document.querySelectorAll('.stu-input'); if(els.length)els[els.length-1].focus(); };
+window.updateStudent=(i,val)=>{
+  if(i<0||i>=state.setup.students.length)return;
+  const nv=(val||'').trim();
+  if(state.setup.students[i]===nv)return;
+  pushHistory(); state.setup.students[i]=nv; sortStudents(); render();
 };
+window.removeStudent=(i)=>{ if(i<0||i>=state.setup.students.length)return; pushHistory(); state.setup.students.splice(i,1); render(); };
+
+// Firmen
 window.importCompanies=()=>{
   const ta=document.getElementById('co-paste');if(!ta)return;
   const lines=ta.value.split(/\n/).map(l=>l.trim()).filter(Boolean);
-  state.setup.companies=lines.map((line,i)=>{const p=line.split(/\t/);return{id:i+1,name:p[0]||'',url:p[1]||''};});
-  ta.value='';
-  const msg=document.getElementById('co-msg');
-  if(msg){msg.textContent=`✓ ${state.setup.companies.length} Firmen importiert (noch nicht gespeichert)`;setTimeout(()=>{if(msg)msg.textContent='';},3000);}
-  render();
+  if(!lines.length)return;
+  pushHistory();
+  state.setup.companies=lines.map((line,i)=>{const p=line.split(/\t/);return{id:i+1,name:(p[0]||'').trim(),url:(p[1]||'').trim()};});
+  ta.value=''; render();
 };
-window.updateCompany=(i,field,val)=>{state.setup.companies[i][field]=val;}; // Kein sofort-save (wird beim Speichern-Button übernommen)
+window.addCompany=()=>{ pushHistory(); const maxId=state.setup.companies.reduce((m,c)=>Math.max(m,c.id||0),0); state.setup.companies.push({id:maxId+1,name:'',url:''}); render(); const els=document.querySelectorAll('.co-name'); if(els.length)els[els.length-1].focus(); };
+window.updateCompany=(i,field,val)=>{
+  if(!state.setup.companies[i])return;
+  const nv=(val||'').trim();
+  if(state.setup.companies[i][field]===nv)return;
+  pushHistory(); state.setup.companies[i][field]=nv; refreshHistBtns(); // kein Re-Render: Eingabe-/Einfügefelder bleiben erhalten
+};
+window.removeCompany=(i)=>{ if(i<0||i>=state.setup.companies.length)return; pushHistory(); state.setup.companies.splice(i,1); render(); };
+
 window.saveSetup=async()=>{
-  // Datum-Felder aus DOM lesen + Uhrzeit hinzufügen (von: 00:00, bis: 23:59)
-  const rd=(id,addTime)=>{const el=document.getElementById(id);if(!el||!el.value)return '';return el.value+(addTime||'');};
-  state.setup.besVon=rd('cfg-besVon','T00:00');
-  state.setup.besBis=rd('cfg-besBis','T23:59');
-  state.setup.verVon=rd('cfg-verVon','T00:00');
-  state.setup.verBis=rd('cfg-verBis','T23:59');
-  const btn=document.getElementById('save-btn');if(btn){btn.textContent='Speichern…';btn.disabled=true;}
+  // Datums-Werte normalisieren (von: 00:00, bis: 23:59) – Werte stehen bereits im State
+  const norm=(v,suf)=> v ? (String(v).includes('T') ? v : v+suf) : '';
+  state.setup.besVon=norm(state.setup.besVon,'T00:00');
+  state.setup.besBis=norm(state.setup.besBis,'T23:59');
+  state.setup.verVon=norm(state.setup.verVon,'T00:00');
+  state.setup.verBis=norm(state.setup.verBis,'T23:59');
+  // leere Einträge entfernen, Lernende sortieren
+  state.setup.students=state.setup.students.map(s=>(s||'').trim()).filter(Boolean);
+  sortStudents();
+  state.setup.companies=state.setup.companies.filter(c=>(c.name||'').trim()||(c.url||'').trim());
+  state.setupSaving=true; render();
   await FB.saveSetup(state.setup);
-  if(btn){btn.textContent='✓ Gespeichert!';btn.style.background='#16a34a';setTimeout(()=>{if(btn){btn.textContent='💾 Einstellungen speichern';btn.style.background='';btn.disabled=false;}},2000);}
+  state.setupUndo=[]; state.setupRedo=[]; state.setupSaving=false; state.setupSaved=true; render();
+  setTimeout(()=>{ state.setupSaved=false; render(); },2000);
 };
 
 // ── Init ──────────────────────────────────────────────────────────────────────
