@@ -106,6 +106,24 @@ tr:hover td{background:#f9fafb}
 .import-hint{font-size:11px;color:#9ca3af;margin-bottom:6px;line-height:1.5}
 textarea.mono{font-family:monospace;font-size:12px}
 .locked-banner{background:#f1f5f9;border:2px solid #cbd5e1;border-radius:12px;padding:20px;text-align:center;margin-bottom:12px}
+/* Versetzung: 2-Spalten Checkbox + Drag */
+.vlist{display:flex;flex-direction:column;gap:6px}
+.ver-divider{font-size:10px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;padding:10px 4px 2px;border-top:1px dashed #e5e7eb;margin-top:4px}
+.ver-cb{width:18px;height:18px;accent-color:#6366f1;flex-shrink:0;cursor:pointer}
+.vcheck-row{display:flex;align-items:center;gap:9px;padding:10px 10px;border:2px solid #e5e7eb;border-radius:9px;cursor:pointer;background:#fff;transition:border-color .15s,background .15s}
+.vcheck-row.on{border-color:#6366f1;background:#f5f3ff}
+.vcheck-row.off{background:#fafafa;border-color:#eef0f2}
+.vcheck-row.off .vcheck-name{color:#6b7280}
+.vcheck-row.disabled{opacity:.45;cursor:not-allowed}
+.vcheck-name{flex:1;min-width:0;font-size:13px;font-weight:600;color:#1f2937;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vlink{color:#c7d2fe;flex-shrink:0;line-height:0;display:flex;align-items:center}
+.vlink:hover{color:#6366f1}
+.prio-row{display:flex;align-items:center;gap:9px;padding:10px 10px;border:2px solid #c7d2fe;border-radius:9px;background:#eef2ff;touch-action:none;-webkit-user-select:none;user-select:none;cursor:grab}
+.prio-row.dragging{box-shadow:0 10px 24px rgba(99,102,241,.45);border-color:#6366f1;background:#e0e7ff;cursor:grabbing}
+.prio-badge{width:24px;height:24px;border-radius:50%;background:#6366f1;color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.prio-name{flex:1;min-width:0;font-size:13px;font-weight:700;color:#1f2937;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drag-handle{color:#a5b4fc;flex-shrink:0;display:flex;align-items:center}
+.prio-empty{font-size:11px;color:#9ca3af;font-style:italic;padding:18px 8px;text-align:center;border:2px dashed #e5e7eb;border-radius:8px;line-height:1.4}
 </style>
 </head>
 <body>
@@ -140,6 +158,8 @@ const FB = {
   saveVer: (sub) => { const id=sub.name.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'').toLowerCase(); return setDoc(doc(db,'submissions',id),sub); },
   delVer: (id) => deleteDoc(doc(db,'submissions',id)),
   delAllVer: async () => { const s=await getDocs(collection(db,'submissions')); return Promise.all(s.docs.map(d=>deleteDoc(d.ref))); },
+  // Einmaliger Cleanup: alte Einträge im Punkte-Schema (ohne priorities-Array) entfernen
+  cleanupOldVer: async () => { try{ const s=await getDocs(collection(db,'submissions')); await Promise.all(s.docs.filter(d=>!Array.isArray(d.data().priorities)).map(d=>deleteDoc(d.ref))); }catch(e){ console.warn('cleanupOldVer:',e); } },
   // Config
   loadSetup: async () => { const d=await getDoc(doc(db,'config','setup')); return d.exists()?d.data():null; },
   saveSetup: (cfg) => setDoc(doc(db,'config','setup'),cfg),
@@ -186,16 +206,14 @@ let state = {
   subsVer: [],
   setup: { ...DEFAULT_SETUP },
   // Gemeinsame Angaben
-  personal: { name:'', plz:'', ort:'', email:'', bms:'', schultage:'', ferien:'', ferienText:'', selfie:'', datenschutz:false },
+  personal: { name:'', plz:'', ort:'', email:'', bms:'', schultage:'', ferien:'', ferienText:'', englisch:'', selfie:'', datenschutz:false },
   // Besuche
   besuche: { selected:[] },   // Array von IDs
-  // Versetzung
-  versetzung: { points:{}, hidden:[], orderedIds:DEFAULT_COMPANIES.map(c=>c.id), sortApplied:false, bemerkungen:'' },
+  // Versetzung – selected = Firmen-IDs in Prio-Reihenfolge (selected[0] = Prio 1)
+  versetzung: { selected:[], bemerkungen:'' },
   selfieStreaming:false, selfieReady:false, selfieStream:null,
   showHidden:false, showLoginModal:false, loginPw:'', loginErr:false, loading:true,
 };
-
-const emptyPoints = (cos) => cos.reduce((a,c)=>({...a,[c.id]:0}),{});
 
 // ── SVG Icons ─────────────────────────────────────────────────────────────────
 const checkSvg=(s=14)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>`;
@@ -210,6 +228,7 @@ const chevD=(s=14)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="n
 const chevU=(s=14)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>`;
 const linkSvg=(s=10)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
 const dlSvg=(s=16)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
+const gripSvg=(s=16)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.7"/><circle cx="15" cy="6" r="1.7"/><circle cx="9" cy="12" r="1.7"/><circle cx="15" cy="12" r="1.7"/><circle cx="9" cy="18" r="1.7"/><circle cx="15" cy="18" r="1.7"/></svg>`;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const now = () => new Date();
@@ -236,16 +255,12 @@ function verDeadlinePassed() {
 
 // ── Computed Versetzung ───────────────────────────────────────────────────────
 function computedVer() {
-  const v=state.versetzung, pts=v.points, p=state.personal;
-  const total=Object.values(pts).reduce((a,b)=>a+Number(b||0),0);
-  const withPoints=Object.values(pts).filter(v=>v>0).length;
-  const nonZeroDup=()=>{const vals=Object.entries(pts).filter(([id,vv])=>vv>0&&!v.hidden.includes(Number(id))).map(([,vv])=>vv);return vals.length!==new Set(vals).size;};
-  const rankMap={};
-  Object.entries(pts).filter(([,vv])=>vv>0).sort((a,b)=>b[1]-a[1]).slice(0,8).forEach(([id],i)=>{rankMap[Number(id)]=i+1;});
+  const v=state.versetzung, p=state.personal;
+  const count=v.selected.length;
   const deadlinePassed=verDeadlinePassed();
-  const angaben=!!(p.name&&p.plz&&/^[0-9]{4}$/.test(p.plz)&&p.ort&&p.email&&p.bms&&p.schultage&&p.selfie);
-  const valid=total===100&&!nonZeroDup()&&withPoints===8&&angaben&&p.datenschutz&&!deadlinePassed;
-  return{total,remaining:100-total,withPoints,nonZeroDup:nonZeroDup(),rankMap,valid,deadlinePassed,angaben};
+  const angaben=!!(p.name&&p.plz&&/^[0-9]{4}$/.test(p.plz)&&p.ort&&p.email&&p.bms&&p.schultage&&p.englisch&&p.selfie);
+  const valid=count===8&&angaben&&p.datenschutz&&!deadlinePassed;
+  return{count,valid,deadlinePassed,angaben};
 }
 
 // ── Computed Besuche ──────────────────────────────────────────────────────────
@@ -268,52 +283,6 @@ function render() {
   renderForm();
 }
 
-// ── Schnelle Banner-Updates (kein Re-Render beim Slider) ──────────────────────
-let _sliderTimer=null;
-function applyPointUpdate(id,n){
-  state.versetzung.points[id]=n;
-  document.querySelectorAll(`[data-cid="${id}"]`).forEach(el=>{if(el!==document.activeElement)el.value=n;});
-  const pts=state.versetzung.points, hidden=state.versetzung.hidden;
-  state.setup.companies.forEach(co=>{
-    const cid=co.id, val=pts[cid]||0;
-    const isDup=val>0&&!hidden.includes(cid)&&Object.entries(pts).some(([oid,ov])=>Number(oid)!==cid&&ov===val&&!hidden.includes(Number(oid)));
-    const numIn=document.querySelector(`.num-input[data-cid="${cid}"]`);
-    if(numIn)numIn.classList.toggle('dup',isDup);
-    const existDup=document.querySelector(`.company-row[data-id="${cid}"] .dup-label`);
-    if(isDup&&!existDup){const top=document.querySelector(`.company-row[data-id="${cid}"] .company-top`);if(top&&numIn){const sp=document.createElement('span');sp.className='dup-label';sp.textContent='Duplikat!';top.insertBefore(sp,numIn);}}
-    else if(!isDup&&existDup){existDup.remove();}
-  });
-  updateVerBannerFast();
-  clearTimeout(_sliderTimer);
-  _sliderTimer=setTimeout(()=>render(),150);
-}
-
-function updateVerBannerFast(){
-  const pts=state.versetzung.points, hidden=state.versetzung.hidden;
-  const total=Object.values(pts).reduce((a,b)=>a+Number(b||0),0);
-  const withPoints=Object.values(pts).filter(v=>v>0).length;
-  const vals=Object.entries(pts).filter(([id,v])=>v>0&&!hidden.includes(Number(id))).map(([,v])=>v);
-  const nonZeroDup=vals.length!==new Set(vals).size;
-  const p=state.personal;
-  const angaben=!!(p.name&&p.plz&&/^[0-9]{4}$/.test(p.plz)&&p.ort&&p.email&&p.bms&&p.schultage&&p.ferien&&(p.ferien!=='Ja'||p.ferienText)&&p.selfie);
-  const bar=document.querySelector('.sticky-bar');
-  if(bar)bar.className='sticky-bar '+(total===100?'ok':total>100?'over':'pending');
-  const pn=document.querySelector('.pts-num');if(pn)pn.textContent=`${total}/100`;
-  const pills=document.querySelectorAll('.pill');
-  if(pills.length>=3){
-    const setP=(el,ok,label)=>{el.className='pill '+(ok?'ok':'ng');const icon=ok?`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>`:`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;el.innerHTML=icon+' '+label;};
-    setP(pills[0],withPoints===8,`${withPoints}/8 Firmen`);
-    setP(pills[1],!nonZeroDup,!nonZeroDup?'Keine Duplikate':'Duplikate!');
-    setP(pills[2],angaben,angaben?'Angaben vollständig':'Angaben unvollständig');
-  }
-  const rankMap={};
-  Object.entries(pts).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,8).forEach(([id],i)=>{rankMap[Number(id)]=i+1;});
-  document.querySelectorAll('.company-row').forEach(row=>{
-    const cid=Number(row.dataset.id), badge=row.querySelector('.rank-badge');
-    if(badge){const rank=rankMap[cid];badge.className='rank-badge '+(rank?'active':'empty');badge.textContent=rank||'';}
-  });
-}
-
 // ── Selfie HTML ───────────────────────────────────────────────────────────────
 function buildSelfieHtml(p){
   if(p.selfie)return`<img src="${p.selfie}" class="selfie-preview" style="margin-bottom:8px"/><button onclick="resetSelfie()" style="font-size:12px;font-weight:600;color:#6366f1;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px">${camSvg(13)} Neues Verifizierungsfoto aufnehmen</button>`;
@@ -322,12 +291,13 @@ function buildSelfieHtml(p){
 }
 
 // ── Persönliche Angaben HTML ──────────────────────────────────────────────────
-function buildPersonalHtml(p, showFerien=true){
+function buildPersonalHtml(p, showFerien=true, showEnglisch=false){
   let nameField='';
   if(state.setup.students&&state.setup.students.length>0){
-    nameField=`<select onchange="setPersonal('name',this.value)" style="width:100%;padding:8px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:16px;background:#fff"><option value="">-- Name auswählen --</option>${state.setup.students.map(s=>`<option value="${s}" ${p.name===s?'selected':''}>${s}</option>`).join('')}</select>`;
+    const firstNames=[...new Set(state.setup.students.map(s=>(s||'').trim().split(/\s+/)[0]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'de'));
+    nameField=`<select onchange="setPersonal('name',this.value)" style="width:100%;padding:8px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:16px;background:#fff"><option value="">-- Vorname auswählen --</option>${firstNames.map(fn=>`<option value="${fn}" ${p.name===fn?'selected':''}>${fn}</option>`).join('')}</select>`;
   } else {
-    nameField=`<input type="text" value="${p.name}" placeholder="Max Muster" oninput="livePersonal('name',this.value)" onblur="commitPersonal()" autocomplete="name"/>`;
+    nameField=`<input type="text" value="${p.name}" placeholder="Vorname" oninput="livePersonal('name',this.value)" onblur="commitPersonal()" autocomplete="given-name"/>`;
   }
   return`<div class="card"><div class="card-body">
     <p class="section-title">Persönliche Angaben</p>
@@ -346,6 +316,11 @@ function buildPersonalHtml(p, showFerien=true){
         <label><input tabindex="6" type="radio" name="schultage" ${p.schultage==='Mo/Di'?'checked':''} onchange="setPersonal('schultage','Mo/Di')"/> Montag / Dienstag</label>
         <label><input tabindex="7" type="radio" name="schultage" ${p.schultage==='Do/Fr'?'checked':''} onchange="setPersonal('schultage','Do/Fr')"/> Donnerstag / Freitag</label>
       </div></div>
+      ${showEnglisch?`<div><p class="lbl">Selbsteinschätzung Englisch – Niveau &amp; Bereitschaft *</p><div class="radio-group">
+        <label><input type="radio" name="englisch" ${p.englisch==='hoch'?'checked':''} onchange="setPersonal('englisch','hoch')"/> Hoch</label>
+        <label><input type="radio" name="englisch" ${p.englisch==='mittel'?'checked':''} onchange="setPersonal('englisch','mittel')"/> Mittel</label>
+        <label><input type="radio" name="englisch" ${p.englisch==='bescheiden'?'checked':''} onchange="setPersonal('englisch','bescheiden')"/> Bescheiden</label>
+      </div></div>`:''}
       ${showFerien?`<div><p class="lbl">Frühlingsferien *</p><div class="radio-group">
         <label><input tabindex="8" type="radio" name="ferien" ${p.ferien==='Ja'?'checked':''} onchange="setPersonal('ferien','Ja')"/> Ja</label>
         <label><input tabindex="9" type="radio" name="ferien" ${p.ferien==='Nein'?'checked':''} onchange="setPersonal('ferien','Nein')"/> Nein</label>
@@ -465,12 +440,39 @@ function renderFormBesuche(appEl, p, cv, tabsHtml){
   ${state.showLoginModal?renderLoginModal():''}`;
 }
 
-// ── Versetzung Tab ────────────────────────────────────────────────────────────
+// ── Versetzung Tab: EINE Liste – angehakte oben (Prio, dragbar), Rest ausgegraut ─
+function verListHtml(){
+  const cos=state.setup.companies, sel=state.versetzung.selected;
+  const full=sel.length>=8;
+  let html='';
+  // 1) Angehakte – mit Prio-Badge, per Drag sortierbar
+  sel.forEach((id,i)=>{
+    const co=cos.find(c=>c.id===id); if(!co)return;
+    html+=`<div class="prio-row" data-id="${id}" onpointerdown="startDrag(event,${id})">
+      <input type="checkbox" checked class="ver-cb" onpointerdown="event.stopPropagation()" onchange="toggleVerCompany(${id},this.checked)"/>
+      <div class="prio-badge">${i+1}</div>
+      <span class="prio-name" title="${co.name}">${co.name}</span>
+      <a href="${co.url}" target="_blank" class="vlink" onpointerdown="event.stopPropagation()" onclick="event.stopPropagation()">${linkSvg(12)}</a>
+      <span class="drag-handle">${gripSvg(18)}</span>
+    </div>`;
+  });
+  // 2) Trenner
+  const rest=cos.filter(c=>!sel.includes(c.id));
+  if(sel.length>0 && rest.length>0) html+=`<div class="ver-divider">Weitere Firmen${full?' · max. 8 erreicht':''}</div>`;
+  // 3) Nicht angehakte – ausgegraut, nicht dragbar
+  rest.forEach(co=>{
+    html+=`<label class="vcheck-row off${full?' disabled':''}">
+      <input type="checkbox" class="ver-cb" ${full?'disabled':''} onchange="toggleVerCompany(${co.id},this.checked)"/>
+      <span class="vcheck-name" title="${co.name}">${co.name}</span>
+      <a href="${co.url}" target="_blank" class="vlink" onclick="event.stopPropagation()">${linkSvg(12)}</a>
+    </label>`;
+  });
+  return html;
+}
+
 function renderFormVersetzung(appEl, p, tabsHtml){
   const cv=computedVer();
   const v=state.versetzung;
-  const s=state.setup;
-  const cos=state.setup.companies;
 
   if(verDeadlinePassed()){
     appEl.innerHTML=`${tabsHtml}<div class="main-wrap"><div style="padding:40px 0;text-align:center"><div class="success-card" style="margin:0 auto"><div style="font-size:3rem;margin-bottom:12px">🔒</div><h2 style="font-size:18px;font-weight:700;color:#1f2937;margin-bottom:8px">Eingabefrist abgelaufen</h2><p style="color:#6b7280;font-size:13px">Die Wunschliste Versetzung konnte bis ${new Date(state.setup.verBis).toLocaleDateString('de-DE')} eingereicht werden.</p></div></div></div>
@@ -479,46 +481,17 @@ function renderFormVersetzung(appEl, p, tabsHtml){
     return;
   }
 
-  // Companies HTML
-  const hiddenCos=cos.filter(c=>v.hidden.includes(c.id));
-  let hiddenHtml='';
-  hiddenCos.forEach(co=>{hiddenHtml+=`<div class="drawer-item"><a href="${co.url}" target="_blank" style="font-size:13px;color:#9ca3af;text-decoration:line-through;display:flex;align-items:center;gap:4px">${co.name} ${linkSvg(9)}</a><button onclick="showCompany(${co.id})" style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:#6366f1;background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:6px">${eyeOnSvg(13)} Einblenden</button></div>`;});
-
-  const visibleIds=v.orderedIds.filter(id=>!v.hidden.includes(id));
-  let cosHtml='';
-  visibleIds.forEach(id=>{
-    const co=cos.find(c=>c.id===id); if(!co)return;
-    const val=v.points[id]||0, rank=cv.rankMap[id];
-    const isDup=val>0&&Object.entries(v.points).some(([oid,ov])=>Number(oid)!==id&&ov===val&&!v.hidden.includes(Number(oid)));
-    cosHtml+=`<div class="company-row" data-id="${id}">
-      <div class="company-top">
-        <div class="rank-badge ${rank?'active':'empty'}">${rank||''}</div>
-        <a href="${co.url}" target="_blank" class="company-name">${co.name}</a>
-        <span class="link-ico">${linkSvg(9)}</span>
-        ${isDup?`<span class="dup-label">Duplikat!</span>`:''}
-        <div class="stepper-wrap">
-          <button class="step-btn" onclick="stepPoint(${id},-1)">−</button>
-          <input class="num-input${isDup?' dup':''}" type="number" min="0" max="50" value="${val}" data-cid="${id}" oninput="setPointDirect(${id},this.value)" onchange="setPointDirect(${id},this.value)"/>
-          <button class="step-btn" onclick="stepPoint(${id},1)">+</button>
-        </div>
-        <button class="eye-btn" onclick="hideCompanyNow(${id})" title="Ausblenden">${eyeOffSvg(14)}</button>
-      </div>
-      <div class="slider-row"><input type="range" min="0" max="50" value="${val}" class="slider" data-cid="${id}" oninput="setPointSlider(${id},this.value)" onchange="setPointSlider(${id},this.value)"/></div>
-    </div>`;
-  });
-
-  const bannerClass=cv.total===100?'ok':cv.total>100?'over':'pending';
-  const provisional=cv.total===100&&cv.withPoints===8&&p.name;
+  const bannerClass=cv.count===8?'ok':'pending';
+  const provisional=cv.count===8&&p.name;
 
   appEl.innerHTML=`
   <div class="sticky-bar ${bannerClass}">
     <div class="sticky-top">
-      <span class="pts-num">${cv.total}/100</span>
-      <span class="pts-sub">Punkte verteilt</span>
+      <span class="pts-num">${cv.count}/8</span>
+      <span class="pts-sub">Firmen priorisiert</span>
     </div>
     <div class="pills">
-      <div class="pill ${cv.withPoints===8?'ok':'ng'}">${cv.withPoints===8?checkSvg(10):warnSvg(10)} ${cv.withPoints}/8 Firmen</div>
-      <div class="pill ${!cv.nonZeroDup?'ok':'ng'}">${!cv.nonZeroDup?checkSvg(10):warnSvg(10)} ${!cv.nonZeroDup?'Keine Duplikate':'Duplikate!'}</div>
+      <div class="pill ${cv.count===8?'ok':'ng'}">${cv.count===8?checkSvg(10):warnSvg(10)} ${cv.count}/8 Firmen</div>
       <div class="pill ${cv.angaben?'ok':'ng'}">${cv.angaben?checkSvg(10):warnSvg(10)} ${cv.angaben?'Angaben vollständig':'Angaben unvollständig'}</div>
     </div>
   </div>
@@ -526,46 +499,39 @@ function renderFormVersetzung(appEl, p, tabsHtml){
   <div class="main-wrap">
     <div class="card" style="margin-top:0"><div class="card-body">
       <h1 style="font-size:17px;font-weight:800;color:#1f2937;margin-bottom:4px">Wünsche Versetzungsfirmen</h1>
-      <p style="font-size:13px;color:#6b7280;margin-bottom:10px">Verteile 100 Punkte auf genau 8 Firmen.</p>
-      <div class="info-box"><div>• Genau 8 Firmen müssen mindestens 1 Punkt erhalten</div><div>• Keine zwei Firmen dürfen gleich viele Punkte erhalten</div></div>
+      <p style="font-size:13px;color:#6b7280;margin-bottom:10px">Wähle links genau 8 Firmen. Bring sie rechts per Drag in deine Wunsch-Reihenfolge.</p>
+      <div class="info-box"><div>• Genau 8 Firmen auswählen (Häkchen links)</div><div>• Reihenfolge rechts = deine Priorität — oben = Prio 1, unten = Prio 8</div></div>
       ${state.setup.verVon?`<p style="font-size:12px;color:#6b7280;font-weight:600;margin-top:6px">📅 Sichtbar ab: ${new Date(state.setup.verVon).toLocaleDateString('de-DE')}</p>`:''}
       ${state.setup.verBis?`<p style="font-size:12px;color:#ea580c;font-weight:600;margin-top:4px">⏰ Eingabe möglich bis: ${new Date(state.setup.verBis).toLocaleDateString('de-DE')}</p>`:''}
     </div></div>
 
-    ${buildPersonalHtml(p, false)}
+    ${buildPersonalHtml(p, false, true)}
 
     <div class="card"><div class="card-body" style="padding:12px 16px">
       ${[
-        {ok:cv.total===100,label:`100 Punkte verteilt (${cv.total}/100)`},
-        {ok:cv.withPoints===8,label:`Genau 8 Firmen bewertet (${cv.withPoints}/8)${cv.withPoints>8?' – zu viele!':''}`},
-        {ok:!cv.nonZeroDup,label:'Keine doppelten Punktzahlen'},
+        {ok:cv.count===8,label:`Genau 8 Firmen gewählt (${cv.count}/8)${cv.count>8?' – zu viele!':''}`},
         {ok:!!(p.name&&p.plz&&/^[0-9]{4}$/.test(p.plz)&&p.ort&&p.email),label:'Alle Pflichtfelder ausgefüllt (PLZ: 4 Ziffern)'},
         {ok:!!(p.bms&&p.schultage),label:'BMS / Schultage ausgefüllt'},
+        {ok:!!p.englisch,label:'Englisch-Selbsteinschätzung gewählt'},
         {ok:!!p.selfie,label:'Verifizierungsfoto aufgenommen'},
       ].map(vv=>`<div class="validation-row ${vv.ok?'ok':'ng'}">${vv.ok?checkSvg(13):warnSvg(13)} ${vv.label}</div>`).join('')}
     </div></div>
 
     <div class="card">
-      <div class="company-header"><p class="section-title" style="margin:0">Punkte verteilen</p><span style="font-size:12px;color:#9ca3af;font-weight:600">${cv.withPoints}/8 bewertet</span></div>
-      <div id="companies-list">${cosHtml}</div>
+      <div class="company-header"><p class="section-title" style="margin:0">Firmen wählen &amp; priorisieren</p><span style="font-size:12px;color:#9ca3af;font-weight:600">${cv.count}/8 gewählt</span></div>
+      <p style="font-size:12px;color:#6b7280;padding:8px 16px 0;line-height:1.4">Hake genau 8 Firmen an — sie rücken nach oben und werden mit Prio 1–8 nummeriert. Reihenfolge per Drag (Balken anfassen) ändern: oben = Prio 1.</p>
+      <div style="padding:10px"><div id="ver-list" class="vlist">${verListHtml()}</div></div>
     </div>
 
-    ${hiddenCos.length>0?`<div class="card">
-      <button class="drawer-toggle" onclick="toggleHiddenDrawer()"><span>Ausgeblendete Firmen (${hiddenCos.length})</span>${state.showHidden?chevU():chevD()}</button>
-      ${state.showHidden?`<div class="drawer-content">${hiddenHtml}</div>`:''}
-    </div>`:''}
-
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
-      <button class="btn btn-gray" onclick="hideUnrated()">${eyeOffSvg(15)} Nicht bewertete Firmen ausblenden</button>
-      <button class="btn btn-blue" onclick="doSort()">${sortSvg()} ${v.sortApplied?'✓ Nach Bewertung sortiert':'Nach Bewertung sortieren'}</button>
       <button class="btn btn-green" onclick="saveProvisionalVer()" ${provisional?'':'disabled'} style="${provisional?'':'opacity:.4;cursor:not-allowed'}">
         📸 Wunschliste provisorisch speichern
       </button>
-      
+
       <div class="card"><div class="card-body">
         <label class="lbl">Bemerkungen (optional, max. 200 Zeichen)</label>
-        <textarea maxlength="200" rows="3" placeholder="Ergänzende Hinweise zu deiner Wunschliste..." oninput="state.versetzung.bemerkungen=this.value" onblur="render()" style="width:100%;padding:8px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;font-family:inherit;background:#fff;resize:vertical">${v.bemerkungen||''}</textarea>
-        <p style="font-size:11px;color:#9ca3af;margin-top:4px;text-align:right">${(v.bemerkungen||'').length}/200 Zeichen</p>
+        <textarea id="bemerkungen-field" maxlength="200" rows="3" placeholder="Ergänzende Hinweise zu deiner Wunschliste..." oninput="updateBemerkungen(this.value)" style="width:100%;padding:8px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;font-family:inherit;background:#fff;resize:vertical">${v.bemerkungen||''}</textarea>
+        <p id="bemerkungen-counter" style="font-size:11px;color:#9ca3af;margin-top:4px;text-align:right">${(v.bemerkungen||'').length}/200 Zeichen</p>
       </div></div>
 
       <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:12px 14px;display:flex;align-items:flex-start;gap:10px">
@@ -603,17 +569,16 @@ function renderSuccessBes(){
 // ── Success Versetzung ────────────────────────────────────────────────────────
 function renderSuccessVer(){
   const p=state.personal, cos=state.setup.companies;
-  const ranked=[...cos].filter(c=>state.versetzung.points[c.id]>0).sort((a,b)=>state.versetzung.points[b.id]-state.versetzung.points[a.id]);
-  const total=Object.values(state.versetzung.points).reduce((a,b)=>a+b,0);
-  const rows=ranked.map((c,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f3f4f6"><div style="width:24px;height:24px;border-radius:50%;background:#6366f1;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0">${i+1}</div><span style="flex:1;font-size:13px;font-weight:600;color:#1f2937">${c.name}</span><span style="font-size:14px;font-weight:800;color:#6366f1">${state.versetzung.points[c.id]} Pts</span></div>`).join('');
+  const ranked=state.versetzung.selected.map(id=>cos.find(c=>c.id===id)).filter(Boolean);
+  const rows=ranked.map((c,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f3f4f6"><div style="width:24px;height:24px;border-radius:50%;background:#6366f1;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0">${i+1}</div><span style="flex:1;font-size:13px;font-weight:600;color:#1f2937">${c.name}</span><span style="font-size:12px;font-weight:800;color:#6366f1">Prio ${i+1}</span></div>`).join('');
   document.getElementById('app').innerHTML=`<div class="success-page"><div class="success-card" id="snap-ver" style="max-width:400px">
     <div class="check-circle">${checkSvg(32)}</div>
     <h2 style="font-size:20px;font-weight:800;color:#1f2937;margin-bottom:4px">Wunschliste eingereicht!</h2>
     <p style="color:#6b7280;font-size:13px;margin-bottom:16px">${p.name}</p>
     <div style="text-align:left;margin-bottom:12px">${rows}</div>
     <div style="background:#f9fafb;border-radius:8px;padding:8px 12px;margin-bottom:20px;display:flex;justify-content:space-between">
-      <span style="font-size:13px;font-weight:600;color:#6b7280">Total</span>
-      <span style="font-size:15px;font-weight:900;color:#6366f1">${total} / 100 Pts</span>
+      <span style="font-size:13px;font-weight:600;color:#6b7280">Firmen priorisiert</span>
+      <span style="font-size:15px;font-weight:900;color:#6366f1">${ranked.length} / 8</span>
     </div>
     <div style="display:flex;flex-direction:column;gap:8px">
       <button onclick="saveSnapshotVer()" class="btn btn-green" style="font-size:14px;padding:10px">📸 Als Foto speichern</button>
@@ -667,15 +632,16 @@ function renderAdmin(){
   } else if(state.adminTab==='versetzung'){
     const total=stus.length>0?stus.length:40;
     const pct=Math.min(100,Math.round(subs_v.length/total*100));
+    const engLabel={hoch:'Hoch',mittel:'Mittel',bescheiden:'Besch.'};
+    const prioOf=(sub,cid)=>{const pr=sub.priorities||[];const idx=pr.indexOf(cid);return idx>=0?idx+1:null;};
     const rows=subs_v.map((sub,i)=>{
-      const sm=Object.values(sub.points||{}).reduce((a,b)=>a+b,0);
       const fotoBtn=sub.selfie?`<img src="${sub.selfie}" onclick="openLightbox('${sub.selfie}','${(sub.name||'').replace(/'/g,"\\'")}\')" style="width:32px;height:32px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid #e5e7eb" title="Foto anzeigen"/>`:'-';
-      return`<tr><td>${i+1}</td><td style="font-weight:600;white-space:nowrap">${sub.name||''}</td><td style="color:#9ca3af;font-size:11px;white-space:nowrap">${sub.timestamp||''}</td><td>${fotoBtn}</td>${cos.map(c=>`<td style="text-align:center;font-weight:600;color:${(sub.points&&sub.points[c.id])>0?'#6366f1':'#d1d5db'}">${(sub.points&&sub.points[c.id])||'–'}</td>`).join('')}<td style="text-align:center;font-weight:700;color:#6366f1">${sm}</td><td><button onclick="delSubVer('${sub._id}')" style="background:none;border:none;cursor:pointer;color:#d1d5db;padding:4px">${trashSvg(14)}</button></td></tr>`;
+      return`<tr><td>${i+1}</td><td style="font-weight:600;white-space:nowrap">${sub.name||''}</td><td style="color:#9ca3af;font-size:11px;white-space:nowrap">${sub.timestamp||''}</td><td>${fotoBtn}</td><td style="text-align:center;font-weight:600;white-space:nowrap">${engLabel[sub.englisch]||'–'}</td>${cos.map(c=>{const pr=prioOf(sub,c.id);return`<td style="text-align:center;font-weight:700;color:${pr?'#6366f1':'#d1d5db'}">${pr||'–'}</td>`;}).join('')}<td><button onclick="delSubVer('${sub._id}')" style="background:none;border:none;cursor:pointer;color:#d1d5db;padding:4px">${trashSvg(14)}</button></td></tr>`;
     }).join('');
-    const avgRow=cos.map(c=>{const avg=subs_v.length?subs_v.reduce((a,sub)=>a+(sub.points&&sub.points[c.id]||0),0)/subs_v.length:0;return`<td style="text-align:center;font-weight:600;color:#6366f1">${avg.toFixed(1)}</td>`;}).join('');
+    const avgRow=cos.map(c=>{const vals=subs_v.map(sub=>prioOf(sub,c.id)).filter(x=>x);const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;return`<td style="text-align:center;font-weight:600;color:#6366f1" title="Anzahl Nennungen: ${vals.length}">${vals.length?avg.toFixed(1):'–'}</td>`;}).join('');
     content=`<div class="card"><div class="card-body"><p class="section-title">Fortschritt Versetzung</p><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:14px;font-weight:700">Einreichungen</span><span style="font-size:14px;font-weight:700;color:#6366f1">${subs_v.length} / ${total} (${pct}%)</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div></div></div>
     <div class="card"><div class="card-body" style="padding:12px"><div style="display:flex;gap:8px;flex-wrap:wrap"><button onclick="exportCSVVer()" ${subs_v.length?'':'disabled'} class="btn btn-green btn-sm" style="${subs_v.length?'':'opacity:.5;cursor:not-allowed'}">${dlSvg()} CSV exportieren</button><button onclick="clearAllVer()" ${subs_v.length?'':'disabled'} class="btn btn-red btn-sm" style="${subs_v.length?'':'opacity:.5;cursor:not-allowed'}">Alle löschen</button></div></div></div>
-    ${subs_v.length>0?`<div class="card"><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Name</th><th>Zeit</th><th>Foto</th>${cos.map(c=>`<th title="${c.name}" style="text-align:center">${c.id}</th>`).join('')}<th style="text-align:center">Σ</th><th></th></tr></thead><tbody>${rows}</tbody><tfoot style="background:#eff6ff"><tr><td colspan="4" style="font-weight:700;padding:7px 6px">⌀ Durchschnitt</td>${avgRow}<td></td><td></td></tr></tfoot></table></div><div style="padding:12px 16px;background:#f8fafc;border-top:1px solid #e5e7eb"><p style="font-size:11px;font-weight:700;color:#6b7280;margin-bottom:6px">Firmen-Legende</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px">${cos.map(c=>`<p style="font-size:11px;color:#6b7280"><span style="font-weight:700;color:#6366f1">${c.id}.</span> ${c.name}</p>`).join('')}</div></div></div>`:`<div class="card"><div class="card-body" style="text-align:center;color:#9ca3af;padding:40px">Noch keine Einreichungen.</div></div>`}`;
+    ${subs_v.length>0?`<div class="card"><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Name</th><th>Zeit</th><th>Foto</th><th style="text-align:center">Engl.</th>${cos.map(c=>`<th title="${c.name}" style="text-align:center">${c.id}</th>`).join('')}<th></th></tr></thead><tbody>${rows}</tbody><tfoot style="background:#eff6ff"><tr><td colspan="5" style="font-weight:700;padding:7px 6px">⌀ Prio (Ø der Nennungen)</td>${avgRow}<td></td></tr></tfoot></table></div><div style="padding:12px 16px;background:#f8fafc;border-top:1px solid #e5e7eb"><p style="font-size:11px;font-weight:700;color:#6b7280;margin-bottom:6px">Zellen = Prio (1 = höchster Wunsch). Firmen-Legende:</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px">${cos.map(c=>`<p style="font-size:11px;color:#6b7280"><span style="font-weight:700;color:#6366f1">${c.id}.</span> ${c.name}</p>`).join('')}</div></div></div>`:`<div class="card"><div class="card-body" style="text-align:center;color:#9ca3af;padding:40px">Noch keine Einreichungen.</div></div>`}`;
 
   } else { // setup
     // Lokale Kopie für Einstellungen – wird erst beim Speichern übernommen
@@ -744,6 +710,13 @@ window.livePersonal = (k,v) => { state.personal[k]=v; };
 window.commitPersonal = () => { render(); };
 window.setPersonal = (k,v) => { state.personal[k]=v; render(); };
 
+// Bemerkungen live updaten ohne Re-Render
+window.updateBemerkungen = (val) => {
+  state.versetzung.bemerkungen = val;
+  const counter = document.getElementById('bemerkungen-counter');
+  if(counter) counter.textContent = `${val.length}/200 Zeichen`;
+};
+
 // Besuche
 window.toggleBesuche = (id, checked) => {
   if(checked){ if(state.besuche.selected.length<8)state.besuche.selected.push(id); }
@@ -751,15 +724,77 @@ window.toggleBesuche = (id, checked) => {
   render();
 };
 
-// Versetzung Slider/Stepper
-window.setPointSlider = (id,v) => { applyPointUpdate(id, Math.max(0,Math.min(50,parseInt(v)||0))); };
-window.setPointDirect = (id,v) => { applyPointUpdate(id, Math.max(0,Math.min(50,parseInt(v)||0))); };
-window.stepPoint = (id,delta) => { applyPointUpdate(id, Math.max(0,Math.min(50,(state.versetzung.points[id]||0)+delta))); };
-window.hideCompanyNow = (id) => { state.versetzung.points[id]=0; state.versetzung.hidden=[...state.versetzung.hidden,id]; state.versetzung.orderedIds=state.versetzung.orderedIds.filter(x=>x!==id); render(); };
-window.showCompany = (id) => { state.versetzung.hidden=state.versetzung.hidden.filter(x=>x!==id); state.versetzung.orderedIds.push(id); render(); };
-window.hideUnrated = () => { const toHide=state.versetzung.orderedIds.filter(id=>(state.versetzung.points[id]||0)===0); toHide.forEach(id=>{state.versetzung.hidden.push(id);}); state.versetzung.orderedIds=state.versetzung.orderedIds.filter(id=>(state.versetzung.points[id]||0)>0); render(); };
-window.toggleHiddenDrawer = () => { state.showHidden=!state.showHidden; render(); };
-window.doSort = () => { state.versetzung.orderedIds.sort((a,b)=>{const pa=state.versetzung.points[a]||0,pb=state.versetzung.points[b]||0;if(pa===0&&pb===0)return a-b;if(pa===0)return 1;if(pb===0)return -1;return pb-pa;}); state.versetzung.sortApplied=true; render(); };
+// Versetzung: Firma an-/abwählen (max 8) + Drag-and-Drop Priorisierung
+window.toggleVerCompany = (id, checked) => {
+  const sel=state.versetzung.selected;
+  if(checked){ if(!sel.includes(id) && sel.length<8) sel.push(id); }
+  else { state.versetzung.selected = sel.filter(x=>x!==id); }
+  render();
+};
+
+let _drag = null;
+window.startDrag = (e, id) => {
+  if(e.button!==undefined && e.button>0) return;         // nur Primärzeiger
+  const sel = state.versetzung.selected;
+  const startIndex = sel.indexOf(id);
+  if(startIndex < 0) return;
+  const listEl = document.getElementById('ver-list');
+  if(!listEl) return;
+  const items = Array.from(listEl.querySelectorAll('.prio-row'));
+  if(items.length < 2){ return; }                        // nichts zu sortieren
+  e.preventDefault();
+  const dragEl = items[startIndex];
+  // exakte Zeilen-Schrittweite (inkl. Lücke) aus zwei realen Zeilen messen
+  const rowH = items[1].getBoundingClientRect().top - items[0].getBoundingClientRect().top;
+  _drag = { id, startIndex, curIndex:startIndex, startY:e.clientY, items, dragEl, rowH, n:items.length };
+  dragEl.classList.add('dragging');
+  dragEl.style.zIndex = '30';
+  dragEl.style.willChange = 'transform';
+  items.forEach((el,j)=>{ if(j!==startIndex){ el.style.transition='transform .18s cubic-bezier(.2,.8,.2,1)'; el.style.willChange='transform'; } });
+  try{ dragEl.setPointerCapture(e.pointerId); }catch(_){}
+  document.addEventListener('pointermove', onDragMove, {passive:false});
+  document.addEventListener('pointerup', endDrag);
+  document.addEventListener('pointercancel', endDrag);
+};
+function onDragMove(e){
+  if(!_drag) return;
+  e.preventDefault();
+  const { startIndex, startY, items, dragEl, rowH, n } = _drag;
+  const dy = e.clientY - startY;
+  // gezogene Zeile folgt dem Finger 1:1 (leichte Vergrößerung)
+  dragEl.style.transform = `translateY(${dy}px) scale(1.03)`;
+  let newIndex = startIndex + Math.round(dy / rowH);
+  if(newIndex < 0) newIndex = 0;
+  if(newIndex > n-1) newIndex = n-1;
+  if(newIndex !== _drag.curIndex){
+    _drag.curIndex = newIndex;
+    items.forEach((el,j)=>{
+      if(j === startIndex) return;
+      let shift = 0;
+      if(startIndex < newIndex && j > startIndex && j <= newIndex) shift = -rowH;
+      else if(startIndex > newIndex && j < startIndex && j >= newIndex) shift = rowH;
+      el.style.transform = shift ? `translateY(${shift}px)` : 'translateY(0)';
+    });
+  }
+}
+function endDrag(){
+  document.removeEventListener('pointermove', onDragMove);
+  document.removeEventListener('pointerup', endDrag);
+  document.removeEventListener('pointercancel', endDrag);
+  if(!_drag) return;
+  const { startIndex, curIndex, items, dragEl } = _drag;
+  // Inline-Styles aufräumen
+  items.forEach(el=>{ el.style.transition=''; el.style.transform=''; el.style.willChange=''; });
+  dragEl.style.zIndex=''; dragEl.classList.remove('dragging');
+  // Reihenfolge im State übernehmen
+  const sel = state.versetzung.selected;
+  if(curIndex !== startIndex && startIndex >= 0){
+    const [moved] = sel.splice(startIndex,1);
+    sel.splice(curIndex,0,moved);
+  }
+  _drag = null;
+  render(); // Prio-Badges / Banner / Validierung aktualisieren
+}
 
 // Einreichung Besuche
 window.handleSubmitBes = async () => {
@@ -776,7 +811,7 @@ window.handleSubmitVer = async () => {
   const cv=computedVer(); if(!cv.valid)return;
   const p=state.personal;
   const firstName = (p.name||'').trim().split(/\s+/)[0]||'';
-  const sub={name:firstName,plz:p.plz,ort:p.ort,email:p.email,bms:p.bms,schultage:p.schultage,selfie:p.selfie,timestamp:new Date().toLocaleString('de-DE'),points:{...state.versetzung.points},bemerkungen:state.versetzung.bemerkungen||''};
+  const sub={name:firstName,plz:p.plz,ort:p.ort,email:p.email,bms:p.bms,schultage:p.schultage,englisch:p.englisch,selfie:p.selfie,timestamp:new Date().toLocaleString('de-DE'),priorities:[...state.versetzung.selected],bemerkungen:state.versetzung.bemerkungen||''};
   await FB.saveVer(sub); // setDoc mit gleicher ID überschreibt automatisch
   state.view='success_ver'; render(); window.scrollTo(0,0);
 };
@@ -814,11 +849,10 @@ window.saveProvisionalBes = async () => {
 };
 window.saveProvisionalVer = async () => {
   try{
-    const cos=state.setup.companies, pts=state.versetzung.points;
-    const ranked=[...cos].filter(c=>pts[c.id]>0).sort((a,b)=>pts[b.id]-pts[a.id]);
-    const total=Object.values(pts).reduce((a,b)=>a+b,0);
-    const rows=ranked.map((c,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f3f4f6"><div style="width:24px;height:24px;border-radius:50%;background:#6366f1;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0">${i+1}</div><span style="flex:1;font-size:13px;font-weight:600;color:#1f2937">${c.name}</span><span style="font-size:14px;font-weight:800;color:#6366f1">${pts[c.id]} Pts</span></div>`).join('');
-    const footer=`<div style="background:#f9fafb;border-radius:8px;padding:8px 12px;margin-top:10px;display:flex;justify-content:space-between"><span style="font-size:13px;font-weight:600;color:#6b7280">Total</span><span style="font-size:15px;font-weight:900;color:#6366f1">${total} / 100 Pts</span></div>`;
+    const cos=state.setup.companies, sel=state.versetzung.selected;
+    const ranked=sel.map(id=>cos.find(c=>c.id===id)).filter(Boolean);
+    const rows=ranked.map((c,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f3f4f6"><div style="width:24px;height:24px;border-radius:50%;background:#6366f1;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0">${i+1}</div><span style="flex:1;font-size:13px;font-weight:600;color:#1f2937">${c.name}</span><span style="font-size:12px;font-weight:800;color:#6366f1">Prio ${i+1}</span></div>`).join('');
+    const footer=`<div style="background:#f9fafb;border-radius:8px;padding:8px 12px;margin-top:10px;display:flex;justify-content:space-between"><span style="font-size:13px;font-weight:600;color:#6b7280">Firmen priorisiert</span><span style="font-size:15px;font-weight:900;color:#6366f1">${ranked.length} / 8</span></div>`;
     const canvas=await buildProvisionalCard('Meine Wunschliste',rows,footer,'#6366f1');
     await shareOrDownload(canvas,`wunschliste_provisorisch_${state.personal.name.replace(/\s+/g,'_')}.png`);
   }catch(e){alert('Fehler: '+e.message);}
@@ -872,8 +906,12 @@ window.exportCSVBes=()=>{
 };
 window.exportCSVVer=()=>{
   const subs=state.subsVer,cos=state.setup.companies;if(!subs.length)return;
-  const hdrs=['Name','PLZ','Ort','BMS','Schultage','E-Mail','Zeit',...cos.map(c=>c.name),'Summe','Bemerkungen'];
-  const rows=subs.map(s=>[s.name,s.plz,s.ort,s.bms,s.schultage,s.email,s.timestamp,...cos.map(c=>s.points&&s.points[c.id]||0),Object.values(s.points||{}).reduce((a,b)=>a+b,0),s.bemerkungen||'']);
+  const engLabel={hoch:'Hoch',mittel:'Mittel',bescheiden:'Bescheiden'};
+  const hdrs=['Name','PLZ','Ort','BMS','Schultage','Englisch','E-Mail','Zeit',...cos.map(c=>c.name),'Bemerkungen'];
+  const rows=subs.map(s=>{
+    const pr=s.priorities||[];
+    return [s.name,s.plz,s.ort,s.bms,s.schultage,engLabel[s.englisch]||'',s.email,s.timestamp,...cos.map(c=>{const idx=pr.indexOf(c.id);return idx>=0?idx+1:'';}),s.bemerkungen||''];
+  });
   const csv=[hdrs.join(';'),...rows.map(r=>r.join(';'))].join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}));a.download=`versetzung_${new Date().toISOString().split('T')[0]}.csv`;a.click();
 };
@@ -922,11 +960,9 @@ async function init(){
     if(cfg.verFreischalt&&!cfg.verVon) migrated.verVon=cfg.verFreischalt;
     if(cfg.verDeadline&&!cfg.verBis) migrated.verBis=cfg.verDeadline;
     state.setup=migrated;
-    state.versetzung.points=emptyPoints(cfg.companies||DEFAULT_COMPANIES);
-    state.versetzung.orderedIds=(cfg.companies||DEFAULT_COMPANIES).map(c=>c.id);
-  } else {
-    state.versetzung.points=emptyPoints(DEFAULT_COMPANIES);
   }
+  // Einmalig: alte Versetzungs-Einträge im Punkte-Schema entfernen (idempotent)
+  FB.cleanupOldVer();
   // Submissions hören – überschreibt NICHT state.setup
   FB.subscribeBes(subs=>{state.subsBes=subs;if(state.loading){state.loading=false;}render();});
   FB.subscribeVer(subs=>{state.subsVer=subs;if(state.loading){state.loading=false;}render();});
