@@ -206,7 +206,7 @@ let state = {
   subsVer: [],
   setup: { ...DEFAULT_SETUP },
   // Gemeinsame Angaben
-  personal: { name:'', plz:'', ort:'', email:'', bms:'', schultage:'', ferien:'', ferienText:'', englisch:'', selfie:'', datenschutz:false },
+  personal: { name:'', plz:'', ort:'', bms:'', schultage:'', ferien:'', ferienText:'', englisch:'', selfie:'', datenschutz:false },
   // Besuche
   besuche: { selected:[] },   // Array von IDs
   // Versetzung – selected = Firmen-IDs in Prio-Reihenfolge (selected[0] = Prio 1)
@@ -259,7 +259,7 @@ function computedVer() {
   const v=state.versetzung, p=state.personal;
   const count=v.selected.length;
   const deadlinePassed=verDeadlinePassed();
-  const angaben=!!(p.name&&p.plz&&/^[0-9]{4}$/.test(p.plz)&&p.ort&&p.email&&p.bms&&p.schultage&&p.englisch&&p.selfie);
+  const angaben=!!(p.name&&p.plz&&/^[0-9]{4}$/.test(p.plz)&&p.ort&&p.bms&&p.schultage&&p.englisch&&p.selfie);
   const valid=count===8&&angaben&&p.datenschutz&&!deadlinePassed;
   return{count,valid,deadlinePassed,angaben};
 }
@@ -268,7 +268,7 @@ function computedVer() {
 function computedBes() {
   const sel=state.besuche.selected, p=state.personal;
   const count=sel.length;
-  const angaben=!!(p.name&&p.plz&&/^[0-9]{4}$/.test(p.plz)&&p.ort&&p.email&&p.bms&&p.schultage&&p.ferien&&(p.ferien!=='Ja'||p.ferienText)&&p.selfie);
+  const angaben=!!(p.name&&p.plz&&/^[0-9]{4}$/.test(p.plz)&&p.ort&&p.bms&&p.schultage&&p.ferien&&(p.ferien!=='Ja'||p.ferienText)&&p.selfie);
   const deadlinePassed=besDeadlinePassed();
   const valid=count===8&&angaben&&p.datenschutz&&!deadlinePassed;
   return{count,valid,deadlinePassed,angaben};
@@ -306,7 +306,6 @@ function buildPersonalHtml(p, showFerien=true, showEnglisch=false){
     <div class="grid2">
       <div><label class="lbl">PLZ *</label><input tabindex="1" type="text" value="${p.plz}" placeholder="8400" maxlength="4" oninput="livePersonal('plz',this.value)" onblur="commitPersonal()" inputmode="numeric" style="border-color:${p.plz&&!/^[0-9]{4}$/.test(p.plz)?'#ef4444':''}"/></div>
       <div><label class="lbl">Ort *</label><input tabindex="2" type="text" value="${p.ort}" placeholder="Winterthur" oninput="livePersonal('ort',this.value)" onblur="commitPersonal()"/></div>
-      <div class="col2"><label class="lbl">E-Mail *</label><input tabindex="3" type="email" value="${p.email}" placeholder="max@mail.ch" oninput="livePersonal('email',this.value)" onblur="commitPersonal()" autocomplete="email"/></div>
     </div>
     <div style="margin-top:12px;display:flex;flex-direction:column;gap:12px">
       <div><p class="lbl">BMS *</p><div class="radio-group">
@@ -515,7 +514,7 @@ function renderFormVersetzung(appEl, p, tabsHtml){
     <div class="card"><div class="card-body" style="padding:12px 16px">
       ${[
         {ok:cv.count===8,label:`Genau 8 Firmen gewählt (${cv.count}/8)${cv.count>8?' – zu viele!':''}`},
-        {ok:!!(p.name&&p.plz&&/^[0-9]{4}$/.test(p.plz)&&p.ort&&p.email),label:'Alle Pflichtfelder ausgefüllt (PLZ: 4 Ziffern)'},
+        {ok:!!(p.name&&p.plz&&/^[0-9]{4}$/.test(p.plz)&&p.ort),label:'Alle Pflichtfelder ausgefüllt (PLZ: 4 Ziffern)'},
         {ok:!!(p.bms&&p.schultage),label:'BMS / Schultage ausgefüllt'},
         {ok:!!p.englisch,label:'Englisch-Selbsteinschätzung gewählt'},
         {ok:!!p.selfie,label:'Verifizierungsfoto aufgenommen'},
@@ -632,21 +631,36 @@ function renderAdmin(){
     const sumRow=`<tr style="background:#f0fdf4;font-weight:700"><td colspan="4" style="font-weight:700;padding:7px 6px;color:#16a34a">Σ Anzahl Stimmen</td>${firmaSums.map(s=>`<td style="text-align:center;color:#16a34a;font-weight:800">${s||''}</td>`).join('')}<td></td></tr>`;
     content=`<div class="card"><div class="card-body"><p class="section-title">Fortschritt Besuche</p><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:14px;font-weight:700">Einreichungen</span><span style="font-size:14px;font-weight:700;color:#0d9488">${subs_b.length} / ${total} (${pct}%)</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%;background:#0d9488"></div></div></div></div>
     <div class="card"><div class="card-body" style="padding:12px"><div style="display:flex;gap:8px;flex-wrap:wrap"><button onclick="exportCSVBes()" ${subs_b.length?'':'disabled'} class="btn btn-green btn-sm" style="${subs_b.length?'':'opacity:.5;cursor:not-allowed'}">${dlSvg()} CSV exportieren</button><button onclick="clearAllBes()" ${subs_b.length?'':'disabled'} class="btn btn-red btn-sm" style="${subs_b.length?'':'opacity:.5;cursor:not-allowed'}">Alle löschen</button></div></div></div>
-    ${subs_b.length>0?`<div class="card"><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Name</th><th>Zeit</th><th>Foto</th>${cos.map(c=>`<th title="${c.name}" style="text-align:center">${c.id}</th>`).join('')}<th></th></tr></thead><tbody>${rows}</tbody><tfoot>${sumRow}</tfoot></table></div><div style="padding:12px 16px;background:#f8fafc;border-top:1px solid #e5e7eb"><p style="font-size:11px;font-weight:700;color:#6b7280;margin-bottom:6px">Firmen-Legende</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px">${cos.map(c=>`<p style="font-size:11px;color:#6b7280"><span style="font-weight:700;color:#0d9488">${c.id}.</span> ${c.name}</p>`).join('')}</div></div></div>`:`<div class="card"><div class="card-body" style="text-align:center;color:#9ca3af;padding:40px">Noch keine Einreichungen.</div></div>`}`;
+    ${subs_b.length>0?`<div class="card"><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Name</th><th>Zeit</th><th>Foto</th>${cos.map((c,i)=>`<th title="${c.name}" style="text-align:center">${i+1}</th>`).join('')}<th></th></tr></thead><tbody>${rows}</tbody><tfoot>${sumRow}</tfoot></table></div><div style="padding:12px 16px;background:#f8fafc;border-top:1px solid #e5e7eb"><p style="font-size:11px;font-weight:700;color:#6b7280;margin-bottom:6px">Firmen-Legende (alphabetisch)</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px">${cos.map((c,i)=>`<p style="font-size:11px;color:#6b7280"><span style="font-weight:700;color:#0d9488">${i+1}.</span> ${c.name}</p>`).join('')}</div></div></div>`:`<div class="card"><div class="card-body" style="text-align:center;color:#9ca3af;padding:40px">Noch keine Einreichungen.</div></div>`}`;
 
   } else if(state.adminTab==='versetzung'){
     const total=stus.length>0?stus.length:40;
     const pct=Math.min(100,Math.round(subs_v.length/total*100));
     const engLabel={hoch:'Hoch',mittel:'Mittel',bescheiden:'Besch.'};
     const prioOf=(sub,cid)=>{const pr=sub.priorities||[];const idx=pr.indexOf(cid);return idx>=0?idx+1:null;};
+    // Beliebtheit nach Prio gewichtet (Prio 1 = 8 Pts, Prio 2 = 7, …, Prio 8 = 1)
+    const popularity=cos.map(c=>{
+      const counts=[0,0,0,0,0,0,0,0]; // index 0 = Prio 1
+      subs_v.forEach(sub=>{const idx=(sub.priorities||[]).indexOf(c.id);if(idx>=0&&idx<8)counts[idx]++;});
+      const score=counts.reduce((s,n,i)=>s+n*(8-i),0);
+      const total_n=counts.reduce((s,n)=>s+n,0);
+      return{c,score,total:total_n,counts};
+    }).sort((a,b)=>b.score-a.score||(a.c.name||'').localeCompare(b.c.name||'','de'));
+    const maxScore=popularity[0]?popularity[0].score:0;
+    const popRows=popularity.map((p,i)=>{
+      const pct=maxScore?Math.round(p.score/maxScore*100):0;
+      const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}.`;
+      return`<tr><td style="text-align:center;font-weight:700;width:34px">${medal}</td><td style="font-weight:600">${p.c.name}</td><td style="text-align:center;font-weight:800;color:#6366f1;width:60px">${p.score}</td><td style="text-align:center;color:#6b7280;width:80px;font-size:11px">${p.total} Nenn.</td><td style="text-align:center;color:#16a34a;width:70px;font-weight:700">${p.counts[0]}× Prio 1</td><td style="width:120px"><div style="height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#6366f1,#8b5cf6)"></div></div></td></tr>`;
+    }).join('');
     const rows=subs_v.map((sub,i)=>{
       const fotoBtn=sub.selfie?`<img src="${sub.selfie}" onclick="openLightbox('${sub.selfie}','${(sub.name||'').replace(/'/g,"\\'")}\')" style="width:32px;height:32px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid #e5e7eb" title="Foto anzeigen"/>`:'-';
       return`<tr><td>${i+1}</td><td style="font-weight:600;white-space:nowrap">${sub.name||''}</td><td style="color:#9ca3af;font-size:11px;white-space:nowrap">${sub.timestamp||''}</td><td>${fotoBtn}</td><td style="text-align:center;font-weight:600;white-space:nowrap">${engLabel[sub.englisch]||'–'}</td>${cos.map(c=>{const pr=prioOf(sub,c.id);return`<td style="text-align:center;font-weight:700;color:${pr?'#6366f1':'#d1d5db'}">${pr||'–'}</td>`;}).join('')}<td><button onclick="delSubVer('${sub._id}')" style="background:none;border:none;cursor:pointer;color:#d1d5db;padding:4px">${trashSvg(14)}</button></td></tr>`;
     }).join('');
     const avgRow=cos.map(c=>{const vals=subs_v.map(sub=>prioOf(sub,c.id)).filter(x=>x);const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;return`<td style="text-align:center;font-weight:600;color:#6366f1" title="Anzahl Nennungen: ${vals.length}">${vals.length?avg.toFixed(1):'–'}</td>`;}).join('');
     content=`<div class="card"><div class="card-body"><p class="section-title">Fortschritt Versetzung</p><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:14px;font-weight:700">Einreichungen</span><span style="font-size:14px;font-weight:700;color:#6366f1">${subs_v.length} / ${total} (${pct}%)</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div></div></div>
+    ${subs_v.length>0?`<div class="card"><div class="card-body" style="padding-bottom:4px"><p class="section-title">Beliebteste Firmen</p><p style="font-size:11px;color:#6b7280;margin-bottom:8px">Gewichtung: Prio 1 = 8 Pts, Prio 2 = 7, Prio 3 = 6, … Prio 8 = 1 Pt. Sortiert nach Gesamt-Score.</p></div><div class="tbl-wrap"><table><tbody>${popRows}</tbody></table></div></div>`:''}
     <div class="card"><div class="card-body" style="padding:12px"><div style="display:flex;gap:8px;flex-wrap:wrap"><button onclick="exportCSVVer()" ${subs_v.length?'':'disabled'} class="btn btn-green btn-sm" style="${subs_v.length?'':'opacity:.5;cursor:not-allowed'}">${dlSvg()} CSV exportieren</button><button onclick="clearAllVer()" ${subs_v.length?'':'disabled'} class="btn btn-red btn-sm" style="${subs_v.length?'':'opacity:.5;cursor:not-allowed'}">Alle löschen</button></div></div></div>
-    ${subs_v.length>0?`<div class="card"><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Name</th><th>Zeit</th><th>Foto</th><th style="text-align:center">Engl.</th>${cos.map(c=>`<th title="${c.name}" style="text-align:center">${c.id}</th>`).join('')}<th></th></tr></thead><tbody>${rows}</tbody><tfoot style="background:#eff6ff"><tr><td colspan="5" style="font-weight:700;padding:7px 6px">⌀ Prio (Ø der Nennungen)</td>${avgRow}<td></td></tr></tfoot></table></div><div style="padding:12px 16px;background:#f8fafc;border-top:1px solid #e5e7eb"><p style="font-size:11px;font-weight:700;color:#6b7280;margin-bottom:6px">Zellen = Prio (1 = höchster Wunsch). Firmen-Legende:</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px">${cos.map(c=>`<p style="font-size:11px;color:#6b7280"><span style="font-weight:700;color:#6366f1">${c.id}.</span> ${c.name}</p>`).join('')}</div></div></div>`:`<div class="card"><div class="card-body" style="text-align:center;color:#9ca3af;padding:40px">Noch keine Einreichungen.</div></div>`}`;
+    ${subs_v.length>0?`<div class="card"><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Name</th><th>Zeit</th><th>Foto</th><th style="text-align:center">Engl.</th>${cos.map((c,i)=>`<th title="${c.name}" style="text-align:center">${i+1}</th>`).join('')}<th></th></tr></thead><tbody>${rows}</tbody><tfoot style="background:#eff6ff"><tr><td colspan="5" style="font-weight:700;padding:7px 6px">⌀ Prio (Ø der Nennungen)</td>${avgRow}<td></td></tr></tfoot></table></div><div style="padding:12px 16px;background:#f8fafc;border-top:1px solid #e5e7eb"><p style="font-size:11px;font-weight:700;color:#6b7280;margin-bottom:6px">Zellen = Prio (1 = höchster Wunsch). Firmen-Legende (alphabetisch):</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px">${cos.map((c,i)=>`<p style="font-size:11px;color:#6b7280"><span style="font-weight:700;color:#6366f1">${i+1}.</span> ${c.name}</p>`).join('')}</div></div></div>`:`<div class="card"><div class="card-body" style="text-align:center;color:#9ca3af;padding:40px">Noch keine Einreichungen.</div></div>`}`;
 
   } else { // setup
     content=`
@@ -814,7 +828,7 @@ window.handleSubmitBes = async () => {
   const cv=computedBes(); if(!cv.valid)return;
   const p=state.personal;
   const firstName = (p.name||'').trim().split(/\s+/)[0]||'';
-  const sub={name:firstName,plz:p.plz,ort:p.ort,email:p.email,bms:p.bms,schultage:p.schultage,ferien:p.ferien,ferienText:p.ferien==='Ja'?p.ferienText:'',selfie:p.selfie,timestamp:new Date().toLocaleString('de-DE'),selected:[...state.besuche.selected]};
+  const sub={name:firstName,plz:p.plz,ort:p.ort,bms:p.bms,schultage:p.schultage,ferien:p.ferien,ferienText:p.ferien==='Ja'?p.ferienText:'',selfie:p.selfie,timestamp:new Date().toLocaleString('de-DE'),selected:[...state.besuche.selected]};
   await FB.saveBes(sub);
   state.view='success_bes'; render(); window.scrollTo(0,0);
 };
@@ -824,7 +838,7 @@ window.handleSubmitVer = async () => {
   const cv=computedVer(); if(!cv.valid)return;
   const p=state.personal;
   const firstName = (p.name||'').trim().split(/\s+/)[0]||'';
-  const sub={name:firstName,plz:p.plz,ort:p.ort,email:p.email,bms:p.bms,schultage:p.schultage,englisch:p.englisch,selfie:p.selfie,timestamp:new Date().toLocaleString('de-DE'),priorities:[...state.versetzung.selected],bemerkungen:state.versetzung.bemerkungen||''};
+  const sub={name:firstName,plz:p.plz,ort:p.ort,bms:p.bms,schultage:p.schultage,englisch:p.englisch,selfie:p.selfie,timestamp:new Date().toLocaleString('de-DE'),priorities:[...state.versetzung.selected],bemerkungen:state.versetzung.bemerkungen||''};
   await FB.saveVer(sub); // setDoc mit gleicher ID überschreibt automatisch
   state.view='success_ver'; render(); window.scrollTo(0,0);
 };
@@ -912,18 +926,18 @@ window.clearAllVer=async()=>{if(window.confirm('Alle Versetzungs-Daten löschen?
 
 window.exportCSVBes=()=>{
   const subs=state.subsBes,cos=state.setup.companies;if(!subs.length)return;
-  const hdrs=['Name','PLZ','Ort','BMS','Schultage','Ferien','Ferientext','E-Mail','Zeit',...cos.map(c=>c.name)];
-  const rows=subs.map(s=>[s.name,s.plz,s.ort,s.bms,s.schultage,s.ferien,s.ferienText||'',s.email,s.timestamp,...cos.map(c=>(s.selected||[]).includes(c.id)?'x':'')]);
+  const hdrs=['Name','PLZ','Ort','BMS','Schultage','Ferien','Ferientext','Zeit',...cos.map(c=>c.name)];
+  const rows=subs.map(s=>[s.name,s.plz,s.ort,s.bms,s.schultage,s.ferien,s.ferienText||'',s.timestamp,...cos.map(c=>(s.selected||[]).includes(c.id)?'x':'')]);
   const csv=[hdrs.join(';'),...rows.map(r=>r.join(';'))].join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}));a.download=`besuche_${new Date().toISOString().split('T')[0]}.csv`;a.click();
 };
 window.exportCSVVer=()=>{
   const subs=state.subsVer,cos=state.setup.companies;if(!subs.length)return;
   const engLabel={hoch:'Hoch',mittel:'Mittel',bescheiden:'Bescheiden'};
-  const hdrs=['Name','PLZ','Ort','BMS','Schultage','Englisch','E-Mail','Zeit',...cos.map(c=>c.name),'Bemerkungen'];
+  const hdrs=['Name','PLZ','Ort','BMS','Schultage','Englisch','Zeit',...cos.map(c=>c.name),'Bemerkungen'];
   const rows=subs.map(s=>{
     const pr=s.priorities||[];
-    return [s.name,s.plz,s.ort,s.bms,s.schultage,engLabel[s.englisch]||'',s.email,s.timestamp,...cos.map(c=>{const idx=pr.indexOf(c.id);return idx>=0?idx+1:'';}),s.bemerkungen||''];
+    return [s.name,s.plz,s.ort,s.bms,s.schultage,engLabel[s.englisch]||'',s.timestamp,...cos.map(c=>{const idx=pr.indexOf(c.id);return idx>=0?idx+1:'';}),s.bemerkungen||''];
   });
   const csv=[hdrs.join(';'),...rows.map(r=>r.join(';'))].join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}));a.download=`versetzung_${new Date().toISOString().split('T')[0]}.csv`;a.click();
@@ -968,12 +982,14 @@ window.updateStudent=(i,val)=>{
 window.removeStudent=(i)=>{ if(i<0||i>=state.setup.students.length)return; pushHistory(); state.setup.students.splice(i,1); render(); };
 
 // Firmen
+function sortCompanies(){ state.setup.companies.sort((a,b)=>{const A=(a.name||'').trim(),B=(b.name||'').trim();if(!A&&!B)return 0;if(!A)return 1;if(!B)return -1;return A.localeCompare(B,'de');}); }
 window.importCompanies=()=>{
   const ta=document.getElementById('co-paste');if(!ta)return;
   const lines=ta.value.split(/\n/).map(l=>l.trim()).filter(Boolean);
   if(!lines.length)return;
   pushHistory();
   state.setup.companies=lines.map((line,i)=>{const p=line.split(/\t/);return{id:i+1,name:(p[0]||'').trim(),url:(p[1]||'').trim()};});
+  sortCompanies();
   ta.value=''; render();
 };
 window.addCompany=()=>{ pushHistory(); const maxId=state.setup.companies.reduce((m,c)=>Math.max(m,c.id||0),0); state.setup.companies.push({id:maxId+1,name:'',url:''}); render(); const els=document.querySelectorAll('.co-name'); if(els.length)els[els.length-1].focus(); };
@@ -981,7 +997,9 @@ window.updateCompany=(i,field,val)=>{
   if(!state.setup.companies[i])return;
   const nv=(val||'').trim();
   if(state.setup.companies[i][field]===nv)return;
-  pushHistory(); state.setup.companies[i][field]=nv; refreshHistBtns(); // kein Re-Render: Eingabe-/Einfügefelder bleiben erhalten
+  pushHistory(); state.setup.companies[i][field]=nv;
+  if(field==='name') sortCompanies(); // bei Namensänderung neu einordnen
+  render();
 };
 window.removeCompany=(i)=>{ if(i<0||i>=state.setup.companies.length)return; pushHistory(); state.setup.companies.splice(i,1); render(); };
 
@@ -992,10 +1010,11 @@ window.saveSetup=async()=>{
   state.setup.besBis=norm(state.setup.besBis,'T23:59');
   state.setup.verVon=norm(state.setup.verVon,'T00:00');
   state.setup.verBis=norm(state.setup.verBis,'T23:59');
-  // leere Einträge entfernen, Lernende sortieren
+  // leere Einträge entfernen, beide Listen sortieren
   state.setup.students=state.setup.students.map(s=>(s||'').trim()).filter(Boolean);
   sortStudents();
   state.setup.companies=state.setup.companies.filter(c=>(c.name||'').trim()||(c.url||'').trim());
+  sortCompanies();
   state.setupSaving=true; render();
   await FB.saveSetup(state.setup);
   state.setupUndo=[]; state.setupRedo=[]; state.setupSaving=false; state.setupSaved=true; render();
@@ -1012,6 +1031,7 @@ async function init(){
     if(cfg.verFreischalt&&!cfg.verVon) migrated.verVon=cfg.verFreischalt;
     if(cfg.verDeadline&&!cfg.verBis) migrated.verBis=cfg.verDeadline;
     state.setup=migrated;
+    if(Array.isArray(state.setup.companies)) sortCompanies(); // immer alphabetisch
   }
   // Einmalig: alte Versetzungs-Einträge im Punkte-Schema entfernen (idempotent)
   FB.cleanupOldVer();
