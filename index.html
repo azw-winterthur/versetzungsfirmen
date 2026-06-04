@@ -240,6 +240,8 @@ const gripSvg=(s=16)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill=
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const now = () => new Date();
+const fmtDT = (s) => s ? new Date(s).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+const toDtLocal = (s) => { if(!s) return ''; const str=String(s); return str.includes('T') ? str.slice(0,16) : str+'T00:00'; };
 function besIsVisible() {
   const s=state.setup;
   if(!s.besVon && !s.besBis) return true;
@@ -383,7 +385,7 @@ function renderFormBesuche(appEl, p, cv, tabsHtml){
 
   // Abgelaufen?
   if(besDeadlinePassed()){
-    appEl.innerHTML=`${tabsHtml}<div class="main-wrap"><div style="padding:40px 0;text-align:center"><div class="success-card" style="margin:0 auto"><div style="font-size:3rem;margin-bottom:12px">🔒</div><h2 style="font-size:18px;font-weight:700;color:#1f2937;margin-bottom:8px">Eingabefrist abgelaufen</h2><p style="color:#6b7280;font-size:13px">Die Besuchswünsche konnten bis ${new Date(s.besBis).toLocaleDateString('de-DE')} eingereicht werden.</p></div></div></div>
+    appEl.innerHTML=`${tabsHtml}<div class="main-wrap"><div style="padding:40px 0;text-align:center"><div class="success-card" style="margin:0 auto"><div style="font-size:3rem;margin-bottom:12px">🔒</div><h2 style="font-size:18px;font-weight:700;color:#1f2937;margin-bottom:8px">Eingabefrist abgelaufen</h2><p style="color:#6b7280;font-size:13px">Die Besuchswünsche konnten bis ${fmtDT(s.besBis)} eingereicht werden.</p></div></div></div>
     <button onclick="showLogin()" style="position:fixed;bottom:20px;right:20px;z-index:40;background:#fff;border:1px solid #e5e7eb;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.15);cursor:pointer;color:#9ca3af">${lockSvg(18)}</button>
     ${state.showLoginModal?renderLoginModal():''}`;
     return;
@@ -418,8 +420,8 @@ function renderFormBesuche(appEl, p, cv, tabsHtml){
       <h1 style="font-size:17px;font-weight:800;color:#1f2937;margin-bottom:4px">Wünsche Firmenbesuche</h1>
       <p style="font-size:13px;color:#6b7280;margin-bottom:10px">Wähle genau 8 Firmen aus, die du besuchen möchtest.</p>
       <div class="info-box"><div>• Genau 8 Firmen müssen ausgewählt werden</div><div style="opacity:0;height:0;overflow:hidden">• Platzhalter</div></div>
-      ${s.besVon?`<p style="font-size:12px;color:#6b7280;font-weight:600;margin-top:6px">📅 Sichtbar ab: ${new Date(s.besVon).toLocaleDateString('de-DE')}</p>`:''}
-      ${s.besBis?`<p style="font-size:12px;color:#ea580c;font-weight:600;margin-top:4px">⏰ Eingabe möglich bis: ${new Date(s.besBis).toLocaleDateString('de-DE')}</p>`:''}
+      ${s.besVon?`<p style="font-size:12px;color:#6b7280;font-weight:600;margin-top:6px">📅 Sichtbar ab: ${fmtDT(s.besVon)}</p>`:''}
+      ${s.besBis?`<p style="font-size:12px;color:#ea580c;font-weight:600;margin-top:4px">⏰ Eingabe möglich bis: ${fmtDT(s.besBis)}</p>`:''}
     </div></div>
 
     ${buildPersonalHtml(p)}
@@ -486,7 +488,7 @@ function renderFormVersetzung(appEl, p, tabsHtml){
   const v=state.versetzung;
 
   if(verDeadlinePassed()){
-    appEl.innerHTML=`${tabsHtml}<div class="main-wrap"><div style="padding:40px 0;text-align:center"><div class="success-card" style="margin:0 auto"><div style="font-size:3rem;margin-bottom:12px">🔒</div><h2 style="font-size:18px;font-weight:700;color:#1f2937;margin-bottom:8px">Eingabefrist abgelaufen</h2><p style="color:#6b7280;font-size:13px">Die Wunschliste Versetzung konnte bis ${new Date(state.setup.verBis).toLocaleDateString('de-DE')} eingereicht werden.</p></div></div></div>
+    appEl.innerHTML=`${tabsHtml}<div class="main-wrap"><div style="padding:40px 0;text-align:center"><div class="success-card" style="margin:0 auto"><div style="font-size:3rem;margin-bottom:12px">🔒</div><h2 style="font-size:18px;font-weight:700;color:#1f2937;margin-bottom:8px">Eingabefrist abgelaufen</h2><p style="color:#6b7280;font-size:13px">Die Wunschliste Versetzung konnte bis ${fmtDT(state.setup.verBis)} eingereicht werden.</p></div></div></div>
     <button onclick="showLogin()" style="position:fixed;bottom:20px;right:20px;z-index:40;background:#fff;border:1px solid #e5e7eb;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.15);cursor:pointer;color:#9ca3af">${lockSvg(18)}</button>
     ${state.showLoginModal?renderLoginModal():''}`;
     return;
@@ -512,8 +514,8 @@ function renderFormVersetzung(appEl, p, tabsHtml){
       <h1 style="font-size:17px;font-weight:800;color:#1f2937;margin-bottom:4px">Wünsche Versetzungsfirmen</h1>
       <p style="font-size:13px;color:#6b7280;margin-bottom:10px">Wähle links genau 8 Firmen. Bring sie rechts per Drag in deine Wunsch-Reihenfolge.</p>
       <div class="info-box"><div>• Genau 8 Firmen auswählen (Häkchen links)</div><div>• Reihenfolge rechts = deine Priorität — oben = Prio 1, unten = Prio 8</div></div>
-      ${state.setup.verVon?`<p style="font-size:12px;color:#6b7280;font-weight:600;margin-top:6px">📅 Sichtbar ab: ${new Date(state.setup.verVon).toLocaleDateString('de-DE')}</p>`:''}
-      ${state.setup.verBis?`<p style="font-size:12px;color:#ea580c;font-weight:600;margin-top:4px">⏰ Eingabe möglich bis: ${new Date(state.setup.verBis).toLocaleDateString('de-DE')}</p>`:''}
+      ${state.setup.verVon?`<p style="font-size:12px;color:#6b7280;font-weight:600;margin-top:6px">📅 Sichtbar ab: ${fmtDT(state.setup.verVon)}</p>`:''}
+      ${state.setup.verBis?`<p style="font-size:12px;color:#ea580c;font-weight:600;margin-top:4px">⏰ Eingabe möglich bis: ${fmtDT(state.setup.verBis)}</p>`:''}
     </div></div>
 
     ${buildPersonalHtml(p, false, true)}
@@ -645,19 +647,31 @@ function renderAdmin(){
     const pct=Math.min(100,Math.round(subs_v.length/total*100));
     const engLabel={hoch:'Hoch',mittel:'Mittel',bescheiden:'Besch.'};
     const prioOf=(sub,cid)=>{const pr=sub.priorities||[];const idx=pr.indexOf(cid);return idx>=0?idx+1:null;};
-    // Beliebtheit nach Prio gewichtet (Prio 1 = 8 Pts, Prio 2 = 7, …, Prio 8 = 1)
+    // Beliebtheit nach Prio gewichtet (P1=8 … P8=1).
+    // Sortierung: 1) Score, 2) Anzahl Nennungen, 3) P1-Häufigkeit, 4) Name (deterministisch).
+    // Gleicher Rang nur, wenn alle drei Tiebreaker identisch sind.
     const popularity=cos.map(c=>{
       const counts=[0,0,0,0,0,0,0,0]; // index 0 = Prio 1
       subs_v.forEach(sub=>{const idx=(sub.priorities||[]).indexOf(c.id);if(idx>=0&&idx<8)counts[idx]++;});
       const score=counts.reduce((s,n,i)=>s+n*(8-i),0);
       const total_n=counts.reduce((s,n)=>s+n,0);
       return{c,score,total:total_n,counts};
-    }).sort((a,b)=>b.score-a.score||(a.c.name||'').localeCompare(b.c.name||'','de'));
-    const maxScore=popularity[0]?popularity[0].score:0;
-    const popRows=popularity.map((p,i)=>{
-      const pct=maxScore?Math.round(p.score/maxScore*100):0;
-      const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}.`;
-      return`<tr><td style="text-align:center;font-weight:700;width:34px">${medal}</td><td style="font-weight:600">${p.c.name}</td><td style="text-align:center;font-weight:800;color:#6366f1;width:60px">${p.score}</td><td style="text-align:center;color:#6b7280;width:80px;font-size:11px">${p.total} Nenn.</td><td style="text-align:center;color:#16a34a;width:70px;font-weight:700">${p.counts[0]}× Prio 1</td><td style="width:120px"><div style="height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#6366f1,#8b5cf6)"></div></div></td></tr>`;
+    }).sort((a,b)=>
+      b.score-a.score ||
+      b.total-a.total ||
+      b.counts[0]-a.counts[0] ||
+      (a.c.name||'').localeCompare(b.c.name||'','de')
+    );
+    // Ränge mit Ties (Competition Ranking: 1,2,2,4)
+    let _lastTuple=null,_lastRank=0,_pos=0;
+    popularity.forEach(p=>{_pos++;const t=`${p.score}|${p.total}|${p.counts[0]}`;if(t!==_lastTuple){_lastRank=_pos;_lastTuple=t;}p.rank=_lastRank;});
+    const rankLabel=r=>r===1?'🥇':r===2?'🥈':r===3?'🥉':`${r}.`;
+    const popRows=popularity.map(p=>{
+      const prioCells=p.counts.map((n,i)=>{
+        const color=i===0?'#16a34a':'#6366f1';
+        return `<td style="text-align:center;font-weight:${i===0?900:600};color:${n>0?color:'#e5e7eb'};font-size:12px;padding:6px 4px;width:30px">${n||'–'}</td>`;
+      }).join('');
+      return`<tr><td style="text-align:center;font-weight:700;width:40px;font-size:13px">${rankLabel(p.rank)}</td><td style="font-weight:600;font-size:12px;padding:6px 8px">${p.c.name}</td><td style="text-align:center;font-weight:800;color:#6366f1;font-size:13px;width:48px">${p.score}</td><td style="text-align:center;color:#6b7280;font-size:11px;width:36px" title="Total Nennungen">${p.total}</td>${prioCells}</tr>`;
     }).join('');
     const rows=subs_v.map((sub,i)=>{
       const fotoBtn=sub.selfie?`<img src="${sub.selfie}" onclick="openLightbox('${sub.selfie}','${(sub.name||'').replace(/'/g,"\\'")}\')" style="width:32px;height:32px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid #e5e7eb" title="Foto anzeigen"/>`:'-';
@@ -665,7 +679,7 @@ function renderAdmin(){
     }).join('');
     const avgRow=cos.map(c=>{const vals=subs_v.map(sub=>prioOf(sub,c.id)).filter(x=>x);const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;return`<td style="text-align:center;font-weight:600;color:#6366f1" title="Anzahl Nennungen: ${vals.length}">${vals.length?avg.toFixed(1):'–'}</td>`;}).join('');
     content=`<div class="card"><div class="card-body"><p class="section-title">Fortschritt Versetzung</p><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:14px;font-weight:700">Einreichungen</span><span style="font-size:14px;font-weight:700;color:#6366f1">${subs_v.length} / ${total} (${pct}%)</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div></div></div>
-    ${subs_v.length>0?`<div class="card"><div class="card-body" style="padding-bottom:4px"><p class="section-title">Beliebteste Firmen</p><p style="font-size:11px;color:#6b7280;margin-bottom:8px">Gewichtung: Prio 1 = 8 Pts, Prio 2 = 7, Prio 3 = 6, … Prio 8 = 1 Pt. Sortiert nach Gesamt-Score.</p></div><div class="tbl-wrap"><table><tbody>${popRows}</tbody></table></div></div>`:''}
+    ${subs_v.length>0?`<div class="card"><div class="card-body" style="padding-bottom:4px"><p class="section-title">Beliebteste Firmen</p><p style="font-size:11px;color:#6b7280;margin-bottom:8px;line-height:1.5">Score-Gewichtung: P1=8, P2=7, … P8=1 Punkt. Bei Score-Gleichstand zählt erst die Anzahl Nennungen (Σ), dann die P1-Häufigkeit. P1-Spalte ist <span style="color:#16a34a;font-weight:700">grün</span> hervorgehoben.</p></div><div class="tbl-wrap"><table><thead><tr><th style="text-align:center">Rang</th><th>Firma</th><th style="text-align:center" title="Gewichteter Score">Score</th><th style="text-align:center" title="Total Nennungen">Σ</th><th style="text-align:center;color:#16a34a">P1</th><th style="text-align:center">P2</th><th style="text-align:center">P3</th><th style="text-align:center">P4</th><th style="text-align:center">P5</th><th style="text-align:center">P6</th><th style="text-align:center">P7</th><th style="text-align:center">P8</th></tr></thead><tbody>${popRows}</tbody></table></div></div>`:''}
     <div class="card"><div class="card-body" style="padding:12px"><div style="display:flex;gap:8px;flex-wrap:wrap"><button onclick="exportCSVVer()" ${subs_v.length?'':'disabled'} class="btn btn-green btn-sm" style="${subs_v.length?'':'opacity:.5;cursor:not-allowed'}">${dlSvg()} CSV exportieren</button><button onclick="clearAllVer()" ${subs_v.length?'':'disabled'} class="btn btn-red btn-sm" style="${subs_v.length?'':'opacity:.5;cursor:not-allowed'}">Alle löschen</button></div></div></div>
     ${subs_v.length>0?`<div class="card"><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Name</th><th>Zeit</th><th>Foto</th><th style="text-align:center">Engl.</th>${cos.map((c,i)=>`<th title="${c.name}" style="text-align:center">${i+1}</th>`).join('')}<th></th></tr></thead><tbody>${rows}</tbody><tfoot style="background:#eff6ff"><tr><td colspan="5" style="font-weight:700;padding:7px 6px">⌀ Prio (Ø der Nennungen)</td>${avgRow}<td></td></tr></tfoot></table></div><div style="padding:12px 16px;background:#f8fafc;border-top:1px solid #e5e7eb"><p style="font-size:11px;font-weight:700;color:#6b7280;margin-bottom:6px">Zellen = Prio (1 = höchster Wunsch). Firmen-Legende (alphabetisch):</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px">${cos.map((c,i)=>`<p style="font-size:11px;color:#6b7280"><span style="font-weight:700;color:#6366f1">${i+1}.</span> ${c.name}</p>`).join('')}</div></div></div>`:`<div class="card"><div class="card-body" style="text-align:center;color:#9ca3af;padding:40px">Noch keine Einreichungen.</div></div>`}`;
 
@@ -679,15 +693,15 @@ function renderAdmin(){
     <div class="card"><div class="card-body">
       <p class="section-title">Wünsche Besuche – Sichtbarkeit</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div><label class="lbl">Sichtbar ab</label><input type="date" id="cfg-besVon" value="${s.besVon?s.besVon.split('T')[0]:''}" onchange="setSetupDate('besVon',this.value)"/></div>
-        <div><label class="lbl">Sichtbar bis</label><input type="date" id="cfg-besBis" value="${s.besBis?s.besBis.split('T')[0]:''}" onchange="setSetupDate('besBis',this.value)"/></div>
+        <div><label class="lbl">Sichtbar ab</label><input type="datetime-local" id="cfg-besVon" value="${toDtLocal(s.besVon)}" onchange="setSetupDate('besVon',this.value)"/></div>
+        <div><label class="lbl">Sichtbar bis</label><input type="datetime-local" id="cfg-besBis" value="${toDtLocal(s.besBis)}" onchange="setSetupDate('besBis',this.value)"/></div>
       </div>
     </div></div>
     <div class="card"><div class="card-body">
       <p class="section-title">Wünsche Versetzung – Sichtbarkeit</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div><label class="lbl">Sichtbar ab</label><input type="date" id="cfg-verVon" value="${s.verVon?s.verVon.split('T')[0]:''}" onchange="setSetupDate('verVon',this.value)"/></div>
-        <div><label class="lbl">Sichtbar bis</label><input type="date" id="cfg-verBis" value="${s.verBis?s.verBis.split('T')[0]:''}" onchange="setSetupDate('verBis',this.value)"/></div>
+        <div><label class="lbl">Sichtbar ab</label><input type="datetime-local" id="cfg-verVon" value="${toDtLocal(s.verVon)}" onchange="setSetupDate('verVon',this.value)"/></div>
+        <div><label class="lbl">Sichtbar bis</label><input type="datetime-local" id="cfg-verBis" value="${toDtLocal(s.verBis)}" onchange="setSetupDate('verBis',this.value)"/></div>
       </div>
     </div></div>
     <div class="card"><div class="card-body">
