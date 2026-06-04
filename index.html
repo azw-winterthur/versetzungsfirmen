@@ -242,6 +242,8 @@ const gripSvg=(s=16)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill=
 const now = () => new Date();
 const fmtDT = (s) => s ? new Date(s).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
 const toDtLocal = (s) => { if(!s) return ''; const str=String(s); return str.includes('T') ? str.slice(0,16) : str+'T00:00'; };
+function escapeHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function csvCell(v){ let s=String(v==null?'':v); if(/^[=+\-@\t\r]/.test(s)) s="'"+s; if(/[";\n\r]/.test(s)) s='"'+s.replace(/"/g,'""')+'"'; return s; }
 function besIsVisible() {
   const s=state.setup;
   if(!s.besVon && !s.besBis) return true;
@@ -609,9 +611,9 @@ function renderLoginModal(){
 function renderLightbox(src,name){
   return`<div onclick="closeLightbox()" style="position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;cursor:pointer">
     <div onclick="event.stopPropagation()" style="max-width:400px;width:100%;background:#fff;border-radius:16px;overflow:hidden">
-      <img src="${src}" style="width:100%;display:block"/>
+      <img src="${escapeHtml(src)}" style="width:100%;display:block"/>
       <div style="padding:10px 16px;display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;font-weight:600;color:#374151">${name}</span>
+        <span style="font-size:13px;font-weight:600;color:#374151">${escapeHtml(name)}</span>
         <button onclick="closeLightbox()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#9ca3af">✕</button>
       </div>
     </div>
@@ -634,8 +636,8 @@ function renderAdmin(){
     // Summe pro Firma
     const firmaSums=cos.map(c=>subs_b.reduce((a,sub)=>a+((sub.selected||[]).includes(c.id)?1:0),0));
     const rows=subs_b.map((sub,i)=>{
-      const fotoBtn=sub.selfie?`<img src="${sub.selfie}" onclick="openLightbox('${sub.selfie}','${(sub.name||'').replace(/'/g,"\\'")}\')" style="width:32px;height:32px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid #e5e7eb" title="Foto anzeigen"/>`:'-';
-      return`<tr><td>${i+1}</td><td style="font-weight:600;white-space:nowrap">${sub.name||''}</td><td style="color:#9ca3af;font-size:11px;white-space:nowrap">${sub.timestamp||''}</td><td>${fotoBtn}</td>${cos.map(c=>`<td style="text-align:center">${(sub.selected||[]).includes(c.id)?'✓':''}</td>`).join('')}<td><button onclick="delSubBes('${sub._id}')" style="background:none;border:none;cursor:pointer;color:#d1d5db;padding:4px">${trashSvg(14)}</button></td></tr>`;
+      const fotoBtn=sub.selfie?`<img src="${escapeHtml(sub.selfie)}" data-name="${escapeHtml(sub.name||'')}" onclick="openLightbox(this.src,this.dataset.name)" style="width:32px;height:32px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid #e5e7eb" title="Foto anzeigen"/>`:'-';
+      return`<tr><td>${i+1}</td><td style="font-weight:600;white-space:nowrap">${escapeHtml(sub.name)}</td><td style="color:#9ca3af;font-size:11px;white-space:nowrap">${escapeHtml(sub.timestamp)}</td><td>${fotoBtn}</td>${cos.map(c=>`<td style="text-align:center">${(sub.selected||[]).includes(c.id)?'✓':''}</td>`).join('')}<td><button onclick="delSubBes('${sub._id}')" style="background:none;border:none;cursor:pointer;color:#d1d5db;padding:4px">${trashSvg(14)}</button></td></tr>`;
     }).join('');
     const sumRow=`<tr style="background:#f0fdf4;font-weight:700"><td colspan="4" style="font-weight:700;padding:7px 6px;color:#16a34a">Σ Anzahl Stimmen</td>${firmaSums.map(s=>`<td style="text-align:center;color:#16a34a;font-weight:800">${s||''}</td>`).join('')}<td></td></tr>`;
     content=`<div class="card"><div class="card-body"><p class="section-title">Fortschritt Besuche</p><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:14px;font-weight:700">Einreichungen</span><span style="font-size:14px;font-weight:700;color:#0d9488">${subs_b.length} / ${total} (${pct}%)</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%;background:#0d9488"></div></div></div></div>
@@ -674,8 +676,8 @@ function renderAdmin(){
       return`<tr><td style="text-align:center;font-weight:700;width:40px;font-size:13px">${rankLabel(p.rank)}</td><td style="font-weight:600;font-size:12px;padding:6px 8px">${p.c.name}</td><td style="text-align:center;font-weight:800;color:#6366f1;font-size:13px;width:48px">${p.score}</td><td style="text-align:center;color:#6b7280;font-size:11px;width:36px" title="Total Nennungen">${p.total}</td>${prioCells}</tr>`;
     }).join('');
     const rows=subs_v.map((sub,i)=>{
-      const fotoBtn=sub.selfie?`<img src="${sub.selfie}" onclick="openLightbox('${sub.selfie}','${(sub.name||'').replace(/'/g,"\\'")}\')" style="width:32px;height:32px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid #e5e7eb" title="Foto anzeigen"/>`:'-';
-      return`<tr><td>${i+1}</td><td style="font-weight:600;white-space:nowrap">${sub.name||''}</td><td style="color:#9ca3af;font-size:11px;white-space:nowrap">${sub.timestamp||''}</td><td>${fotoBtn}</td><td style="text-align:center;font-weight:600;white-space:nowrap">${engLabel[sub.englisch]||'–'}</td>${cos.map(c=>{const pr=prioOf(sub,c.id);return`<td style="text-align:center;font-weight:700;color:${pr?'#6366f1':'#d1d5db'}">${pr||'–'}</td>`;}).join('')}<td><button onclick="delSubVer('${sub._id}')" style="background:none;border:none;cursor:pointer;color:#d1d5db;padding:4px">${trashSvg(14)}</button></td></tr>`;
+      const fotoBtn=sub.selfie?`<img src="${escapeHtml(sub.selfie)}" data-name="${escapeHtml(sub.name||'')}" onclick="openLightbox(this.src,this.dataset.name)" style="width:32px;height:32px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid #e5e7eb" title="Foto anzeigen"/>`:'-';
+      return`<tr><td>${i+1}</td><td style="font-weight:600;white-space:nowrap">${escapeHtml(sub.name)}</td><td style="color:#9ca3af;font-size:11px;white-space:nowrap">${escapeHtml(sub.timestamp)}</td><td>${fotoBtn}</td><td style="text-align:center;font-weight:600;white-space:nowrap">${engLabel[sub.englisch]||'–'}</td>${cos.map(c=>{const pr=prioOf(sub,c.id);return`<td style="text-align:center;font-weight:700;color:${pr?'#6366f1':'#d1d5db'}">${pr||'–'}</td>`;}).join('')}<td><button onclick="delSubVer('${sub._id}')" style="background:none;border:none;cursor:pointer;color:#d1d5db;padding:4px">${trashSvg(14)}</button></td></tr>`;
     }).join('');
     const avgRow=cos.map(c=>{const vals=subs_v.map(sub=>prioOf(sub,c.id)).filter(x=>x);const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;return`<td style="text-align:center;font-weight:600;color:#6366f1" title="Anzahl Nennungen: ${vals.length}">${vals.length?avg.toFixed(1):'–'}</td>`;}).join('');
     content=`<div class="card"><div class="card-body"><p class="section-title">Fortschritt Versetzung</p><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:14px;font-weight:700">Einreichungen</span><span style="font-size:14px;font-weight:700;color:#6366f1">${subs_v.length} / ${total} (${pct}%)</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div></div></div>
@@ -963,7 +965,7 @@ window.exportCSVBes=()=>{
   const subs=state.subsBes,cos=state.setup.companies;if(!subs.length)return;
   const hdrs=['Name','PLZ','Ort','BMS','Schultage','Ferien','Ferientext','Zeit',...cos.map(c=>c.name)];
   const rows=subs.map(s=>[s.name,s.plz,s.ort,s.bms,s.schultage,s.ferien,s.ferienText||'',s.timestamp,...cos.map(c=>(s.selected||[]).includes(c.id)?'x':'')]);
-  const csv=[hdrs.join(';'),...rows.map(r=>r.join(';'))].join('\n');
+  const csv=[hdrs.map(csvCell).join(';'),...rows.map(r=>r.map(csvCell).join(';'))].join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}));a.download=`besuche_${new Date().toISOString().split('T')[0]}.csv`;a.click();
 };
 window.exportCSVVer=()=>{
@@ -974,7 +976,7 @@ window.exportCSVVer=()=>{
     const pr=s.priorities||[];
     return [s.name,s.plz,s.ort,s.bms,s.schultage,engLabel[s.englisch]||'',s.timestamp,...cos.map(c=>{const idx=pr.indexOf(c.id);return idx>=0?idx+1:'';}),s.bemerkungen||''];
   });
-  const csv=[hdrs.join(';'),...rows.map(r=>r.join(';'))].join('\n');
+  const csv=[hdrs.map(csvCell).join(';'),...rows.map(r=>r.map(csvCell).join(';'))].join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}));a.download=`versetzung_${new Date().toISOString().split('T')[0]}.csv`;a.click();
 };
 
