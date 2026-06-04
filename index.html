@@ -136,6 +136,8 @@ textarea.mono{font-family:monospace;font-size:12px}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, doc, getDocs, setDoc, deleteDoc, onSnapshot, getDoc }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const fireApp = initializeApp({
   apiKey:"AIzaSyDfW6L8LP1UW-opMlX1DoqM_Y58qQUOYpQ",
@@ -146,8 +148,14 @@ const fireApp = initializeApp({
   appId:"1:511185053099:web:11561dfcafce8ab8021eee"
 });
 const db = getFirestore(fireApp);
+const auth = getAuth(fireApp);
+setPersistence(auth, browserLocalPersistence).catch(()=>{});
 
 const FB = {
+  // Auth
+  signIn: (email, pw) => signInWithEmailAndPassword(auth, email, pw),
+  signOut: () => signOut(auth),
+  onAuth: (cb) => onAuthStateChanged(auth, cb),
   // Besuche
   subscribeBes: (cb) => onSnapshot(collection(db,'besuche'), snap => cb(snap.docs.map(d=>({_id:d.id,...d.data()})))),
   saveBes: (sub) => { const id=sub.name.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'').toLowerCase()+'_bes'; return setDoc(doc(db,'besuche',id),sub); },
@@ -164,8 +172,6 @@ const FB = {
   loadSetup: async () => { const d=await getDoc(doc(db,'config','setup')); return d.exists()?d.data():null; },
   saveSetup: (cfg) => setDoc(doc(db,'config','setup'),cfg),
 };
-
-const ADMIN_PW_HASH = '1ac6aaaa80a6eddcffc50b4f7579b329ae1966dc3fb417647971cdd17ca9eb57';
 
 const DEFAULT_COMPANIES = [
   {id:1,name:'ANDRITZ Soutec AG',url:'https://www.andritz.com'},
@@ -212,7 +218,8 @@ let state = {
   // Versetzung – selected = Firmen-IDs in Prio-Reihenfolge (selected[0] = Prio 1)
   versetzung: { selected:[], bemerkungen:'' },
   selfieStreaming:false, selfieReady:false, selfieStream:null,
-  showHidden:false, showLoginModal:false, loginPw:'', loginErr:false, loading:true,
+  showHidden:false, showLoginModal:false, loginEmail:'', loginPw:'', loginErr:false, loginBusy:false, loading:true,
+  adminAuthed:false, unsubBes:null, unsubVer:null,
   setupUndo:[], setupRedo:[], setupSaving:false, setupSaved:false,
 };
 
@@ -593,7 +600,7 @@ function renderSuccessVer(){
 
 // ── Login Modal ───────────────────────────────────────────────────────────────
 function renderLoginModal(){
-  return`<div onclick="closeLogin(event)" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px"><div onclick="event.stopPropagation()" style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:300px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h3 style="font-weight:700;font-size:16px">Admin-Login</h3><button onclick="closeLoginModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#9ca3af">✕</button></div><input type="password" id="login-pw" placeholder="Passwort" oninput="setLoginPw(this.value)" onkeydown="if(event.key==='Enter')doLogin()" style="width:100%;padding:8px 12px;border:2px solid ${state.loginErr?'#ef4444':'#e5e7eb'};border-radius:8px;font-size:16px;outline:none;margin-bottom:${state.loginErr?'4px':'12px'}"/>${state.loginErr?'<p style="color:#ef4444;font-size:12px;margin-bottom:8px">Falsches Passwort</p>':''}<button onclick="doLogin()" class="btn btn-primary" style="font-size:14px;padding:10px">Anmelden</button></div></div>`;
+  return`<div onclick="closeLogin(event)" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px"><div onclick="event.stopPropagation()" style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:320px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h3 style="font-weight:700;font-size:16px">Admin-Login</h3><button onclick="closeLoginModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#9ca3af">✕</button></div><input type="email" id="login-email" placeholder="E-Mail" value="${state.loginEmail||''}" oninput="setLoginEmail(this.value)" onkeydown="if(event.key==='Enter')document.getElementById('login-pw').focus()" autocomplete="email" autocapitalize="off" style="width:100%;padding:8px 12px;border:2px solid ${state.loginErr?'#ef4444':'#e5e7eb'};border-radius:8px;font-size:16px;outline:none;margin-bottom:8px"/><input type="password" id="login-pw" placeholder="Passwort" oninput="setLoginPw(this.value)" onkeydown="if(event.key==='Enter')doLogin()" autocomplete="current-password" style="width:100%;padding:8px 12px;border:2px solid ${state.loginErr?'#ef4444':'#e5e7eb'};border-radius:8px;font-size:16px;outline:none;margin-bottom:${state.loginErr?'4px':'12px'}"/>${state.loginErr?'<p style="color:#ef4444;font-size:12px;margin-bottom:8px">E-Mail oder Passwort ungültig</p>':''}<button onclick="doLogin()" ${state.loginBusy?'disabled':''} class="btn btn-primary" style="font-size:14px;padding:10px;${state.loginBusy?'opacity:.6':''}">${state.loginBusy?'Anmelden…':'Anmelden'}</button></div></div>`;
 }
 
 // ── Lightbox ──────────────────────────────────────────────────────────────────
@@ -903,19 +910,33 @@ window.stopCamera = () => { if(state.selfieStream){state.selfieStream.getTracks(
 window.resetSelfie = () => { state.personal.selfie=''; startCamera(); };
 
 // Login
-window.showLogin=()=>{state.showLoginModal=true;state.loginPw='';state.loginErr=false;render();};
+window.showLogin=()=>{
+  if(state.adminAuthed){ state.view='admin'; render(); return; }
+  state.showLoginModal=true; state.loginEmail=''; state.loginPw=''; state.loginErr=false; state.loginBusy=false; render();
+};
 window.closeLoginModal=()=>{state.showLoginModal=false;render();};
 window.closeLogin=(e)=>{if(e.target===e.currentTarget){state.showLoginModal=false;render();}};
+window.setLoginEmail=(v)=>{state.loginEmail=v;};
 window.setLoginPw=(v)=>{state.loginPw=v;};
 window.doLogin=async()=>{
-  const inp=document.getElementById('login-pw');
-  const pw=inp?inp.value:state.loginPw;
-  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(pw));
-  const hash=Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-  if(hash===ADMIN_PW_HASH){state.view='admin';state.showLoginModal=false;render();}
-  else{state.loginErr=true;render();setTimeout(()=>{state.loginErr=false;render();},2000);}
+  const emailEl=document.getElementById('login-email');
+  const pwEl=document.getElementById('login-pw');
+  const email=(emailEl?emailEl.value:state.loginEmail||'').trim();
+  const pw=pwEl?pwEl.value:state.loginPw||'';
+  if(!email||!pw){state.loginErr=true;render();return;}
+  state.loginBusy=true; state.loginErr=false; render();
+  try{
+    await FB.signIn(email,pw);
+    // onAuth-Listener kümmert sich um Subscriptions; hier nur UI
+    state.loginBusy=false; state.showLoginModal=false; state.loginEmail=''; state.loginPw=''; state.view='admin'; render();
+  }catch(e){
+    state.loginBusy=false; state.loginErr=true; render();
+  }
 };
-window.logout=()=>{state.view='form';render();};
+window.logout=async()=>{
+  try{ await FB.signOut(); }catch(_){}
+  // onAuth-Listener setzt view zurück und kappt Subscriptions
+};
 window.setAdminTab=(t)=>{state.adminTab=t;render();};
 
 // Admin Actions
@@ -1033,12 +1054,27 @@ async function init(){
     state.setup=migrated;
     if(Array.isArray(state.setup.companies)) sortCompanies(); // immer alphabetisch
   }
-  // Einmalig: alte Versetzungs-Einträge im Punkte-Schema entfernen (idempotent)
-  FB.cleanupOldVer();
-  // Submissions hören – überschreibt NICHT state.setup
-  FB.subscribeBes(subs=>{state.subsBes=subs;if(state.loading){state.loading=false;}render();});
-  FB.subscribeVer(subs=>{state.subsVer=subs;if(state.loading){state.loading=false;}render();});
-  // Fallback falls keine Collection vorhanden
+  // Auth-Listener: Submissions werden ausschließlich für eingeloggte Admins geladen
+  FB.onAuth(user=>{
+    if(user){
+      state.adminAuthed=true;
+      // Admin-Subscriptions starten (nur jetzt darf gelesen werden)
+      if(!state.unsubBes) state.unsubBes=FB.subscribeBes(subs=>{state.subsBes=subs;render();});
+      if(!state.unsubVer) state.unsubVer=FB.subscribeVer(subs=>{state.subsVer=subs;render();});
+      // Einmaliger Cleanup alter Punkte-Schema-Einträge (jetzt erlaubt)
+      FB.cleanupOldVer();
+    }else{
+      state.adminAuthed=false;
+      // Subscriptions kappen und Daten leeren – kein Restzugriff für nicht-Admins
+      if(state.unsubBes){state.unsubBes();state.unsubBes=null;}
+      if(state.unsubVer){state.unsubVer();state.unsubVer=null;}
+      state.subsBes=[]; state.subsVer=[];
+      if(state.view==='admin') state.view='form';
+    }
+    if(state.loading) state.loading=false;
+    render();
+  });
+  // Falls onAuth nicht zeitnah feuert (z.B. Netzproblem), Ladezustand nach 3 s lösen
   setTimeout(()=>{if(state.loading){state.loading=false;render();}},3000);
 }
 init();
